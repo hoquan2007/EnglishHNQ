@@ -1,18 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { UserProfile, ActiveTab } from './types';
 import { getUserProfile, saveUserProfile } from './services/storage';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { SettingsModal } from './components/modals/SettingsModal';
 import { DashboardView } from './components/dashboard/DashboardView';
+import { PlacementTestView } from './components/placement/PlacementTestView';
+import { VocabularyView } from './components/vocabulary/VocabularyView';
+import { GrammarView } from './components/grammar/GrammarView';
+import { RankNotificationToast } from './components/gamification/RankNotificationToast';
 import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
-import { Award, BookOpen, Bot, Youtube, GraduationCap, Settings as SettingsIcon } from 'lucide-react';
+import { Bot, Youtube, GraduationCap, Settings as SettingsIcon } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [user, setUser] = useState<UserProfile>(getUserProfile());
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<{ message: string; subText?: string; type?: 'xp' | 'rank' } | null>(null);
+
+  const handleUpdateUser = (updatedUser: UserProfile) => {
+    const prevRank = user.rank;
+    const prevXp = user.xp;
+    setUser(updatedUser);
+    saveUserProfile(updatedUser);
+
+    if (updatedUser.rank !== prevRank) {
+      setToastMessage({
+        message: `THĂNG RANK MỚI: ${updatedUser.rank.toUpperCase()}! 🏆`,
+        subText: 'Chúc mừng bạn đã chinh phục nấc thang học tập mới!',
+        type: 'rank'
+      });
+    } else if (updatedUser.xp > prevXp) {
+      const gained = updatedUser.xp - prevXp;
+      setToastMessage({
+        message: `+${gained} XP Nhận Được! ⚡`,
+        subText: `Tổng tích lũy: ${updatedUser.xp} XP`,
+        type: 'xp'
+      });
+    }
+  };
 
   const handleSaveApiKey = (key: string) => {
     const updated = { ...user, geminiApiKey: key };
@@ -27,44 +54,27 @@ export const App: React.FC = () => {
 
       case 'placement':
         return (
-          <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
-            <Award size={50} color="var(--accent-cyan)" style={{ marginBottom: '1rem' }} />
-            <h2>Phân Hệ: Bài Test Phân Trình Độ (Placement Test)</h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
-              Kiểm tra toàn diện A1-C2 (Trắc nghiệm, Điền từ, Nghe) để xếp hạng Rank khởi đầu (Phase 2).
-            </p>
-            <Button variant="gradient" onClick={() => setActiveTab('dashboard')}>
-              Quay lại Trang Chủ
-            </Button>
-          </div>
+          <PlacementTestView
+            user={user}
+            onUpdateUser={handleUpdateUser}
+            onNavigate={setActiveTab}
+          />
         );
 
       case 'vocabulary':
         return (
-          <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
-            <BookOpen size={50} color="var(--accent-purple)" style={{ marginBottom: '1rem' }} />
-            <h2>Phân Hệ: Từ Vựng CEFR & Flashcards 3D</h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
-              Kho 3000+ từ vựng Oxford phân cấp A1-C2, audio IPA chuẩn, thẻ lật 3D (Phase 2).
-            </p>
-            <Button variant="secondary" onClick={() => setActiveTab('dashboard')}>
-              Quay lại Trang Chủ
-            </Button>
-          </div>
+          <VocabularyView
+            user={user}
+            onUpdateUser={handleUpdateUser}
+          />
         );
 
       case 'grammar':
         return (
-          <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
-            <BookOpen size={50} color="var(--accent-pink)" style={{ marginBottom: '1rem' }} />
-            <h2>Phân Hệ: Ngữ Pháp Tương Tác AI</h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
-              Hệ thống bài giảng ngữ pháp sinh động & bài tập AI điền từ (Phase 2).
-            </p>
-            <Button variant="secondary" onClick={() => setActiveTab('dashboard')}>
-              Quay lại Trang Chủ
-            </Button>
-          </div>
+          <GrammarView
+            user={user}
+            onUpdateUser={handleUpdateUser}
+          />
         );
 
       case 'chatbot':
@@ -161,6 +171,16 @@ export const App: React.FC = () => {
         onClose={() => setIsSettingsOpen(false)}
         onSaveApiKey={handleSaveApiKey}
       />
+
+      {/* Rank / XP Notification Toast */}
+      {toastMessage && (
+        <RankNotificationToast
+          message={toastMessage.message}
+          subText={toastMessage.subText}
+          type={toastMessage.type}
+          onClose={() => setToastMessage(null)}
+        />
+      )}
     </div>
   );
 };

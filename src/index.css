@@ -14,6 +14,7 @@
   --accent-pink: #ff007f;
   --accent-green: #00ff88;
   --accent-orange: #ff9900;
+  --accent-gold: #ffd700;
 
   /* Rank Colors */
   --rank-bronze: #cd7f32;
@@ -147,6 +148,17 @@ h1, h2, h3, h4, h5, h6 {
 
 .pulse-glow {
   animation: pulseGlow 3s infinite ease-in-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Badges */
