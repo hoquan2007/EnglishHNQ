@@ -10,6 +10,8 @@ import { VocabularyView } from './components/vocabulary/VocabularyView';
 import { GrammarView } from './components/grammar/GrammarView';
 import { ChatbotView } from './components/chatbot/ChatbotView';
 import { ShadowingView } from './components/shadowing/ShadowingView';
+import { CentralTutorView } from './components/tutor/CentralTutorView';
+import { FloatingTutorWidget } from './components/tutor/FloatingTutorWidget';
 import { RankNotificationToast } from './components/gamification/RankNotificationToast';
 import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
@@ -98,16 +100,11 @@ export const App: React.FC = () => {
 
       case 'tutor':
         return (
-          <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
-            <GraduationCap size={50} color="var(--accent-green)" style={{ marginBottom: '1rem' }} />
-            <h2>Phân Hệ: AI Gia Sư Tổng Quan (Learning Analytics)</h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
-              Gia sư AI theo dõi điểm yếu, phân tích lỗi sai & gợi ý lộ trình cá nhân hóa (Phase 5).
-            </p>
-            <Button variant="secondary" onClick={() => setActiveTab('dashboard')}>
-              Quay lại Trang Chủ
-            </Button>
-          </div>
+          <CentralTutorView
+            user={user}
+            onUpdateUser={handleUpdateUser}
+            onNavigate={setActiveTab}
+          />
         );
 
       case 'settings':
@@ -172,6 +169,9 @@ export const App: React.FC = () => {
           onClose={() => setToastMessage(null)}
         />
       )}
+
+      {/* Floating AI Tutor Widget */}
+      <FloatingTutorWidget user={user} />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { UserProfile, GrammarLesson } from '../../types';
 import { initialGrammarLessons, grammarCategories } from '../../data/grammarData';
 import { addXpToUser, saveUserProfile } from '../../services/storage';
+import { trackWeakTopic } from '../../services/trackingService';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { BookOpen, CheckCircle, Volume2, ArrowLeft, ArrowRight, HelpCircle, Sparkles } from 'lucide-react';
@@ -48,6 +49,8 @@ export const GrammarView: React.FC<GrammarViewProps> = ({ user, onUpdateUser }) 
     const currentQuiz = activeLesson.quizzes[currentQuizIndex];
     if (selectedOption === currentQuiz.correctAnswer) {
       setQuizScore((prev) => prev + 1);
+    } else {
+      trackWeakTopic(activeLesson.title);
     }
     setShowExplanation(true);
   };

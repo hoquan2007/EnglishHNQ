@@ -109,3 +109,47 @@ export interface PlacementQuestion {
 }
 
 export type ActiveTab = 'dashboard' | 'vocabulary' | 'grammar' | 'chatbot' | 'shadowing' | 'placement' | 'tutor' | 'settings';
+
+export interface ChatFixRecord {
+  id: string;
+  original: string;
+  corrected: string;
+  explanation: string;
+  date: string;
+}
+
+export interface ShadowingRecord {
+  id: string;
+  lessonTitle: string;
+  score: number;
+  date: string;
+}
+
+export interface RecommendedTask {
+  id: string;
+  title: string;
+  description: string;
+  category: 'vocabulary' | 'grammar' | 'shadowing' | 'chatbot';
+  targetTab: ActiveTab;
+  xpReward: number;
+  completed?: boolean;
+}
+
+export interface RemediationQuestion {
+  id: string;
+  type: 'word' | 'grammar';
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+  targetItem: string;
+}
+
+export interface LearningAnalytics {
+  weakWords: { term: string; count: number }[];
+  weakTopics: { topic: string; count: number }[];
+  shadowingHistory: ShadowingRecord[];
+  chatFixHistory: ChatFixRecord[];
+  overallAccuracy: number;
+  recommendedDailyXp: number;
+}

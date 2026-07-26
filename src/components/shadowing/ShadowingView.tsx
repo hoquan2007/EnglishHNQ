@@ -5,6 +5,7 @@ import { YouTubePlayer } from './YouTubePlayer';
 import { TranscriptView } from './TranscriptView';
 import { ShadowingPracticeCard } from './ShadowingPracticeCard';
 import { extractYouTubeId, fetchOrGenerateTranscript } from '../../services/youtubeTranscriptService';
+import { trackShadowingScore } from '../../services/trackingService';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -89,6 +90,9 @@ export const ShadowingView: React.FC<ShadowingViewProps> = ({ user, onUpdateUser
 
   const handleAwardXp = (score: number) => {
     const xpBonus = 20;
+    if (selectedLesson) {
+      trackShadowingScore(selectedLesson.title, score);
+    }
     const updatedUser = {
       ...user,
       xp: user.xp + xpBonus,

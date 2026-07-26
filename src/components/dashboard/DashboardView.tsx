@@ -144,6 +144,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, onNavigate }
         <h2 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>Các Phân Hệ Rèn Luyện</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
           
+          <Card onClick={() => onNavigate('tutor')}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+              <div style={{ padding: '0.8rem', borderRadius: '14px', background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-purple))', color: '#fff' }}>
+                <GraduationCap size={28} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <h3 style={{ fontSize: '1.1rem' }}>AI Gia Sư Tổng Quản (Dr. HNQ)</h3>
+                  <ArrowRight size={18} color="var(--accent-cyan)" />
+                </div>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.4rem', lineHeight: 1.5 }}>
+                  Báo cáo học tập cá nhân hóa, đề xuất lộ trình hàng ngày, phòng sửa điểm yếu &amp; tư vấn 1:1 cùng Dr. HNQ.
+                </p>
+              </div>
+            </div>
+          </Card>
+
           <Card onClick={() => onNavigate('chatbot')}>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
               <div style={{ padding: '0.8rem', borderRadius: '14px', background: 'linear-gradient(135deg, var(--accent-purple), var(--accent-pink))', color: '#fff' }}>

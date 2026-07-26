@@ -3,6 +3,7 @@ import { UserProfile, ChatMessage } from '../../types';
 import { PersonaType, sendMessageToGemini } from '../../services/geminiService';
 import { isSTTSupported, startListening, stopListening, speakText, stopSpeaking } from '../../services/speechService';
 import { addXpToUser } from '../../services/storage';
+import { recordChatGrammarFix } from '../../services/trackingService';
 import { PersonaCard } from './PersonaCard';
 import { TopicPills } from './TopicPills';
 import { ChatBubble } from './ChatBubble';
@@ -100,6 +101,14 @@ export const ChatbotView: React.FC<ChatbotViewProps> = ({
       messageText,
       updatedUserHistory
     );
+
+    if (aiResponse.grammarFix) {
+      recordChatGrammarFix(
+        aiResponse.grammarFix.original,
+        aiResponse.grammarFix.corrected,
+        aiResponse.grammarFix.explanation
+      );
+    }
 
     const aiMsgId = `${persona}_${Date.now()}`;
     const aiMsg: ChatMessage = {
