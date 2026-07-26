@@ -37,6 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab }) => {
 
   return (
     <aside
+      className="sidebar"
       style={{
         width: '260px',
         backgroundColor: 'rgba(18, 24, 36, 0.6)',
@@ -50,7 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab }) => {
         top: 0
       }}
     >
-      <div style={{ padding: '0 0.5rem 1.25rem 0.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', marginBottom: '1.25rem' }}>
+      <div className="sidebar-header" style={{ padding: '0 0.5rem 1.25rem 0.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', marginBottom: '1.25rem' }}>
         <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)', fontWeight: 700 }}>
           MENU DÂN HỌC
         </span>
@@ -117,7 +118,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab }) => {
       </nav>
 
       {/* Footer Info */}
-      <div style={{ paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+      <div className="sidebar-footer" style={{ paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
         <p>English HNQ v1.0</p>
         <p style={{ marginTop: '0.2rem', color: 'var(--accent-cyan)' }}>Powered by Gemini 1.5</p>
       </div>
