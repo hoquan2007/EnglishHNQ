@@ -9,6 +9,7 @@ import { PlacementTestView } from './components/placement/PlacementTestView';
 import { VocabularyView } from './components/vocabulary/VocabularyView';
 import { GrammarView } from './components/grammar/GrammarView';
 import { ChatbotView } from './components/chatbot/ChatbotView';
+import { ShadowingView } from './components/shadowing/ShadowingView';
 import { RankNotificationToast } from './components/gamification/RankNotificationToast';
 import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
@@ -89,16 +90,10 @@ export const App: React.FC = () => {
 
       case 'shadowing':
         return (
-          <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
-            <Youtube size={50} color="var(--accent-orange)" style={{ marginBottom: '1rem' }} />
-            <h2>Phân Hệ: YouTube Shadowing English</h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
-              Dán URL YouTube &rarr; Tách phụ đề &rarr; Thu âm nhại giọng &amp; Chấm điểm phát âm % (Phase 4).
-            </p>
-            <Button variant="secondary" onClick={() => setActiveTab('dashboard')}>
-              Quay lại Trang Chủ
-            </Button>
-          </div>
+          <ShadowingView
+            user={user}
+            onUpdateUser={handleUpdateUser}
+          />
         );
 
       case 'tutor':
