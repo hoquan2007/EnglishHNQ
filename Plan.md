@@ -31,6 +31,8 @@
    - Tách biệt rõ ràng: UI Layer, Service Layer (Gemini API, Web Speech API, Youtube Parser), State Management, Local Storage / Database Layer.
 4. **Nguyên tắc Cập nhật `Plan.md`:**
    - Mỗi khi hoàn thành 1 Task / Phase hoặc thay đổi kiến trúc, Agent bắt buộc phải cập nhật mục **6. NHẬT KÝ TIẾN ĐỘ (CHANGELOG)** trong file này.
+5. **Nguyên tắc Kiểm thử & Git Commit/Push Tự động (Auto Test & Git Push):**
+   - Sau khi code xong và kiểm thử (`npm run build`) thành công bất kỳ task hay tính năng nào, Agent bắt buộc phải tạo Git commit với thông điệp rõ ràng và chạy `git push` trực tiếp lên GitHub repository (`hoquan2007/EnglishHNQ`) để tự động kích hoạt Vercel Deployment.
 
 ---
 
@@ -126,6 +128,7 @@
 | :--- | :--- | :--- |
 | **2026-07-27** | Khởi tạo file `Plan.md`. Hoàn thành phân tích kiến trúc, tài nguyên, giải đáp thắc mắc Gemini API và lập lộ trình chi tiết. | **ĐÃ HOÀN THÀNH KẾ HOẠCH** |
 | **2026-07-27** | **HOÀN THÀNH PHASE 1:** Khởi tạo project React + TypeScript + Vite, xây dựng Design System (Dark Glassmorphism, Ranks: Đồng -> Cao Thủ), Data Models (User, Word, Grammar, Chat, Shadowing), Header, Sidebar Navigation, Dashboard & Settings Modal với Gemini API Config. Build thành công 100%. | **HOÀN THÀNH PHASE 1** |
+| **2026-07-27** | Khởi tạo & Push thành công repository `hoquan2007/EnglishHNQ` lên GitHub. Bổ sung **Rule 5** (Bắt buộc chạy test `npm run build` + `git commit` + `git push` tự động sau mỗi task để Vercel auto-deploy). | **SYNC GITHUB & RULE UPDATED** |
 
 ---
 *File này sẽ liên tục được cập nhật sau mỗi bước hoàn thành.*
