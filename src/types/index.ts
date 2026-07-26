@@ -1,0 +1,111 @@
+export type RankLevel = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master';
+
+export type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+
+export interface RankInfo {
+  level: RankLevel;
+  name: string;
+  minXp: number;
+  maxXp: number;
+  iconName: string;
+  badgeBg: string;
+  borderColor: string;
+  textColor: string;
+  glowColor: string;
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  avatar: string;
+  rank: RankLevel;
+  xp: number;
+  streak: number;
+  lastActiveDate: string;
+  wordsLearned: number;
+  grammarCompleted: number;
+  shadowingCompleted: number;
+  placementTestDone: boolean;
+  weakTopics: string[];
+  weakWords: string[];
+  geminiApiKey?: string;
+}
+
+export interface WordItem {
+  id: string;
+  term: string;
+  phonetic: string;
+  audio?: string;
+  definition: string;
+  vietnameseMeaning: string;
+  exampleSentence: string;
+  exampleTranslation: string;
+  level: CEFRLevel;
+  topic: string;
+  mastered?: boolean;
+}
+
+export interface GrammarQuiz {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number; // 0-based index
+  explanation: string;
+}
+
+export interface GrammarLesson {
+  id: string;
+  title: string;
+  level: CEFRLevel;
+  category: string;
+  summary: string;
+  explanationMarkdown: string;
+  examples: { english: string; vietnamese: string }[];
+  quizzes: GrammarQuiz[];
+  completed?: boolean;
+}
+
+export interface TranscriptLine {
+  id: string;
+  startTime: number; // in seconds
+  endTime: number;   // in seconds
+  text: string;
+  translation?: string;
+}
+
+export interface ShadowingLesson {
+  id: string;
+  title: string;
+  youtubeId: string;
+  thumbnailUrl: string;
+  duration: string;
+  level: CEFRLevel;
+  category: string;
+  transcript: TranscriptLine[];
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'adam' | 'eva' | 'tutor';
+  text: string;
+  timestamp: string;
+  audioUrl?: string;
+  grammarFix?: {
+    original: string;
+    corrected: string;
+    explanation: string;
+  };
+}
+
+export interface PlacementQuestion {
+  id: string;
+  type: 'multiple-choice' | 'fill-blank' | 'listening';
+  level: CEFRLevel;
+  question: string;
+  audioText?: string;
+  options?: string[];
+  correctAnswer: string;
+  explanation: string;
+}
+
+export type ActiveTab = 'dashboard' | 'vocabulary' | 'grammar' | 'chatbot' | 'shadowing' | 'placement' | 'tutor' | 'settings';
