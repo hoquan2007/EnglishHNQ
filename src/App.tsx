@@ -8,6 +8,7 @@ import { DashboardView } from './components/dashboard/DashboardView';
 import { PlacementTestView } from './components/placement/PlacementTestView';
 import { VocabularyView } from './components/vocabulary/VocabularyView';
 import { GrammarView } from './components/grammar/GrammarView';
+import { ChatbotView } from './components/chatbot/ChatbotView';
 import { RankNotificationToast } from './components/gamification/RankNotificationToast';
 import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
@@ -79,16 +80,11 @@ export const App: React.FC = () => {
 
       case 'chatbot':
         return (
-          <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
-            <Bot size={50} color="var(--accent-cyan)" style={{ marginBottom: '1rem' }} />
-            <h2>Phân Hệ: Chatbot AI 1:1 (Adam & Eva)</h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
-              Luyện giao tiếp tiếng Anh bằng Giọng nói (Web Speech STT/TTS) với Gemini 1.5 (Phase 3).
-            </p>
-            <Button variant="primary" onClick={() => setIsSettingsOpen(true)}>
-              Cấu hình Gemini API Key trước
-            </Button>
-          </div>
+          <ChatbotView
+            user={user}
+            onUpdateUser={handleUpdateUser}
+            onOpenSettings={() => setIsSettingsOpen(true)}
+          />
         );
 
       case 'shadowing':
