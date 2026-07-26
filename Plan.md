@@ -129,6 +129,7 @@
 | **2026-07-27** | Khởi tạo file `Plan.md`. Hoàn thành phân tích kiến trúc, tài nguyên, giải đáp thắc mắc Gemini API và lập lộ trình chi tiết. | **ĐÃ HOÀN THÀNH KẾ HOẠCH** |
 | **2026-07-27** | **HOÀN THÀNH PHASE 1:** Khởi tạo project React + TypeScript + Vite, xây dựng Design System (Dark Glassmorphism, Ranks: Đồng -> Cao Thủ), Data Models (User, Word, Grammar, Chat, Shadowing), Header, Sidebar Navigation, Dashboard & Settings Modal với Gemini API Config. Build thành công 100%. | **HOÀN THÀNH PHASE 1** |
 | **2026-07-27** | Khởi tạo & Push thành công repository `hoquan2007/EnglishHNQ` lên GitHub. Bổ sung **Rule 5** (Bắt buộc chạy test `npm run build` + `git commit` + `git push` tự động sau mỗi task để Vercel auto-deploy). | **SYNC GITHUB & RULE UPDATED** |
+| **2026-07-27** | **HOÀN THÀNH PHASE 2:** Xây dựng Phân hệ Placement Test (A1-C2, xếp rank & nhận XP bonus), Phân hệ Từ Vựng (Flashcards lật 3D, Web Speech Audio, Bộ lọc CEFR/Topic, Mini-Game Nối từ), Phân hệ Ngữ Pháp (Lý thuyết minh họa, ví dụ song ngữ audio, bài tập trắc nghiệm giải thích chi tiết), Hệ thống Toast thông báo thăng Rank & cộng XP. Build clean 100% & đã push GitHub main. | **HOÀN THÀNH PHASE 2** |
 
 ---
 *File này sẽ liên tục được cập nhật sau mỗi bước hoàn thành.*
