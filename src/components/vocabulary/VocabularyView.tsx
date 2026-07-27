@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile, CEFRLevel, WordItem, DatamuseSuggestion } from '../../types';
-import { initialVocabulary, vocabularyTopics } from '../../data/vocabularyData';
+import { fullVocabularyDatabase, vocabularyTopics } from '../../data/vocabularyData';
 import { addXpToUser, saveUserProfile } from '../../services/storage';
 import { fetchDatamuseSuggestions } from '../../services/dictionaryService';
 import { WordLookupModal } from '../ui/WordLookupModal';
@@ -15,7 +15,7 @@ interface VocabularyViewProps {
 }
 
 export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUser }) => {
-  const [words, setWords] = useState<WordItem[]>(initialVocabulary);
+  const [words, setWords] = useState<WordItem[]>(fullVocabularyDatabase);
   const [selectedLevel, setSelectedLevel] = useState<string>('All');
   const [selectedTopic, setSelectedTopic] = useState<string>('All');
   const [activeTab, setActiveTab] = useState<'flashcards' | 'matching' | 'unscramble' | 'speedquiz'>('flashcards');
@@ -409,7 +409,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                   cursor: 'pointer'
                 }}
               >
-                {vocabularyTopics.map((topic) => (
+                {vocabularyTopics.map((topic: string) => (
                   <option key={topic} value={topic} style={{ background: '#121824' }}>
                     {topic}
                   </option>

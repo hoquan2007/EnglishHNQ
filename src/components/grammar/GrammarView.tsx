@@ -285,7 +285,7 @@ export const GrammarView: React.FC<GrammarViewProps> = ({ user, onUpdateUser }) 
         <div>
           {/* Category Filter */}
           <div className="glass-panel" style={{ padding: '1rem 1.25rem', marginBottom: '2rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            {grammarCategories.map((cat) => (
+            {grammarCategories.map((cat: string) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}

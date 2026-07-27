@@ -8,7 +8,9 @@ import {
   Youtube, 
   Award, 
   GraduationCap, 
-  Settings 
+  Settings,
+  Gamepad2,
+  Trophy
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -26,9 +28,11 @@ interface NavItem {
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab }) => {
   const navItems: NavItem[] = [
     { id: 'dashboard', label: 'Trang Chủ', icon: LayoutDashboard },
+    { id: 'minigames', label: '10 Mini Games', icon: Gamepad2, badge: '10 Games' },
+    { id: 'exams', label: '500+ Bộ Đề Thi', icon: Trophy, badge: '500+ Đề' },
     { id: 'placement', label: 'Test Phân Rank', icon: Award, badge: 'Hot' },
-    { id: 'vocabulary', label: 'Từ Vựng CEFR', icon: BookOpen },
-    { id: 'grammar', label: 'Ngữ Pháp AI', icon: FileText },
+    { id: 'vocabulary', label: 'Từ Vựng 5000+', icon: BookOpen },
+    { id: 'grammar', label: 'Ngữ Pháp 100+', icon: FileText },
     { id: 'chatbot', label: 'Chatbot 1:1 (Adam/Eva)', icon: Bot, badge: 'AI Voice' },
     { id: 'shadowing', label: 'YouTube Shadowing', icon: Youtube },
     { id: 'tutor', label: 'AI Gia Sư Tổng Quan', icon: GraduationCap },

@@ -114,7 +114,105 @@ export interface PlacementQuestion {
   explanation: string;
 }
 
-export type ActiveTab = 'dashboard' | 'vocabulary' | 'grammar' | 'chatbot' | 'shadowing' | 'placement' | 'tutor' | 'settings';
+export type ActiveTab = 'dashboard' | 'vocabulary' | 'grammar' | 'chatbot' | 'shadowing' | 'placement' | 'tutor' | 'settings' | 'minigames' | 'exams';
+
+// -------------------------------------------------------------
+// New Types for 10 Mini-Games Arcade
+// -------------------------------------------------------------
+
+export type MiniGameType =
+  | 'match'
+  | 'unscramble'
+  | 'speed'
+  | 'listening'
+  | 'builder'
+  | 'boss'
+  | 'crossword'
+  | 'runner'
+  | 'ninja'
+  | 'memory';
+
+export interface MiniGameInfo {
+  id: MiniGameType;
+  title: string;
+  subtitle: string;
+  iconName: string;
+  badge: string;
+  color: string;
+  description: string;
+}
+
+export interface GameScoreRecord {
+  gameId: MiniGameType;
+  highScore: number;
+  lastPlayed: string;
+  timesPlayed: number;
+}
+
+export interface CrosswordCell {
+  row: number;
+  col: number;
+  letter: string;
+  number?: number;
+  userLetter?: string;
+  isBlocked?: boolean;
+}
+
+// -------------------------------------------------------------
+// New Types for 500+ Practice Tests Bank
+// -------------------------------------------------------------
+
+export type ExamSkillType = 'vocabulary' | 'grammar' | 'reading' | 'listening';
+
+export interface ExamQuestion {
+  id: string;
+  skill: ExamSkillType;
+  type: 'multiple-choice' | 'fill-blank' | 'reading-comprehension' | 'listening-audio';
+  level: CEFRLevel;
+  question: string;
+  readingPassage?: {
+    title: string;
+    content: string;
+  };
+  audioText?: string;
+  options: string[];
+  correctAnswer: number; // 0-based index
+  explanation: string; // Detailed Vietnamese explanation
+}
+
+export interface ExamTest {
+  id: string;
+  testNumber: number; // 1 to 500+
+  title: string;
+  level: CEFRLevel;
+  durationMinutes: number;
+  totalQuestions: number; // 30 questions
+  skillCounts: {
+    vocabulary: number; // 7
+    grammar: number;    // 7
+    reading: number;    // 8
+    listening: number;  // 8
+  };
+  questions: ExamQuestion[];
+}
+
+export interface ExamResult {
+  testId: string;
+  testNumber: number;
+  title: string;
+  level: CEFRLevel;
+  score: number; // out of 30
+  percentage: number;
+  completedAt: string;
+  timeSpentSeconds: number;
+  skillScores: {
+    vocabulary: number;
+    grammar: number;
+    reading: number;
+    listening: number;
+  };
+  userAnswers: Record<string, number>; // questionId -> chosen answer index
+}
 
 export interface ChatFixRecord {
   id: string;

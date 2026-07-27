@@ -11,6 +11,8 @@ import { GrammarView } from './components/grammar/GrammarView';
 import { ChatbotView } from './components/chatbot/ChatbotView';
 import { ShadowingView } from './components/shadowing/ShadowingView';
 import { CentralTutorView } from './components/tutor/CentralTutorView';
+import { MiniGamesHub } from './components/minigames/MiniGamesHub';
+import { ExamCenterView } from './components/exam/ExamCenterView';
 import { FloatingTutorWidget } from './components/tutor/FloatingTutorWidget';
 import { RankNotificationToast } from './components/gamification/RankNotificationToast';
 import { Card } from './components/ui/Card';
@@ -54,6 +56,22 @@ export const App: React.FC = () => {
     switch (activeTab) {
       case 'dashboard':
         return <DashboardView user={user} onNavigate={setActiveTab} />;
+
+      case 'minigames':
+        return (
+          <MiniGamesHub
+            user={user}
+            onUpdateUser={handleUpdateUser}
+          />
+        );
+
+      case 'exams':
+        return (
+          <ExamCenterView
+            user={user}
+            onUpdateUser={handleUpdateUser}
+          />
+        );
 
       case 'placement':
         return (
