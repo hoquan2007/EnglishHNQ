@@ -7,7 +7,7 @@ import { WordLookupModal } from '../ui/WordLookupModal';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { BookOpen, Volume2, RotateCw, CheckCircle, ChevronLeft, ChevronRight, Shuffle, Gamepad2, Award, Sparkles, Search, ExternalLink } from 'lucide-react';
+import { BookOpen, Volume2, RotateCw, CheckCircle, ChevronLeft, ChevronRight, Shuffle, Gamepad2, Award, Sparkles, Search, ExternalLink, Timer, Zap, HelpCircle, AlertCircle } from 'lucide-react';
 
 interface VocabularyViewProps {
   user: UserProfile;
@@ -18,7 +18,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
   const [words, setWords] = useState<WordItem[]>(initialVocabulary);
   const [selectedLevel, setSelectedLevel] = useState<string>('All');
   const [selectedTopic, setSelectedTopic] = useState<string>('All');
-  const [activeTab, setActiveTab] = useState<'flashcards' | 'matching' | 'quiz'>('flashcards');
+  const [activeTab, setActiveTab] = useState<'flashcards' | 'matching' | 'unscramble' | 'speedquiz'>('flashcards');
 
   // Search & Autocomplete State
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -29,11 +29,26 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
 
-  // Matching game state
+  // GAME 1: Matching game state
   const [matchingCards, setMatchingCards] = useState<{ id: string; text: string; type: 'en' | 'vi'; wordId: string }[]>([]);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [matchedIds, setMatchedIds] = useState<string[]>([]);
   const [matchingScore, setMatchingScore] = useState<number>(0);
+
+  // GAME 2: Word Unscramble state
+  const [unscrambleTarget, setUnscrambleTarget] = useState<WordItem | null>(null);
+  const [scrambledLetters, setScrambledLetters] = useState<string[]>([]);
+  const [userUnscrambleInput, setUserUnscrambleInput] = useState<string>('');
+  const [unscrambleResult, setUnscrambleResult] = useState<'correct' | 'wrong' | null>(null);
+  const [unscrambleScore, setUnscrambleScore] = useState<number>(0);
+
+  // GAME 3: Speed Quiz 10s state
+  const [speedQuizTarget, setSpeedQuizTarget] = useState<WordItem | null>(null);
+  const [speedQuizOptions, setSpeedQuizOptions] = useState<string[]>([]);
+  const [speedTimer, setSpeedTimer] = useState<number>(10);
+  const [speedScore, setSpeedScore] = useState<number>(0);
+  const [speedCombo, setSpeedCombo] = useState<number>(0);
+  const [speedQuizFeedback, setSpeedQuizFeedback] = useState<'correct' | 'wrong' | 'timeout' | null>(null);
 
   // Datamuse Autocomplete Effect
   useEffect(() => {
@@ -48,6 +63,23 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Speed Quiz Timer Effect
+  useEffect(() => {
+    if (activeTab !== 'speedquiz' || !speedQuizTarget || speedQuizFeedback !== null) return;
+
+    if (speedTimer <= 0) {
+      setSpeedQuizFeedback('timeout');
+      setSpeedCombo(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setSpeedTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [activeTab, speedQuizTarget, speedTimer, speedQuizFeedback]);
 
   // Filtered words
   const filteredWords = words.filter((w) => {
@@ -112,7 +144,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
     }
   };
 
-  // Setup Matching Game
+  // ================= GAME 1: Matching Game Setup =================
   const startMatchingGame = () => {
     const subset = [...words].sort(() => 0.5 - Math.random()).slice(0, 4);
     const cards: { id: string; text: string; type: 'en' | 'vi'; wordId: string }[] = [];
@@ -142,22 +174,80 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
       return;
     }
 
-    // Comparing two cards
     const firstCard = matchingCards.find((c) => c.id === selectedCardId);
     if (firstCard && firstCard.wordId === card.wordId && firstCard.type !== card.type) {
-      // Match found!
       const newMatched = [...matchedIds, firstCard.id, card.id];
       setMatchedIds(newMatched);
       setSelectedCardId(null);
       setMatchingScore((prev) => prev + 1);
 
       if (newMatched.length === matchingCards.length) {
-        // Complete matching round
         onUpdateUser(addXpToUser(30));
       }
     } else {
-      // Mismatch
       setSelectedCardId(card.id);
+    }
+  };
+
+  // ================= GAME 2: Word Unscramble Setup =================
+  const startUnscrambleGame = () => {
+    const randomWord = words[Math.floor(Math.random() * words.length)];
+    setUnscrambleTarget(randomWord);
+
+    // Scramble letters
+    const letters = randomWord.term.toLowerCase().split('');
+    const shuffled = [...letters].sort(() => 0.5 - Math.random());
+    setScrambledLetters(shuffled);
+    setUserUnscrambleInput('');
+    setUnscrambleResult(null);
+    setActiveTab('unscramble');
+  };
+
+  const handleUnscrambleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!unscrambleTarget || !userUnscrambleInput.trim()) return;
+
+    if (userUnscrambleInput.trim().toLowerCase() === unscrambleTarget.term.toLowerCase()) {
+      setUnscrambleResult('correct');
+      setUnscrambleScore((prev) => prev + 1);
+      onUpdateUser(addXpToUser(20));
+    } else {
+      setUnscrambleResult('wrong');
+    }
+  };
+
+  // ================= GAME 3: Speed Quiz 10s Setup =================
+  const startSpeedQuizRound = () => {
+    const randomTarget = words[Math.floor(Math.random() * words.length)];
+    setSpeedQuizTarget(randomTarget);
+
+    // Create 4 option choices (1 correct + 3 distractor meanings)
+    const distractors = words
+      .filter((w) => w.id !== randomTarget.id)
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 3)
+      .map((w) => w.vietnameseMeaning);
+
+    const options = [randomTarget.vietnameseMeaning, ...distractors].sort(() => 0.5 - Math.random());
+    setSpeedQuizOptions(options);
+
+    setSpeedTimer(10);
+    setSpeedQuizFeedback(null);
+    setActiveTab('speedquiz');
+  };
+
+  const handleSelectSpeedOption = (selectedMeaning: string) => {
+    if (speedQuizFeedback !== null || !speedQuizTarget) return;
+
+    if (selectedMeaning === speedQuizTarget.vietnameseMeaning) {
+      setSpeedQuizFeedback('correct');
+      setSpeedScore((prev) => prev + 1);
+      setSpeedCombo((prev) => prev + 1);
+      const bonusXp = speedCombo >= 3 ? 25 : 15;
+      onUpdateUser(addXpToUser(bonusXp));
+    } else {
+      setSpeedQuizFeedback('wrong');
+      setSpeedCombo(0);
     }
   };
 
@@ -177,125 +267,158 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
         <div>
           <h1 style={{ fontSize: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <BookOpen color="var(--accent-purple)" size={32} />
-            Học Từ Vựng Tiếng Anh CEFR
+            Học Từ Vựng Tiếng Anh CEFR &amp; Mini-Games
           </h1>
           <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-            Khám phá từ vựng chuẩn Oxford & Wiktionary, Autocomplete thông minh &amp; Thẻ lật 3D.
+            Khám phá từ vựng Oxford/Wiktionary, Thẻ lật 3D &amp; 3 Trò chơi luyện tập phản xạ đa dạng.
           </p>
         </div>
 
         {/* Tab Buttons */}
-        <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.35rem', borderRadius: 'var(--radius-md)' }}>
+        <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(255,255,255,0.05)', padding: '0.35rem', borderRadius: 'var(--radius-md)', flexWrap: 'wrap' }}>
           <button
             onClick={() => setActiveTab('flashcards')}
             style={{
-              padding: '0.6rem 1.2rem',
+              padding: '0.55rem 1rem',
               borderRadius: 'var(--radius-sm)',
               background: activeTab === 'flashcards' ? 'var(--accent-purple)' : 'transparent',
               color: activeTab === 'flashcards' ? '#fff' : 'var(--text-secondary)',
-              fontWeight: 600
+              fontWeight: 600,
+              fontSize: '0.85rem',
             }}
           >
             🎴 Thẻ Lật 3D
           </button>
+
           <button
             onClick={startMatchingGame}
             style={{
-              padding: '0.6rem 1.2rem',
+              padding: '0.55rem 1rem',
               borderRadius: 'var(--radius-sm)',
               background: activeTab === 'matching' ? 'var(--accent-cyan)' : 'transparent',
               color: activeTab === 'matching' ? '#000' : 'var(--text-secondary)',
-              fontWeight: 600
+              fontWeight: 600,
+              fontSize: '0.85rem',
             }}
           >
-            🎮 Game Nối Từ
+            🎮 Nối Từ (Match)
+          </button>
+
+          <button
+            onClick={startUnscrambleGame}
+            style={{
+              padding: '0.55rem 1rem',
+              borderRadius: 'var(--radius-sm)',
+              background: activeTab === 'unscramble' ? 'var(--accent-pink)' : 'transparent',
+              color: activeTab === 'unscramble' ? '#fff' : 'var(--text-secondary)',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+            }}
+          >
+            🔤 Xếp Từ (Unscramble)
+          </button>
+
+          <button
+            onClick={startSpeedQuizRound}
+            style={{
+              padding: '0.55rem 1rem',
+              borderRadius: 'var(--radius-sm)',
+              background: activeTab === 'speedquiz' ? 'var(--accent-gold)' : 'transparent',
+              color: activeTab === 'speedquiz' ? '#000' : 'var(--text-secondary)',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+            }}
+          >
+            ⚡ Speed Quiz (10s)
           </button>
         </div>
       </div>
 
       {/* Autocomplete Search & Filter Controls */}
-      <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-        {/* Search Bar with Datamuse Suggestions */}
-        <div className="relative">
-          <Input
-            placeholder="Tra cứu từ vựng (Datamuse Autocomplete API)... Ví dụ: raw, dynamic, hello"
-            value={searchQuery}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-            icon={<Search size={18} />}
-          />
+      {activeTab === 'flashcards' && (
+        <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {/* Search Bar with Datamuse Suggestions */}
+          <div className="relative">
+            <Input
+              placeholder="Tra cứu từ vựng (Datamuse Autocomplete API)... Ví dụ: resilient, happiness, travel"
+              value={searchQuery}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+              icon={<Search size={18} />}
+            />
 
-          {/* Autocomplete Dropdown List */}
-          {suggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 z-30 mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden divide-y divide-slate-800">
-              {suggestions.map((sug, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => {
-                    setSearchQuery(sug.word);
-                    setLookupWord(sug.word);
-                    setSuggestions([]);
+            {/* Autocomplete Dropdown List */}
+            {suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 z-30 mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden divide-y divide-slate-800">
+                {suggestions.map((sug, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      setSearchQuery(sug.word);
+                      setLookupWord(sug.word);
+                      setSuggestions([]);
+                    }}
+                    className="px-4 py-2.5 flex items-center justify-between text-sm text-slate-200 hover:bg-cyan-500/10 hover:text-cyan-400 cursor-pointer transition"
+                  >
+                    <span className="font-medium">{sug.word}</span>
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                      Tra từ điển <ExternalLink size={12} />
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Level & Topic Filters */}
+          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginRight: '0.75rem', fontWeight: 600 }}>CẤP ĐỘ CEFR:</span>
+              {['All', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((lvl) => (
+                <button
+                  key={lvl}
+                  onClick={() => { setSelectedLevel(lvl); setCurrentIndex(0); }}
+                  style={{
+                    padding: '0.3rem 0.75rem',
+                    marginRight: '0.35rem',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.8rem',
+                    background: selectedLevel === lvl ? 'var(--accent-cyan)' : 'rgba(255, 255, 255, 0.05)',
+                    color: selectedLevel === lvl ? '#000' : 'var(--text-secondary)',
+                    fontWeight: selectedLevel === lvl ? 700 : 500
                   }}
-                  className="px-4 py-2.5 flex items-center justify-between text-sm text-slate-200 hover:bg-cyan-500/10 hover:text-cyan-400 cursor-pointer transition"
                 >
-                  <span className="font-medium">{sug.word}</span>
-                  <span className="text-xs text-slate-500 flex items-center gap-1">
-                    Tra từ điển <ExternalLink size={12} />
-                  </span>
-                </div>
+                  {lvl}
+                </button>
               ))}
             </div>
-          )}
-        </div>
 
-        {/* Level & Topic Filters */}
-        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginRight: '0.75rem', fontWeight: 600 }}>CẤP ĐỘ CEFR:</span>
-            {['All', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((lvl) => (
-              <button
-                key={lvl}
-                onClick={() => { setSelectedLevel(lvl); setCurrentIndex(0); }}
+            <div style={{ height: '24px', width: '1px', background: 'var(--glass-border)' }} />
+
+            <div>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginRight: '0.75rem', fontWeight: 600 }}>CHỦ ĐỀ:</span>
+              <select
+                value={selectedTopic}
+                onChange={(e) => { setSelectedTopic(e.target.value); setCurrentIndex(0); }}
                 style={{
-                  padding: '0.3rem 0.75rem',
-                  marginRight: '0.35rem',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.8rem',
-                  background: selectedLevel === lvl ? 'var(--accent-cyan)' : 'rgba(255, 255, 255, 0.05)',
-                  color: selectedLevel === lvl ? '#000' : 'var(--text-secondary)',
-                  fontWeight: selectedLevel === lvl ? 700 : 500
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--glass-border)',
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: 'var(--radius-sm)',
+                  outline: 'none',
+                  cursor: 'pointer'
                 }}
               >
-                {lvl}
-              </button>
-            ))}
-          </div>
-
-          <div style={{ height: '24px', width: '1px', background: 'var(--glass-border)' }} />
-
-          <div>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginRight: '0.75rem', fontWeight: 600 }}>CHỦ ĐỀ:</span>
-            <select
-              value={selectedTopic}
-              onChange={(e) => { setSelectedTopic(e.target.value); setCurrentIndex(0); }}
-              style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                color: 'var(--text-primary)',
-                border: '1px solid var(--glass-border)',
-                padding: '0.4rem 0.8rem',
-                borderRadius: 'var(--radius-sm)',
-                outline: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              {vocabularyTopics.map((topic) => (
-                <option key={topic} value={topic} style={{ background: '#121824' }}>
-                  {topic}
-                </option>
-              ))}
-            </select>
+                {vocabularyTopics.map((topic) => (
+                  <option key={topic} value={topic} style={{ background: '#121824' }}>
+                    {topic}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Main Content Render */}
       {activeTab === 'flashcards' ? (
@@ -475,12 +598,12 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
             </div>
           )}
         </div>
-      ) : (
-        /* Matching Game UI */
+      ) : activeTab === 'matching' ? (
+        /* GAME 1: Matching Game UI */
         <div className="glass-panel" style={{ padding: '2.5rem', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h2 style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Gamepad2 color="var(--accent-cyan)" /> Mini-Game: Nối Từ Vựng &amp; Nghĩa
+              <Gamepad2 color="var(--accent-cyan)" /> Mini-Game 1: Nối Từ Vựng &amp; Nghĩa
             </h2>
             <div style={{ color: 'var(--accent-green)', fontWeight: 700 }}>
               Đã ghép: {matchingScore} / 4 cặp
@@ -548,6 +671,180 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
               Làm Mới Trận Đấu
             </Button>
           </div>
+        </div>
+      ) : activeTab === 'unscramble' ? (
+        /* GAME 2: Word Unscramble UI */
+        <div className="glass-panel" style={{ padding: '2.5rem', maxWidth: '700px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent-pink)' }}>
+              <Sparkles size={24} /> Mini-Game 2: Xếp Từ Xáo Trộn (Word Unscramble)
+            </h2>
+            <span style={{ fontSize: '0.9rem', color: 'var(--accent-gold)', fontWeight: 700 }}>
+              Điểm: {unscrambleScore} (+20 XP/từ)
+            </span>
+          </div>
+
+          {unscrambleTarget && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {/* Clue Box */}
+              <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2">
+                <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
+                  GỢI Ý NGHĨA TIẾNG VIỆT &amp; ĐỊNH NGHĨA:
+                </span>
+                <p className="text-lg font-bold text-emerald-400">{unscrambleTarget.vietnameseMeaning}</p>
+                <p className="text-xs text-slate-300 italic font-mono">"{unscrambleTarget.definition}"</p>
+              </div>
+
+              {/* Scrambled Letters Display */}
+              <div>
+                <span className="text-xs text-slate-400 uppercase font-semibold block mb-2">Các ký tự bị xáo trộn:</span>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {scrambledLetters.map((char, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setUserUnscrambleInput((prev) => prev + char)}
+                      className="w-12 h-12 rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 text-cyan-300 font-bold text-xl uppercase shadow-lg hover:border-cyan-400 hover:text-white transition active:scale-95"
+                    >
+                      {char}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Input Form */}
+              <form onSubmit={handleUnscrambleSubmit} className="space-y-3">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={userUnscrambleInput}
+                    onChange={(e) => setUserUnscrambleInput(e.target.value)}
+                    placeholder="Nhập hoặc bấm các ô chữ để ghép từ..."
+                    className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-lg font-mono uppercase tracking-widest focus:outline-none focus:border-cyan-500"
+                  />
+                  <Button variant="secondary" onClick={() => setUserUnscrambleInput('')}>
+                    Xóa
+                  </Button>
+                </div>
+
+                <div className="flex justify-between items-center pt-2">
+                  <Button variant="secondary" size="sm" onClick={startUnscrambleGame}>
+                    Đổi Từ Khác
+                  </Button>
+                  <Button variant="gradient" type="submit" disabled={!userUnscrambleInput.trim()}>
+                    Xác Nhận Từ
+                  </Button>
+                </div>
+              </form>
+
+              {/* Feedback Alert */}
+              {unscrambleResult === 'correct' && (
+                <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20 text-sm font-semibold">
+                  <CheckCircle className="w-5 h-5" />
+                  <span>Chính xác 100%! Từ cần tìm là "{unscrambleTarget.term}". Bạn được thưởng +20 XP!</span>
+                </div>
+              )}
+              {unscrambleResult === 'wrong' && (
+                <div className="flex items-center gap-2 text-rose-400 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20 text-sm font-semibold">
+                  <AlertCircle className="w-5 h-5" />
+                  <span>Chưa chính xác! Hãy thử lại hoặc bấm "Đổi Từ Khác".</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* GAME 3: Speed Quiz 10s UI */
+        <div className="glass-panel" style={{ padding: '2.5rem', maxWidth: '700px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent-gold)' }}>
+              <Zap size={24} /> Mini-Game 3: Speed Quiz (Phản Xạ 10s)
+            </h2>
+            <div className="flex items-center gap-3 text-xs font-bold font-mono">
+              <span className="text-cyan-400">Combo: x{speedCombo}</span>
+              <span className="text-emerald-400">Điểm: {speedScore}</span>
+            </div>
+          </div>
+
+          {speedQuizTarget && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {/* Timer Bar */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400 flex items-center gap-1">
+                    <Timer className="w-4 h-4 text-amber-400 animate-spin" /> Thời gian còn lại:
+                  </span>
+                  <span className={`font-mono font-bold text-base ${speedTimer <= 3 ? 'text-rose-400 animate-ping' : 'text-amber-400'}`}>
+                    {speedTimer}s
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500 transition-all duration-1000"
+                    style={{ width: `${(speedTimer / 10) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Target Word Display */}
+              <div className="text-center py-6 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
+                <span className="text-xs uppercase font-bold text-slate-500 tracking-widest">TỪ VỰNG CẦN CHỌN NGHĨA:</span>
+                <h3 className="text-4xl font-extrabold text-white tracking-tight">{speedQuizTarget.term}</h3>
+                <span className="text-sm font-mono text-cyan-400">{speedQuizTarget.phonetic}</span>
+              </div>
+
+              {/* 4 Option Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {speedQuizOptions.map((opt, idx) => {
+                  const isCorrect = opt === speedQuizTarget.vietnameseMeaning;
+                  let btnStyle = 'bg-slate-950/60 border-slate-800 text-slate-100 hover:border-cyan-500';
+
+                  if (speedQuizFeedback !== null) {
+                    if (isCorrect) btnStyle = 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold';
+                    else btnStyle = 'bg-slate-950/40 border-slate-900 text-slate-600 opacity-50';
+                  }
+
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleSelectSpeedOption(opt)}
+                      disabled={speedQuizFeedback !== null}
+                      className={`p-4 rounded-xl border text-sm font-medium text-left transition ${btnStyle}`}
+                    >
+                      <span className="text-cyan-400 font-bold mr-2">{String.fromCharCode(65 + idx)}.</span>
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Result Feedback & Next Button */}
+              {speedQuizFeedback !== null && (
+                <div className="pt-2 flex items-center justify-between">
+                  <div className="text-sm font-semibold">
+                    {speedQuizFeedback === 'correct' && (
+                      <span className="text-emerald-400 flex items-center gap-1.5">
+                        <CheckCircle className="w-5 h-5" /> Chính xác! {speedCombo >= 3 ? 'Combo x' + speedCombo + ' (+25 XP)' : '(+15 XP)'}
+                      </span>
+                    )}
+                    {speedQuizFeedback === 'wrong' && (
+                      <span className="text-rose-400 flex items-center gap-1.5">
+                        <AlertCircle className="w-5 h-5" /> Rất tiếc! Đáp án đúng là: "{speedQuizTarget.vietnameseMeaning}"
+                      </span>
+                    )}
+                    {speedQuizFeedback === 'timeout' && (
+                      <span className="text-amber-400 flex items-center gap-1.5">
+                        <Timer className="w-5 h-5" /> Hết giờ! Đáp án đúng là: "{speedQuizTarget.vietnameseMeaning}"
+                      </span>
+                    )}
+                  </div>
+
+                  <Button variant="gradient" onClick={startSpeedQuizRound}>
+                    Câu Tiếp Theo &rarr;
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

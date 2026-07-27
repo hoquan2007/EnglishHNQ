@@ -1,144 +1,221 @@
 import { PlacementQuestion } from '../types';
 
 export const placementQuestions: PlacementQuestion[] = [
-  // A1 Level
+  // ==================== PART 1: VOCABULARY & IDIOMS (5 QUESTIONS) ====================
   {
-    id: 'pq_a1_1',
+    id: 'pq_1',
     type: 'multiple-choice',
     level: 'A1',
-    question: 'Choose the correct form of the verb "to be": "She ___ a talented student."',
-    options: ['am', 'is', 'are', 'be'],
-    correctAnswer: 'is',
-    explanation: 'With singular third-person pronouns ("she"), we use "is" in the present simple tense.'
+    question: 'Choose the word that means "a feeling of great pleasure and satisfaction":',
+    options: ['Sadness', 'Happiness', 'Anger', 'Boredom'],
+    correctAnswer: 'Happiness',
+    explanation: '"Happiness" có nghĩa là sự hạnh phúc, niềm vui sướng.'
   },
   {
-    id: 'pq_a1_2',
-    type: 'fill-blank',
-    level: 'A1',
-    question: 'Complete the sentence: "I usually go to school ___ bicycle in the morning."',
-    options: ['by', 'on', 'in', 'with'],
-    correctAnswer: 'by',
-    explanation: 'We use the preposition "by" when referring to modes of transportation (by bicycle, by car, by bus).'
-  },
-  {
-    id: 'pq_a1_3',
-    type: 'listening',
-    level: 'A1',
-    question: 'Listen to the audio and select the word you hear:',
-    audioText: 'Good morning! How are you doing today?',
-    options: ['Good evening', 'Good morning', 'Good afternoon', 'Good night'],
-    correctAnswer: 'Good morning',
-    explanation: 'The speaker says "Good morning! How are you doing today?".'
-  },
-
-  // A2 Level
-  {
-    id: 'pq_a2_1',
+    id: 'pq_2',
     type: 'multiple-choice',
     level: 'A2',
-    question: 'Which sentence is grammatically correct?',
-    options: [
-      'Yesterday I visit my grandparents.',
-      'Yesterday I visited my grandparents.',
-      'Yesterday I have visited my grandparents.',
-      'Yesterday I am visiting my grandparents.'
-    ],
-    correctAnswer: 'Yesterday I visited my grandparents.',
-    explanation: 'The past simple tense ("visited") is used with finished past time expressions like "Yesterday".'
+    question: 'Which of the following refers to bags and cases taken when traveling?',
+    options: ['Furniture', 'Luggage', 'Appliances', 'Garbage'],
+    correctAnswer: 'Luggage',
+    explanation: '"Luggage" là danh từ chỉ hành lý mang theo khi đi du lịch.'
   },
   {
-    id: 'pq_a2_2',
+    id: 'pq_3',
+    type: 'multiple-choice',
+    level: 'B1',
+    question: 'Select the synonym for "collaborate":',
+    options: ['Compete', 'Work together', 'Separate', 'Ignore'],
+    correctAnswer: 'Work together',
+    explanation: '"Collaborate" nghĩa là cộng tác, làm việc cùng nhau (work together).'
+  },
+  {
+    id: 'pq_4',
+    type: 'multiple-choice',
+    level: 'B2',
+    question: 'What does the adjective "comprehensive" mean?',
+    options: ['Difficult to understand', 'Complete and thorough', 'Narrow in scope', 'Cheap in price'],
+    correctAnswer: 'Complete and thorough',
+    explanation: '"Comprehensive" nghĩa là toàn diện, bao quát mọi mặt (complete and thorough).'
+  },
+  {
+    id: 'pq_5',
+    type: 'multiple-choice',
+    level: 'C1',
+    question: 'What is the meaning of the idiom "once in a blue moon"?',
+    options: ['Very frequently', 'Very rarely', 'Every month', 'Never'],
+    correctAnswer: 'Very rarely',
+    explanation: '"Once in a blue moon" là thành ngữ chỉ một sự việc rất hiếm khi xảy ra.'
+  },
+
+  // ==================== PART 2: GRAMMAR & STRUCTURE (5 QUESTIONS) ====================
+  {
+    id: 'pq_6',
+    type: 'fill-blank',
+    level: 'A1',
+    question: 'Complete the sentence: "She _______ coffee every morning before work."',
+    options: ['drink', 'drinks', 'is drinking', 'drank'],
+    correctAnswer: 'drinks',
+    explanation: 'Thói quen hằng ngày ở thì Hiện tại đơn đi với chủ ngữ số ít "She" -> drinks.'
+  },
+  {
+    id: 'pq_7',
     type: 'fill-blank',
     level: 'A2',
-    question: 'Choose the correct word: "This apartment is much ___ than our previous one."',
-    options: ['more big', 'bigger', 'biggest', 'as big'],
-    correctAnswer: 'bigger',
-    explanation: 'For short one-syllable adjectives like "big", the comparative form adds "-ger" (bigger).'
-  },
-
-  // B1 Level
-  {
-    id: 'pq_b1_1',
-    type: 'multiple-choice',
-    level: 'B1',
-    question: 'Choose the best option: "If I ___ enough money, I would travel around the world."',
-    options: ['have', 'had', 'will have', 'would have'],
-    correctAnswer: 'had',
-    explanation: 'In second conditional sentences (hypothetical present/future), we use: If + Past Simple, would + verb.'
+    question: 'Complete the sentence: "We _______ in this city since 2018."',
+    options: ['live', 'lived', 'have lived', 'are living'],
+    correctAnswer: 'have lived',
+    explanation: 'Trạng từ "since 2018" báo hiệu thì Hiện tại hoàn thành -> have lived.'
   },
   {
-    id: 'pq_b1_2',
-    type: 'listening',
-    level: 'B1',
-    question: 'Listen to the sentence and complete the key word: "We need to ___ our environmental impact."',
-    audioText: 'We need to reduce our environmental impact.',
-    options: ['reduce', 'increase', 'remove', 'produce'],
-    correctAnswer: 'reduce',
-    explanation: 'The speaker says "We need to reduce our environmental impact."'
-  },
-  {
-    id: 'pq_b1_3',
+    id: 'pq_8',
     type: 'fill-blank',
     level: 'B1',
-    question: 'Select the correct relative pronoun: "The scientist ___ discovered the new remedy was awarded a medal."',
-    options: ['which', 'who', 'whom', 'whose'],
-    correctAnswer: 'who',
-    explanation: '"Who" is used as the relative pronoun to refer to people (the scientist).'
-  },
-
-  // B2 Level
-  {
-    id: 'pq_b2_1',
-    type: 'multiple-choice',
-    level: 'B2',
-    question: 'Select the best phrase: "By the time we arrive at the theater, the movie ___."',
-    options: ['will start', 'starts', 'will have started', 'is starting'],
-    correctAnswer: 'will have started',
-    explanation: 'Future Perfect ("will have started") is used for an action that will be completed before a specified point in the future.'
+    question: 'Complete the sentence: "If I _______ rich, I would travel around the world."',
+    options: ['am', 'were', 'had been', 'will be'],
+    correctAnswer: 'were',
+    explanation: 'Câu điều kiện loại 2 giả định trái hiện tại -> Dùng "were" cho tất cả các ngôi.'
   },
   {
-    id: 'pq_b2_2',
+    id: 'pq_9',
     type: 'fill-blank',
     level: 'B2',
-    question: 'Choose the correct idiom/phrasal verb: "She refused to ___ up with his rude behavior any longer."',
-    options: ['put', 'take', 'catch', 'keep'],
-    correctAnswer: 'put',
-    explanation: '"Put up with" is a phrasal verb meaning to tolerate or accept an unpleasant situation.'
-  },
-
-  // C1 Level
-  {
-    id: 'pq_c1_1',
-    type: 'multiple-choice',
-    level: 'C1',
-    question: 'Select the inverted sentence structure: "Scarcely ___ the project when a new crisis emerged."',
-    options: [
-      'we had completed',
-      'had we completed',
-      'we completed',
-      'did we complete'
-    ],
-    correctAnswer: 'had we completed',
-    explanation: 'After negative adverbs like "Scarcely" or "Hardly", negative inversion requires auxiliary verb before subject: Scarcely had we completed...'
+    question: 'Complete the sentence: "If you had trained harder, you _______ the championship match."',
+    options: ['will win', 'would win', 'would have won', 'had won'],
+    correctAnswer: 'would have won',
+    explanation: 'Câu điều kiện loại 3 giả định trái quá khứ (If had V3) -> Mệnh đề chính: would have won.'
   },
   {
-    id: 'pq_c1_2',
+    id: 'pq_10',
     type: 'fill-blank',
     level: 'C1',
-    question: 'Choose the vocabulary word that best fits: "His argument was so ___ that even his opponent agreed."',
-    options: ['compelling', 'tentative', 'superficial', 'ambiguous'],
-    correctAnswer: 'compelling',
-    explanation: '"Compelling" means convincing, powerful, and demanding attention.'
+    question: 'Complete the sentence: "No sooner _______ at the station than the train left."',
+    options: ['he had arrived', 'had he arrived', 'he arrived', 'did he arrive'],
+    correctAnswer: 'had he arrived',
+    explanation: 'Cấu trúc đảo ngữ "No sooner + had + S + V3... than..." chỉ hành động vừa xảy ra thì hành động khác nối tiếp.'
   },
 
-  // C2 Level
+  // ==================== PART 3: READING COMPREHENSION (5 QUESTIONS) ====================
   {
-    id: 'pq_c2_1',
+    id: 'pq_11',
+    type: 'multiple-choice',
+    level: 'A2',
+    question: 'Read: "Anna loves baking cakes on weekends. She often shares her fresh cookies with neighbors." -> What does Anna do on weekends?',
+    options: ['She works in a factory', 'She bakes cakes and cookies', 'She goes swimming', 'She visits the museum'],
+    correctAnswer: 'She bakes cakes and cookies',
+    explanation: 'Đoạn văn ghi rõ Anna yêu thích việc nướng bánh vào cuối tuần (bakes cakes and cookies).'
+  },
+  {
+    id: 'pq_12',
+    type: 'multiple-choice',
+    level: 'B1',
+    question: 'Read: "Remote work offers flexibility, but it requires strong self-discipline to stay productive." -> What is a requirement for remote work?',
+    options: ['Higher salary', 'Strong self-discipline', 'A large office space', 'Daily commuting'],
+    correctAnswer: 'Strong self-discipline',
+    explanation: 'Đoạn văn nêu rõ công việc từ xa yêu cầu tính tự giác cao (strong self-discipline).'
+  },
+  {
+    id: 'pq_13',
+    type: 'multiple-choice',
+    level: 'B2',
+    question: 'Read: "Artificial intelligence is reshaping healthcare by predicting patient outcomes and accelerating drug discovery." -> How does AI impact healthcare?',
+    options: ['By replacing doctors completely', 'By slowing down research', 'By predicting patient outcomes and accelerating research', 'By increasing medical costs'],
+    correctAnswer: 'By predicting patient outcomes and accelerating research',
+    explanation: 'Đoạn văn ghi rõ AI cải tiến y tế nhờ dự đoán kết quả bệnh nhân và tăng tốc phát hiện thuốc.'
+  },
+  {
+    id: 'pq_14',
+    type: 'multiple-choice',
+    level: 'C1',
+    question: 'Read: "Notwithstanding economic headwinds, the tech industry demonstrated remarkable resilience through strategic diversification." -> What helped the tech industry withstand economic challenges?',
+    options: ['Government bailouts', 'Strategic diversification', 'Massive layoffs alone', 'Reducing innovation'],
+    correctAnswer: 'Strategic diversification',
+    explanation: 'Cụm "through strategic diversification" chỉ ra đa dạng hóa chiến lược giúp ngành công nghệ kiên cường.'
+  },
+  {
+    id: 'pq_15',
     type: 'multiple-choice',
     level: 'C2',
-    question: 'Select the most precise expression: "The CEO\'s speech was filled with subtle ___, hinting at future restructuring without stating it directly."',
-    options: ['innuendos', 'nuances', 'tautologies', 'paradoxes'],
-    correctAnswer: 'nuances',
-    explanation: '"Nuances" refers to subtle differences or shades of meaning, expression, or tone.'
+    question: 'What is the tone of a writer who describes a claim as "unsubstantiated rhetoric devoid of empirical merit"?',
+    options: ['Enthusiastic', 'Skeptical and critical', 'Neutral and supportive', 'Indifferent'],
+    correctAnswer: 'Skeptical and critical',
+    explanation: 'Cụm từ "unsubstantiated rhetoric devoid of empirical merit" thể hiện thái độ rất hoài nghi và chỉ trích nặng nề.'
+  },
+
+  // ==================== PART 4: LISTENING & PRONUNCIATION (5 QUESTIONS) ====================
+  {
+    id: 'pq_16',
+    type: 'listening',
+    level: 'A1',
+    question: 'Listen to the audio text and select the exact sentence spoken:',
+    audioText: 'Welcome to English HNQ learning platform.',
+    options: [
+      'Welcome to English HNQ learning platform.',
+      'Welcome to English HQ teaching center.',
+      'Welcome to England learning class.',
+      'We welcome you to English study.'
+    ],
+    correctAnswer: 'Welcome to English HNQ learning platform.',
+    explanation: 'Audio đọc chính xác câu: "Welcome to English HNQ learning platform."'
+  },
+  {
+    id: 'pq_17',
+    type: 'listening',
+    level: 'A2',
+    question: 'Listen to the audio text and select the correct sentence:',
+    audioText: 'Consistency is the secret key to mastering any foreign language.',
+    options: [
+      'Consistency is the secret key to mastering any foreign language.',
+      'Constancy is the only way to speak foreign languages.',
+      'Persistence makes you fluent in foreign language.',
+      'Consistency is easy for learning foreign words.'
+    ],
+    correctAnswer: 'Consistency is the secret key to mastering any foreign language.',
+    explanation: 'Audio đọc chính xác câu: "Consistency is the secret key to mastering any foreign language."'
+  },
+  {
+    id: 'pq_18',
+    type: 'listening',
+    level: 'B1',
+    question: 'Listen to the audio text and identify the main message:',
+    audioText: 'Practicing daily for twenty minutes is far better than studying three hours once a week.',
+    options: [
+      'Daily 20-minute practice is better than 3 hours once a week.',
+      'Studying 3 hours once a week is the best strategy.',
+      'You should study twenty hours every single week.',
+      'Practice only when you have free weekend hours.'
+    ],
+    correctAnswer: 'Daily 20-minute practice is better than 3 hours once a week.',
+    explanation: 'Nội dung cốt lõi của audio khuyên nên luyện tập 20 phút mỗi ngày thay vì học dồn 3 tiếng 1 lần mỗi tuần.'
+  },
+  {
+    id: 'pq_19',
+    type: 'listening',
+    level: 'B2',
+    question: 'Listen to the audio text and choose the correct transcript:',
+    audioText: 'Technological innovations have fundamentally transformed modern communication methods.',
+    options: [
+      'Technological innovations have fundamentally transformed modern communication methods.',
+      'Technical inventions have destroyed communication methods.',
+      'Technology has simplified traditional communication.',
+      'Modern devices have changed communication forever.'
+    ],
+    correctAnswer: 'Technological innovations have fundamentally transformed modern communication methods.',
+    explanation: 'Audio đọc chính xác câu: "Technological innovations have fundamentally transformed modern communication methods."'
+  },
+  {
+    id: 'pq_20',
+    type: 'listening',
+    level: 'C1',
+    question: 'Listen to the advanced sentence and select the correct option:',
+    audioText: 'Meticulous preparation combined with resilient execution ensures sustainable long-term success.',
+    options: [
+      'Meticulous preparation combined with resilient execution ensures sustainable long-term success.',
+      'Methodical preparation leads to short-term performance.',
+      'Careful planning is unimportant for corporate success.',
+      'Resilient execution is unnecessary when planning well.'
+    ],
+    correctAnswer: 'Meticulous preparation combined with resilient execution ensures sustainable long-term success.',
+    explanation: 'Audio đọc chính xác câu chuẩn C1: "Meticulous preparation combined with resilient execution ensures sustainable long-term success."'
   }
 ];

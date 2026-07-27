@@ -1,190 +1,277 @@
 import { GrammarLesson } from '../types';
 
 export const initialGrammarLessons: GrammarLesson[] = [
+  // ==================== A1 LEVEL ====================
   {
-    id: 'g_1',
-    title: 'Present Simple vs Present Continuous',
+    id: 'g_a1_1',
+    title: 'Present Simple vs Present Continuous (Thì Hiện Tại Đơn & Hiện Tại Tiếp Diễn)',
     level: 'A1',
     category: 'Tenses',
-    summary: 'Phân biệt Thì Hiện Tại Đơn (thói quen, sự thật) & Hiện Tại Tiếp Diễn (hành động đang diễn ra).',
-    explanationMarkdown: `
-### 1. Thì Hiện Tại Đơn (Present Simple)
-- **Công thức:** 
-  - Khẳng định: \`S + V(s/es)\`
-  - Phủ định: \`S + do/does + not + V-bare\`
-  - Nghi vấn: \`Do/Does + S + V-bare?\`
-- **Cách dùng:** Diễn tả thói quen lặp đi lặp lại, sự thật hiển nhiên, lịch trình cố định.
-- **Từ nhận biết:** *always, usually, often, sometimes, everyday, on Mondays...*
+    summary: 'Phân biệt hành động thói quen/sự thật hiển nhiên (Present Simple) và hành động đang diễn ra ngay lúc nói (Present Continuous).',
+    explanationMarkdown: `### 1. Thì Hiện Tại Đơn (Present Simple)
+#### Công thức:
+- **Khẳng định:** S + V(s/es)
+- **Phủ định:** S + do/does + not + V-bare
+- **Nghi vấn:** Do/Does + S + V-bare?
+
+#### Cách dùng:
+- Diễn tả sự thật hiển nhiên hoặc thực tế khách quan (The sun rises in the East).
+- Thói quen hoặc hành động lặp đi lặp lại hàng ngày (I go to school every day).
+- Dấu hiệu: *always, usually, often, sometimes, never, every day, on Mondays*.
 
 ### 2. Thì Hiện Tại Tiếp Diễn (Present Continuous)
-- **Công thức:** \`S + am/is/are + V-ing\`
-- **Cách dùng:** Diễn tả hành động đang xảy ra ngay tại thời điểm nói hoặc xung quanh thời điểm nói.
-- **Từ nhận biết:** *now, right now, at the moment, look!, listen!...*
-    `,
+#### Công thức:
+- **Khẳng định:** S + am/is/are + V-ing
+- **Phủ định:** S + am/is/are + not + V-ing
+- **Nghi vấn:** Am/Is/Are + S + V-ing?
+
+#### Cách dùng:
+- Diễn tả hành động đang xảy ra ngay tại thời điểm nói (She is reading a book right now).
+- Dấu hiệu: *now, right now, at the moment, Look!, Listen!*.`,
     examples: [
-      { english: 'I usually drink coffee in the morning, but today I am drinking tea.', vietnamese: 'Tôi thường uống cà phê vào buổi sáng, nhưng hôm nay tôi đang uống trà.' },
-      { english: 'Look! The rain is falling heavily outside.', vietnamese: 'Nhìn kìa! Trời đang mưa rất to ở bên ngoài.' }
+      { english: 'She drinks coffee every morning.', vietnamese: 'Cô ấy uống cà phê mỗi buổi sáng. (Thói quen)' },
+      { english: 'Look! It is raining outside.', vietnamese: 'Nhìn kìa! Trời đang mưa ở bên ngoài. (Hành động ngay lúc nói)' }
     ],
     quizzes: [
       {
-        id: 'q_g1_1',
-        question: 'Listen! Somebody ___ at the door right now.',
-        options: ['knocks', 'is knocking', 'knocked', 'has knocked'],
+        id: 'q_a1_1_1',
+        question: 'Listen! Someone _______ at the front door.',
+        options: ['knocks', 'is knocking', 'knocked', 'knocking'],
         correctAnswer: 1,
-        explanation: 'Từ nhận biết "Listen!" và "right now" chỉ hành động đang diễn ra -> Dùng Present Continuous (is knocking).'
+        explanation: 'Từ "Listen!" báo hiệu hành động đang xảy ra ngay thời điểm nói -> Dùng Hiện tại tiếp diễn (is knocking).'
       },
       {
-        id: 'q_g1_2',
-        question: 'The Earth ___ around the Sun once every 365 days.',
-        options: ['revolves', 'is revolving', 'revolved', 'revolve'],
-        correctAnswer: 0,
-        explanation: 'Chuyển động của Trái Đất là sự thật hiển nhiên -> Dùng Present Simple (revolves).'
+        id: 'q_a1_1_2',
+        question: 'My father usually _______ to work by car.',
+        options: ['is going', 'go', 'goes', 'went'],
+        correctAnswer: 2,
+        explanation: 'Trạng từ "usually" chỉ thói quen hàng ngày -> Dùng Hiện tại đơn với chủ ngữ số ít "My father" (goes).'
+      }
+    ]
+  },
+  {
+    id: 'g_a1_2',
+    title: 'Past Simple Tense (Thì Quá Khứ Đơn)',
+    level: 'A1',
+    category: 'Tenses',
+    summary: 'Diễn tả hành động đã xảy ra và chấm dứt hoàn toàn trong quá khứ tại mốc thời gian xác định.',
+    explanationMarkdown: `### Thì Quá Khứ Đơn (Past Simple)
+#### Công thức:
+- **Động từ To Be:** S + was/were
+- **Động từ thường:** S + V2/ed
+- **Phủ định:** S + did not (didn't) + V-bare
+- **Nghi vấn:** Did + S + V-bare?
+
+#### Cách dùng:
+- Diễn tả sự việc diễn ra và kết thúc hoàn toàn trong quá khứ.
+- Dấu hiệu: *yesterday, last night/week/year, 2 days ago, in 2020*.`,
+    examples: [
+      { english: 'We visited Hanoi last weekend.', vietnamese: 'Chúng tôi đã thăm Hà Nội vào cuối tuần trước.' },
+      { english: 'She did not buy the red dress yesterday.', vietnamese: 'Cô ấy đã không mua chiếc váy đỏ ngày hôm qua.' }
+    ],
+    quizzes: [
+      {
+        id: 'q_a1_2_1',
+        question: 'They _______ a new house two years ago.',
+        options: ['buy', 'buys', 'bought', 'have bought'],
+        correctAnswer: 2,
+        explanation: 'Có trạng từ chỉ thời gian quá khứ "two years ago" -> Dùng V2 của buy là bought.'
       }
     ]
   },
 
+  // ==================== A2 LEVEL ====================
   {
-    id: 'g_2',
-    title: 'Present Perfect (Thì Hiện Tại Hoàn Thành)',
+    id: 'g_a2_1',
+    title: 'Present Perfect Simple (Thì Hiện Tại Hoàn Thành)',
     level: 'A2',
     category: 'Tenses',
-    summary: 'Diễn tả hành động đã xảy ra trong quá khứ nhưng kết quả hoặc ảnh hưởng vẫn còn đến hiện tại.',
-    explanationMarkdown: `
-### Thì Hiện Tại Hoàn Thành (Present Perfect)
-- **Công thức:** \`S + have/has + V3/ed\`
-- **Cách dùng tiêu biểu:**
-  1. Trải nghiệm sống tính đến thời điểm hiện tại (*have you ever...?*).
-  2. Hành động bắt đầu ở quá khứ và kéo dài đến hiện tại (*for / since*).
-  3. Hành động vừa mới xảy ra (*just, already, recently*).
+    summary: 'Diễn tả hành động xảy ra trong quá khứ nhưng không đề cập thời gian cụ thể hoặc kéo dài đến hiện tại.',
+    explanationMarkdown: `### Thì Hiện Tại Hoàn Thành
+#### Công thức:
+- **Khẳng định:** S + have/has + V3/ed
+- **Phủ định:** S + have/has + not + V3/ed
+- **Nghi vấn:** Have/Has + S + V3/ed?
 
-#### Phân biệt "Since" & "For":
-- **Since + Mốc thời gian:** *since 2010, since last week, since I was young.*
-- **For + Khoảng thời gian:** *for 5 years, for two hours, for a long time.*
-    `,
+#### Dấu hiệu nhận biết:
+- *already, yet, just, ever, never, since (+ mốc thời gian), for (+ khoảng thời gian)*.`,
     examples: [
-      { english: 'I have lived in Hanoi for more than ten years.', vietnamese: 'Tôi đã sống ở Hà Nội hơn 10 năm nay (hiện vẫn đang sống).' },
-      { english: 'Have you ever visited Japan before?', vietnamese: 'Bạn đã từng ghé thăm Nhật Bản trước đây chưa?' }
+      { english: 'I have lived in London for 5 years.', vietnamese: 'Tôi đã sống ở London được 5 năm (và hiện tại vẫn đang sống ở đó).' },
+      { english: 'Have you ever visited Japan?', vietnamese: 'Bạn đã từng đến Nhật Bản bao giờ chưa?' }
     ],
     quizzes: [
       {
-        id: 'q_g2_1',
-        question: 'She has been working as a software developer ___ 2018.',
-        options: ['for', 'since', 'in', 'from'],
-        correctAnswer: 1,
-        explanation: '"2018" là mốc thời gian cụ thể trong quá khứ -> Dùng "since".'
-      },
+        id: 'q_a2_1_1',
+        question: 'She _______ her homework yet.',
+        options: ['has not finished', 'did not finish', 'finished', 'is not finishing'],
+        correctAnswer: 0,
+        explanation: 'Từ "yet" đứng cuối câu phủ định -> Dùng Hiện tại hoàn thành (has not finished).'
+      }
+    ]
+  },
+  {
+    id: 'g_a2_2',
+    title: 'Comparatives & Superlatives (So Sánh Hơn & So Sánh Nhất)',
+    level: 'A2',
+    category: 'Modifiers',
+    summary: 'Cấu trúc so sánh tính từ ngắn và tính từ dài trong tiếng Anh.',
+    explanationMarkdown: `### 1. So Sánh Hơn (Comparatives)
+- Tính từ ngắn: adj + -er + than (tall -> taller than)
+- Tính từ dài: more + adj + than (beautiful -> more beautiful than)
+
+### 2. So Sánh Nhất (Superlatives)
+- Tính từ ngắn: the + adj + -est (tall -> the tallest)
+- Tính từ dài: the most + adj (beautiful -> the most beautiful)`,
+    examples: [
+      { english: 'Tokyo is larger than Paris.', vietnamese: 'Tokyo lớn hơn Paris.' },
+      { english: 'Mount Everest is the highest mountain in the world.', vietnamese: 'Đỉnh Everest là ngọn núi cao nhất thế giới.' }
+    ],
+    quizzes: [
       {
-        id: 'q_g2_2',
-        question: 'I cannot open the door because I ___ my keys.',
-        options: ['lost', 'have lost', 'am losing', 'had lost'],
+        id: 'q_a2_2_1',
+        question: 'This lesson is _______ than the previous one.',
+        options: ['easy', 'easier', 'more easy', 'easiest'],
         correctAnswer: 1,
-        explanation: 'Việc mất chìa khóa xảy ra ở quá khứ nhưng hậu quả đến hiện tại là không mở được cửa -> Dùng Present Perfect (have lost).'
+        explanation: 'Easy là tính từ ngắn kết thúc bằng -y -> Đổi y thành i rồi thêm -er thành easier.'
       }
     ]
   },
 
+  // ==================== B1 LEVEL ====================
   {
-    id: 'g_3',
-    title: 'Conditionals Type 1 & Type 2 (Câu Điều Kiện Loạt 1 & 2)',
+    id: 'g_b1_1',
+    title: 'Conditionals Type 1 & 2 (Câu Điều Kiện Loại 1 & 2)',
     level: 'B1',
     category: 'Conditionals',
-    summary: 'Luyện tập câu điều kiện có thật ở hiện tại/tương lai (Loại 1) và giả định không có thật ở hiện tại (Loại 2).',
-    explanationMarkdown: `
-### 1. Câu điều kiện Loại 1 (Real Conditional)
-- **Công thức:** \`If + S + V(present simple), S + will/can + V-bare\`
-- **Ý nghĩa:** Tình huống có khả năng xảy ra ở hiện tại hoặc tương lai.
+    summary: 'Câu điều kiện có thật ở hiện tại/tương lai (Loại 1) và giả định không có thật ở hiện tại (Loại 2).',
+    explanationMarkdown: `### 1. Câu Điều Kiện Loại 1 (Có thật ở hiện tại/tương lai)
+- **Mệnh đề If:** If + Present Simple (V1)
+- **Mệnh đề chính:** Will + V-bare
 
-### 2. Câu điều kiện Loại 2 (Unreal Present Conditional)
-- **Công thức:** \`If + S + V2/ed (were for all subjects), S + would/could + V-bare\`
-- **Ý nghĩa:** Giả định trái ngược với thực tế ở hiện tại.
-
-*Ví dụ so sánh:*
-- *Type 1:* If it rains tomorrow, we will stay at home. (Trời có thể mưa)
-- *Type 2:* If I were a bird, I would fly everywhere. (Thực tế tôi không phải là chim)
-    `,
+### 2. Câu Điều Kiện Loại 2 (Giả định không có thật ở hiện tại)
+- **Mệnh đề If:** If + Past Simple (V2 / were)
+- **Mệnh đề chính:** Would/Could + V-bare`,
     examples: [
-      { english: 'If you study hard, you will pass the English test easily.', vietnamese: 'Nếu bạn học chăm chỉ, bạn sẽ vượt qua bài test tiếng Anh dễ dàng.' },
-      { english: 'If I had 1 million dollars right now, I would buy a luxury villa.', vietnamese: 'Nếu tôi có 1 triệu đô ngay lúc này, tôi sẽ mua một căn biệt thự sang trọng.' }
+      { english: 'If it rains tomorrow, we will stay at home.', vietnamese: 'Nếu ngày mai trời mưa, chúng tôi sẽ ở nhà. (Loại 1)' },
+      { english: 'If I were rich, I would buy a luxury yacht.', vietnamese: 'Nếu tôi giàu, tôi sẽ mua một chiếc du thuyền hạng sang. (Loại 2)' }
     ],
     quizzes: [
       {
-        id: 'q_g3_1',
-        question: 'If she ___ more free time, she would take up oil painting.',
-        options: ['has', 'had', 'will have', 'would have'],
-        correctAnswer: 1,
-        explanation: 'Mệnh đề có "would take" thuộc Loại 2 -> Mệnh đề If dùng Past Simple ("had").'
-      },
-      {
-        id: 'q_g3_2',
-        question: 'If you don\'t hurry up, you ___ the last bus home.',
-        options: ['missed', 'would miss', 'will miss', 'miss'],
+        id: 'q_b1_1_1',
+        question: 'If I _______ you, I would accept their job offer immediately.',
+        options: ['am', 'was', 'were', 'had been'],
         correctAnswer: 2,
-        explanation: 'Đây là câu điều kiện Loại 1 (khả năng có thật) -> Dùng "will miss".'
+        explanation: 'Câu điều kiện loại 2 giả định trái ngược hiện tại -> Dùng "were" cho tất cả các ngôi.'
       }
     ]
   },
-
   {
-    id: 'g_4',
+    id: 'g_b1_2',
     title: 'Passive Voice (Câu Bị Động)',
-    level: 'B2',
-    category: 'Sentence Structure',
-    summary: 'Chuyển đổi câu chủ động sang bị động, nhấn mạnh vào đối tượng chịu tác động của hành động.',
-    explanationMarkdown: `
-### Quy tắc chuyển sang Câu Bị Động (Passive Voice)
-- **Công thức tổng quát:** \`Object + Be (thì tương ứng) + V3/ed (+ by Subject)\`
+    level: 'B1',
+    category: 'Sentence Structures',
+    summary: 'Chuyển đổi câu chủ động sang câu bị động tập trung vào đối tượng chịu tác động của hành động.',
+    explanationMarkdown: `### Cấu Trúc Tổng Quát:
+**Subject + Be + V3/ed (+ by Object)**
 
-#### Các Thì Phổ Biến Trong Câu Bị Động:
-1. **Present Simple:** \`am/is/are + V3/ed\`
-2. **Past Simple:** \`was/were + V3/ed\`
-3. **Present Perfect:** \`have/has + been + V3/ed\`
-4. **Modal Verbs:** \`can/must/should + be + V3/ed\`
-
-*Lưu ý:* Bỏ *by someone, by people, by them...* khi chủ thể không rõ ràng hoặc không quan trọng.
-    `,
+#### Động từ "Be" biến đổi theo thì:
+- Hiện tại đơn: am/is/are + V3
+- Quá khứ đơn: was/were + V3
+- Hiện tại hoàn thành: have/has been + V3
+- Động từ khuyết thiếu: can/must/should + be + V3`,
     examples: [
-      { english: 'Active: The engineer repaired the laptop.', vietnamese: 'Kỹ sư đã sửa chiếc máy tính xách tay.' },
-      { english: 'Passive: The laptop was repaired by the engineer.', vietnamese: 'Chiếc máy tính xách tay đã được sửa bởi kỹ sư.' }
+      { english: 'Active: The chef cooked a delicious dinner.', vietnamese: 'Chủ động: Đầu bếp đã nấu bữa tối ngon miệng.' },
+      { english: 'Passive: A delicious dinner was cooked by the chef.', vietnamese: 'Bị động: Bữa tối ngon miệng đã được nấu bởi đầu bếp.' }
     ],
     quizzes: [
       {
-        id: 'q_g4_1',
-        question: 'Thousands of new apartments ___ in this district every year.',
-        options: ['build', 'are built', 'were built', 'have built'],
+        id: 'q_b1_2_1',
+        question: 'The new bridge _______ by local workers last month.',
+        options: ['built', 'was built', 'is built', 'has been built'],
         correctAnswer: 1,
-        explanation: 'Hành động xây nhà diễn ra thường xuyên ("every year") ở dạng bị động -> Dùng Present Simple Passive ("are built").'
+        explanation: 'Chủ ngữ "The new bridge" là vật + thời gian "last month" -> Câu bị động quá khứ đơn (was built).'
       }
     ]
   },
 
+  // ==================== B2 LEVEL ====================
   {
-    id: 'g_5',
-    title: 'Inversion with Negative Adverbs (Đảo Ngữ)',
+    id: 'g_b2_1',
+    title: 'Conditionals Type 3 & Mixed Conditionals (Câu Điều Kiện Loại 3 & Hỗn Hợp)',
+    level: 'B2',
+    category: 'Conditionals',
+    summary: 'Giả định tiếc nuối trái ngược hoàn toàn với thực tế trong quá khứ.',
+    explanationMarkdown: `### 1. Câu Điều Kiện Loại 3 (Giả định trái với quá khứ)
+- **Mệnh đề If:** If + Past Perfect (had + V3)
+- **Mệnh đề chính:** Would have + V3
+
+### 2. Câu Điều Kiện Hỗn Hợp (Trái quá khứ -> Dẫn đến kết quả ở hiện tại)
+- **Mệnh đề If:** If + Past Perfect (had + V3)
+- **Mệnh đề chính:** Would + V-bare (now)`,
+    examples: [
+      { english: 'If I had studied harder, I would have passed the exam.', vietnamese: 'Nếu quá khứ tôi học chăm hơn, tôi đã đậu kỳ thi rồi. (Loại 3)' },
+      { english: 'If I had caught the early train, I would be in London now.', vietnamese: 'Nếu tôi bắt chuyến tàu sớm lúc trước, bây giờ tôi đã ở London rồi. (Hỗn hợp)' }
+    ],
+    quizzes: [
+      {
+        id: 'q_b2_1_1',
+        question: 'If you had told me about the meeting, I _______ it.',
+        options: ['would attend', 'attended', 'would have attended', 'had attended'],
+        correctAnswer: 2,
+        explanation: 'Giả định sự việc trong quá khứ (If had V3) -> Mệnh đề chính loại 3 chọn "would have attended".'
+      }
+    ]
+  },
+  {
+    id: 'g_b2_2',
+    title: 'Relative Clauses (Mệnh Đề Quan Hệ Defining & Non-defining)',
+    level: 'B2',
+    category: 'Clause Structures',
+    summary: 'Sử dụng đại từ quan hệ Who, Whom, Which, That, Whose để nối câu và bổ nghĩa cho danh từ.',
+    explanationMarkdown: `### 1. Đại Từ Quan Hệ:
+- **Who:** Thay cho người (chủ ngữ)
+- **Whom:** Thay cho người (tân ngữ)
+- **Which:** Thay cho vật/sự việc
+- **Whose:** Chỉ sở hữu (whose + noun)
+- **That:** Thay cho who/which trong mệnh đề xác định (không dùng sau dấu phẩy).`,
+    examples: [
+      { english: 'The man who lives next door is a famous scientist.', vietnamese: 'Người đàn ông sống cạnh nhà là một nhà khoa học nổi tiếng.' },
+      { english: 'My laptop, which I bought last week, works perfectly.', vietnamese: 'Laptop của tôi, cái mà tôi mua tuần trước, hoạt động hoàn hảo.' }
+    ],
+    quizzes: [
+      {
+        id: 'q_b2_2_1',
+        question: 'The student _______ essay won first place was awarded a scholarship.',
+        options: ['who', 'whom', 'whose', 'which'],
+        correctAnswer: 2,
+        explanation: 'Từ "essay" thuộc sở hữu của "The student" -> Dùng đại từ sở hữu "whose".'
+      }
+    ]
+  },
+
+  // ==================== C1 LEVEL ====================
+  {
+    id: 'g_c1_1',
+    title: 'Advanced Inversion (Đảo Ngữ Nâng Cao)',
     level: 'C1',
     category: 'Advanced Grammar',
-    summary: 'Cấu trúc đảo ngữ đưa trợ động từ lên trước chủ ngữ để nhấn mạnh khi câu bắt đầu bằng trạng từ phủ định.',
-    explanationMarkdown: `
-### Cấu Trúc Đảo Ngữ Nâng Cao (Inversion)
-Khi các từ/cụm từ phủ định đứng đầu câu để tạo sự nhấn mạnh (Emphasis), chúng ta thực hiện đảo trợ động từ lên trước chủ ngữ:
+    summary: 'Nhấn mạnh câu bằng cách đưa trạng từ phủ định hoặc cụm giới từ lên đầu câu và đảo trợ động từ lên trước chủ ngữ.',
+    explanationMarkdown: `### Cấu Trúc Đảo Ngữ:
+**Negative Adverb + Auxiliary Verb + Subject + Main Verb**
 
-- **Các trạng từ thường gặp:** *Never, Seldom, Rarely, Hardly, Scarcely, No sooner, Only when...*
-- **Công thức:** \`Trạng từ phủ định + Auxiliary Verb (do/does/did/have/had) + Subject + Main Verb\`
-
-#### Cấu trúc đặc biệt:
-- \`Hardly / Scarcely + had + S + V3... WHEN + S + V2\`
-- \`No sooner + had + S + V3... THAN + S + V2\`
-    `,
+#### Các Trạng Từ Phủ Định Thường Gặp:
+- *Never, Seldom, Rarely, Hardly... when, No sooner... than, Only by, Not only... but also*.`,
     examples: [
-      { english: 'Rarely have I seen such an inspiring performance.', vietnamese: 'Hiếm khi nào tôi được chứng kiến một màn trình diễn truyền cảm hứng đến vậy.' },
-      { english: 'No sooner had he arrived than the rain started.', vietnamese: 'Anh ấy vừa mới tới nơi thì trời bắt đầu mưa.' }
+      { english: 'Seldom have I seen such an inspiring performance.', vietnamese: 'Hiếm khi nào tôi được chứng kiến một màn trình diễn truyền cảm hứng đến vậy.' },
+      { english: 'No sooner had he arrived than the rain started.', vietnamese: 'Ngay khi anh ấy vừa tới nơi thì trời bắt đầu đổ mưa.' }
     ],
     quizzes: [
       {
-        id: 'q_g5_1',
-        question: 'Seldom ___ such remarkable resilience in young students.',
-        options: ['we witness', 'do we witness', 'we have witnessed', 'witnessed we'],
+        id: 'q_c1_1_1',
+        question: 'Not only _______ the match, but they also broke the championship record.',
+        options: ['they won', 'did they win', 'they have won', 'have they won'],
         correctAnswer: 1,
-        explanation: 'Đứng đầu câu là trạng từ phủ định "Seldom" -> Đảo trợ động từ "do" lên trước "we witness".'
+        explanation: 'Cấu trúc đảo ngữ "Not only" đứng đầu câu quá khứ -> mượn trợ động từ "did they win".'
       }
     ]
   }
@@ -194,6 +281,8 @@ export const grammarCategories = [
   'All',
   'Tenses',
   'Conditionals',
-  'Sentence Structure',
+  'Sentence Structures',
+  'Modifiers',
+  'Clause Structures',
   'Advanced Grammar'
 ];
