@@ -3,9 +3,10 @@ import { UserProfile, GrammarLesson } from '../../types';
 import { initialGrammarLessons, grammarCategories } from '../../data/grammarData';
 import { addXpToUser, saveUserProfile } from '../../services/storage';
 import { trackWeakTopic } from '../../services/trackingService';
+import { GrammarCheckerWidget } from '../writing/GrammarCheckerWidget';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { BookOpen, CheckCircle, Volume2, ArrowLeft, ArrowRight, HelpCircle, Sparkles } from 'lucide-react';
+import { BookOpen, CheckCircle, Volume2, ArrowLeft, ArrowRight, HelpCircle, Sparkles, PenTool, Edit3 } from 'lucide-react';
 
 interface GrammarViewProps {
   user: UserProfile;
@@ -16,6 +17,7 @@ export const GrammarView: React.FC<GrammarViewProps> = ({ user, onUpdateUser }) 
   const [lessons, setLessons] = useState<GrammarLesson[]>(initialGrammarLessons);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'lessons' | 'writing'>('lessons');
 
   // Quiz state inside lesson view
   const [currentQuizIndex, setCurrentQuizIndex] = useState<number>(0);
@@ -88,18 +90,52 @@ export const GrammarView: React.FC<GrammarViewProps> = ({ user, onUpdateUser }) 
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <BookOpen color="var(--accent-pink)" size={32} />
-          Phân Hệ Ngữ Pháp Tương Tác AI
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-          Hệ thống các chủ đề ngữ pháp từ A1 đến C1 có lý thuyết minh họa &amp; bài tập củng cố.
-        </p>
+      {/* Header & Main Tabs */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h1 style={{ fontSize: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <BookOpen color="var(--accent-pink)" size={32} />
+            Phân Hệ Ngữ Pháp Tương Tác &amp; Viết Văn AI
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+            Lý thuyết ngữ pháp A1-C1 &amp; Công cụ kiểm tra lỗi chính tả, ngữ pháp LanguageTool real-time.
+          </p>
+        </div>
+
+        {/* View Switcher Tabs */}
+        <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.35rem', borderRadius: 'var(--radius-md)' }}>
+          <button
+            onClick={() => setActiveTab('lessons')}
+            style={{
+              padding: '0.6rem 1.2rem',
+              borderRadius: 'var(--radius-sm)',
+              background: activeTab === 'lessons' ? 'var(--accent-pink)' : 'transparent',
+              color: activeTab === 'lessons' ? '#fff' : 'var(--text-secondary)',
+              fontWeight: 600
+            }}
+          >
+            📚 Bài Học Ngữ Pháp
+          </button>
+
+          <button
+            onClick={() => setActiveTab('writing')}
+            style={{
+              padding: '0.6rem 1.2rem',
+              borderRadius: 'var(--radius-sm)',
+              background: activeTab === 'writing' ? 'var(--accent-cyan)' : 'transparent',
+              color: activeTab === 'writing' ? '#000' : 'var(--text-secondary)',
+              fontWeight: 600
+            }}
+          >
+            ✍️ Kiểm Tra Ngữ Pháp Real-time
+          </button>
+        </div>
       </div>
 
-      {activeLesson ? (
+      {/* Render Selected Tab */}
+      {activeTab === 'writing' ? (
+        <GrammarCheckerWidget saplingApiKey={user.saplingApiKey} />
+      ) : activeLesson ? (
         /* LESSON DETAIL VIEW */
         <div>
           {/* Back button & Title */}

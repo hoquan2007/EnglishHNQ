@@ -45,10 +45,9 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleSaveApiKey = (key: string) => {
-    const updated = { ...user, geminiApiKey: key };
-    setUser(updated);
-    saveUserProfile(updated);
+  const handleSaveApiKey = (updatedUser: UserProfile) => {
+    setUser(updatedUser);
+    saveUserProfile(updatedUser);
   };
 
   const renderModuleContent = () => {

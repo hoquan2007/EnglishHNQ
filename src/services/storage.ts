@@ -66,3 +66,20 @@ export const addXpToUser = (amount: number): UserProfile => {
   saveUserProfile(updated);
   return updated;
 };
+
+export const saveUserMasteredWord = (word: string): void => {
+  try {
+    const current = getUserProfile();
+    const cleanWord = word.trim().toLowerCase();
+    if (!current.weakWords.includes(cleanWord)) {
+      const updated: UserProfile = {
+        ...current,
+        wordsLearned: current.wordsLearned + 1,
+      };
+      saveUserProfile(updated);
+    }
+  } catch (e) {
+    console.error('Error saving mastered word:', e);
+  }
+};
+

@@ -4,6 +4,7 @@ import { CURATED_SHADOWING_LESSONS } from '../../data/shadowingData';
 import { YouTubePlayer } from './YouTubePlayer';
 import { TranscriptView } from './TranscriptView';
 import { ShadowingPracticeCard } from './ShadowingPracticeCard';
+import { WordLookupModal } from '../ui/WordLookupModal';
 import { extractYouTubeId, fetchOrGenerateTranscript } from '../../services/youtubeTranscriptService';
 import { trackShadowingScore } from '../../services/trackingService';
 import { Card } from '../ui/Card';
@@ -21,6 +22,7 @@ export const ShadowingView: React.FC<ShadowingViewProps> = ({ user, onUpdateUser
   const [selectedLine, setSelectedLine] = useState<TranscriptLine | null>(CURATED_SHADOWING_LESSONS[0].transcript[0]);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [seekTime, setSeekTime] = useState<number | null>(null);
+  const [activeLookupWord, setActiveLookupWord] = useState<string | null>(null);
 
   const [customUrlInput, setCustomUrlInput] = useState<string>('');
   const [isLoadingCustom, setIsLoadingCustom] = useState<boolean>(false);
@@ -111,6 +113,15 @@ export const ShadowingView: React.FC<ShadowingViewProps> = ({ user, onUpdateUser
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+      {/* Word Lookup Modal */}
+      {activeLookupWord && (
+        <WordLookupModal
+          word={activeLookupWord}
+          onClose={() => setActiveLookupWord(null)}
+          merriamWebsterApiKey={user.merriamWebsterApiKey}
+        />
+      )}
+
       {/* Top Banner Header */}
       <div
         className="glass-panel"
@@ -131,7 +142,7 @@ export const ShadowingView: React.FC<ShadowingViewProps> = ({ user, onUpdateUser
             <h1 style={{ fontSize: '1.8rem', margin: 0 }}>YouTube Shadowing English</h1>
           </div>
           <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.95rem' }}>
-            Nhập URL YouTube hoặc chọn bài học mẫu &rarr; Xem phụ đề tương tác &rarr; Thu âm nhại giọng &rarr; AI Chấm điểm phát âm chuẩn %!
+            Nhập URL YouTube hoặc chọn bài học mẫu &rarr; Xem phụ đề tương tác &rarr; Click từ vựng tra từ điển 1-click &rarr; Thu âm nhại giọng &rarr; AI Chấm điểm phát âm chuẩn %!
           </p>
         </div>
 
@@ -194,6 +205,7 @@ export const ShadowingView: React.FC<ShadowingViewProps> = ({ user, onUpdateUser
               currentTime={currentTime}
               selectedLineId={selectedLine?.id || null}
               onSelectLine={handleSelectLine}
+              onWordClick={(w) => setActiveLookupWord(w)}
             />
           </div>
         </div>

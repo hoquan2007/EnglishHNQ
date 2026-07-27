@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
-import { UserProfile, CEFRLevel, WordItem } from '../../types';
+import React, { useState, useEffect } from 'react';
+import { UserProfile, CEFRLevel, WordItem, DatamuseSuggestion } from '../../types';
 import { initialVocabulary, vocabularyTopics } from '../../data/vocabularyData';
 import { addXpToUser, saveUserProfile } from '../../services/storage';
+import { fetchDatamuseSuggestions } from '../../services/dictionaryService';
+import { WordLookupModal } from '../ui/WordLookupModal';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { BookOpen, Volume2, RotateCw, CheckCircle, ChevronLeft, ChevronRight, Shuffle, Gamepad2, Award, Sparkles } from 'lucide-react';
+import { Input } from '../ui/Input';
+import { BookOpen, Volume2, RotateCw, CheckCircle, ChevronLeft, ChevronRight, Shuffle, Gamepad2, Award, Sparkles, Search, ExternalLink } from 'lucide-react';
 
 interface VocabularyViewProps {
   user: UserProfile;
@@ -17,6 +20,11 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
   const [selectedTopic, setSelectedTopic] = useState<string>('All');
   const [activeTab, setActiveTab] = useState<'flashcards' | 'matching' | 'quiz'>('flashcards');
 
+  // Search & Autocomplete State
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [suggestions, setSuggestions] = useState<DatamuseSuggestion[]>([]);
+  const [lookupWord, setLookupWord] = useState<string | null>(null);
+
   // Flashcard state
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
@@ -27,11 +35,26 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
   const [matchedIds, setMatchedIds] = useState<string[]>([]);
   const [matchingScore, setMatchingScore] = useState<number>(0);
 
+  // Datamuse Autocomplete Effect
+  useEffect(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      fetchDatamuseSuggestions(searchQuery).then(res => setSuggestions(res));
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   // Filtered words
   const filteredWords = words.filter((w) => {
     const levelMatch = selectedLevel === 'All' || w.level === selectedLevel;
     const topicMatch = selectedTopic === 'All' || w.topic === selectedTopic;
-    return levelMatch && topicMatch;
+    const searchMatch = !searchQuery || w.term.toLowerCase().includes(searchQuery.toLowerCase()) || w.vietnameseMeaning.toLowerCase().includes(searchQuery.toLowerCase());
+    return levelMatch && topicMatch && searchMatch;
   });
 
   const currentWord = filteredWords[currentIndex] || filteredWords[0];
@@ -140,6 +163,15 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      {/* Dictionary Lookup Modal */}
+      {lookupWord && (
+        <WordLookupModal
+          word={lookupWord}
+          onClose={() => setLookupWord(null)}
+          merriamWebsterApiKey={user.merriamWebsterApiKey}
+        />
+      )}
+
       {/* Top Header & Tabs */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
@@ -148,7 +180,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
             Học Từ Vựng Tiếng Anh CEFR
           </h1>
           <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-            Khám phá 3000+ từ vựng chuẩn Oxford, thẻ lật 3D &amp; Mini-game nối từ thông minh.
+            Khám phá từ vựng chuẩn Oxford & Wiktionary, Autocomplete thông minh &amp; Thẻ lật 3D.
           </p>
         </div>
 
@@ -181,52 +213,87 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
         </div>
       </div>
 
-      {/* Filter Controls (Level & Topic) */}
-      <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '2rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginRight: '0.75rem', fontWeight: 600 }}>CẤP ĐỘ CEFR:</span>
-          {['All', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((lvl) => (
-            <button
-              key={lvl}
-              onClick={() => { setSelectedLevel(lvl); setCurrentIndex(0); }}
-              style={{
-                padding: '0.3rem 0.75rem',
-                marginRight: '0.35rem',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '0.8rem',
-                background: selectedLevel === lvl ? 'var(--accent-cyan)' : 'rgba(255, 255, 255, 0.05)',
-                color: selectedLevel === lvl ? '#000' : 'var(--text-secondary)',
-                fontWeight: selectedLevel === lvl ? 700 : 500
-              }}
-            >
-              {lvl}
-            </button>
-          ))}
+      {/* Autocomplete Search & Filter Controls */}
+      <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        {/* Search Bar with Datamuse Suggestions */}
+        <div className="relative">
+          <Input
+            placeholder="Tra cứu từ vựng (Datamuse Autocomplete API)... Ví dụ: raw, dynamic, hello"
+            value={searchQuery}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+            icon={<Search size={18} />}
+          />
+
+          {/* Autocomplete Dropdown List */}
+          {suggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 z-30 mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden divide-y divide-slate-800">
+              {suggestions.map((sug, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => {
+                    setSearchQuery(sug.word);
+                    setLookupWord(sug.word);
+                    setSuggestions([]);
+                  }}
+                  className="px-4 py-2.5 flex items-center justify-between text-sm text-slate-200 hover:bg-cyan-500/10 hover:text-cyan-400 cursor-pointer transition"
+                >
+                  <span className="font-medium">{sug.word}</span>
+                  <span className="text-xs text-slate-500 flex items-center gap-1">
+                    Tra từ điển <ExternalLink size={12} />
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div style={{ height: '24px', width: '1px', background: 'var(--glass-border)' }} />
-
-        <div>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginRight: '0.75rem', fontWeight: 600 }}>CHỦ ĐỀ:</span>
-          <select
-            value={selectedTopic}
-            onChange={(e) => { setSelectedTopic(e.target.value); setCurrentIndex(0); }}
-            style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              color: 'var(--text-primary)',
-              border: '1px solid var(--glass-border)',
-              padding: '0.4rem 0.8rem',
-              borderRadius: 'var(--radius-sm)',
-              outline: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            {vocabularyTopics.map((topic) => (
-              <option key={topic} value={topic} style={{ background: '#121824' }}>
-                {topic}
-              </option>
+        {/* Level & Topic Filters */}
+        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginRight: '0.75rem', fontWeight: 600 }}>CẤP ĐỘ CEFR:</span>
+            {['All', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((lvl) => (
+              <button
+                key={lvl}
+                onClick={() => { setSelectedLevel(lvl); setCurrentIndex(0); }}
+                style={{
+                  padding: '0.3rem 0.75rem',
+                  marginRight: '0.35rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.8rem',
+                  background: selectedLevel === lvl ? 'var(--accent-cyan)' : 'rgba(255, 255, 255, 0.05)',
+                  color: selectedLevel === lvl ? '#000' : 'var(--text-secondary)',
+                  fontWeight: selectedLevel === lvl ? 700 : 500
+                }}
+              >
+                {lvl}
+              </button>
             ))}
-          </select>
+          </div>
+
+          <div style={{ height: '24px', width: '1px', background: 'var(--glass-border)' }} />
+
+          <div>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginRight: '0.75rem', fontWeight: 600 }}>CHỦ ĐỀ:</span>
+            <select
+              value={selectedTopic}
+              onChange={(e) => { setSelectedTopic(e.target.value); setCurrentIndex(0); }}
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--glass-border)',
+                padding: '0.4rem 0.8rem',
+                borderRadius: 'var(--radius-sm)',
+                outline: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              {vocabularyTopics.map((topic) => (
+                <option key={topic} value={topic} style={{ background: '#121824' }}>
+                  {topic}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -235,7 +302,14 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
         <div>
           {filteredWords.length === 0 ? (
             <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
-              <p style={{ color: 'var(--text-secondary)' }}>Không tìm thấy từ vựng nào phù hợp với bộ lọc hiện tại.</p>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                Không tìm thấy từ vựng nào phù hợp với từ khóa "{searchQuery}".
+              </p>
+              {searchQuery && (
+                <Button variant="gradient" onClick={() => setLookupWord(searchQuery)}>
+                  Tra trực tiếp từ "{searchQuery}" trong Từ điển Online
+                </Button>
+              )}
             </div>
           ) : (
             <div>
@@ -282,21 +356,33 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                       <span className="badge" style={{ background: 'rgba(0, 240, 255, 0.2)', color: 'var(--accent-cyan)' }}>
                         {currentWord.level} • {currentWord.topic}
                       </span>
-                      <button
-                        onClick={(e) => handleToggleMastered(currentWord.id, e)}
-                        style={{
-                          background: currentWord.mastered ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 255, 255, 0.08)',
-                          color: currentWord.mastered ? 'var(--accent-green)' : 'var(--text-muted)',
-                          padding: '0.4rem 0.8rem',
-                          borderRadius: 'var(--radius-full)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.35rem',
-                          fontSize: '0.8rem'
-                        }}
-                      >
-                        <CheckCircle size={16} /> {currentWord.mastered ? 'Đã Thuộc (+15 XP)' : 'Đánh dấu thuộc'}
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLookupWord(currentWord.term);
+                          }}
+                          className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500 hover:text-white transition flex items-center gap-1"
+                        >
+                          <Search size={14} /> Tra Chi Tiết
+                        </button>
+
+                        <button
+                          onClick={(e) => handleToggleMastered(currentWord.id, e)}
+                          style={{
+                            background: currentWord.mastered ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 255, 255, 0.08)',
+                            color: currentWord.mastered ? 'var(--accent-green)' : 'var(--text-muted)',
+                            padding: '0.4rem 0.8rem',
+                            borderRadius: 'var(--radius-full)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            fontSize: '0.8rem'
+                          }}
+                        >
+                          <CheckCircle size={16} /> {currentWord.mastered ? 'Đã Thuộc (+15 XP)' : 'Đánh dấu thuộc'}
+                        </button>
+                      </div>
                     </div>
 
                     <div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TranscriptLine } from '../../types';
-import { Play, Languages, Volume2 } from 'lucide-react';
+import { Play, Languages, Volume2, Search } from 'lucide-react';
 import { speakText } from '../../services/speechService';
 
 interface TranscriptViewProps {
@@ -8,6 +8,7 @@ interface TranscriptViewProps {
   currentTime: number;
   selectedLineId: string | null;
   onSelectLine: (line: TranscriptLine) => void;
+  onWordClick?: (word: string) => void;
 }
 
 export const TranscriptView: React.FC<TranscriptViewProps> = ({
@@ -15,6 +16,7 @@ export const TranscriptView: React.FC<TranscriptViewProps> = ({
   currentTime,
   selectedLineId,
   onSelectLine,
+  onWordClick,
 }) => {
   const [showTranslation, setShowTranslation] = useState<boolean>(true);
 
@@ -23,6 +25,35 @@ export const TranscriptView: React.FC<TranscriptViewProps> = ({
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const renderClickableWords = (text: string) => {
+    if (!onWordClick) return text;
+    const words = text.split(/(\s+|[.,!?;:"'()]+)/);
+    return words.map((chunk, idx) => {
+      const isWord = /^[a-zA-Z0-9]+$/.test(chunk);
+      if (isWord) {
+        return (
+          <span
+            key={idx}
+            onClick={(e) => {
+              e.stopPropagation();
+              onWordClick(chunk);
+            }}
+            title={`Click để tra từ "${chunk}"`}
+            style={{
+              cursor: 'pointer',
+              borderBottom: '1px dotted rgba(0, 240, 255, 0.4)',
+              transition: 'all 0.15s ease',
+            }}
+            className="hover:text-cyan-400 hover:bg-cyan-500/10 rounded px-0.5"
+          >
+            {chunk}
+          </span>
+        );
+      }
+      return <span key={idx}>{chunk}</span>;
+    });
   };
 
   return (
@@ -50,7 +81,7 @@ export const TranscriptView: React.FC<TranscriptViewProps> = ({
         <div>
           <h3 style={{ fontSize: '1.1rem', margin: 0 }}>Phụ Đề Tương Tác (Transcript)</h3>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            {transcript.length} câu • Click câu để tua video
+            {transcript.length} câu • Click câu để tua • Click từ để tra từ điển 1-click
           </span>
         </div>
 
@@ -162,7 +193,7 @@ export const TranscriptView: React.FC<TranscriptViewProps> = ({
               </div>
 
               <p style={{ fontSize: '0.95rem', fontWeight: 500, lineHeight: 1.5, margin: 0, color: '#fff' }}>
-                {line.text}
+                {renderClickableWords(line.text)}
               </p>
 
               {showTranslation && line.translation && (

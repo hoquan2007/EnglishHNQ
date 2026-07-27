@@ -29,6 +29,12 @@ export interface UserProfile {
   weakTopics: string[];
   weakWords: string[];
   geminiApiKey?: string;
+  merriamWebsterApiKey?: string;
+  saplingApiKey?: string;
+  azureSpeechKey?: string;
+  azureSpeechRegion?: string;
+  speechSuperAppKey?: string;
+  speechSuperSecretKey?: string;
 }
 
 export interface WordItem {
@@ -152,4 +158,74 @@ export interface LearningAnalytics {
   chatFixHistory: ChatFixRecord[];
   overallAccuracy: number;
   recommendedDailyXp: number;
+}
+
+// -------------------------------------------------------------
+// New Types for Extended API Integration
+// -------------------------------------------------------------
+
+export interface DictionaryPhonetic {
+  text?: string;
+  audio?: string;
+  tag?: string;
+}
+
+export interface DictionaryDefinition {
+  definition: string;
+  example?: string;
+  synonyms?: string[];
+  antonyms?: string[];
+}
+
+export interface DictionaryMeaning {
+  partOfSpeech: string;
+  definitions: DictionaryDefinition[];
+  synonyms?: string[];
+  antonyms?: string[];
+}
+
+export interface DetailedWordLookup {
+  word: string;
+  phonetics: DictionaryPhonetic[];
+  meanings: DictionaryMeaning[];
+  vietnameseMeaning?: string;
+  sourceUrl?: string;
+}
+
+export interface DatamuseSuggestion {
+  word: string;
+  score: number;
+  tags?: string[];
+}
+
+export interface GrammarMatch {
+  message: string;
+  shortMessage?: string;
+  offset: number;
+  length: number;
+  replacements: string[];
+  ruleId?: string;
+  contextText?: string;
+}
+
+export interface TextStatistics {
+  wordCount: number;
+  characterCount: number;
+  sentenceCount: number;
+  fleschKincaidGrade?: number;
+  readabilityScore?: number;
+  readingTimeSeconds?: number;
+}
+
+export interface DetailedPronunciationScore {
+  overallScore: number;
+  accuracyScore: number;
+  fluencyScore: number;
+  completenessScore: number;
+  prosodyScore?: number;
+  wordsDetails?: {
+    word: string;
+    score: number;
+    errorType?: 'None' | 'Omission' | 'Insertion' | 'Mispronunciation';
+  }[];
 }

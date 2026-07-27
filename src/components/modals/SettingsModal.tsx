@@ -1,28 +1,46 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../../types';
-import { Key, ExternalLink, CheckCircle, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Key, ExternalLink, CheckCircle, ShieldCheck, Sparkles, BookOpen, Mic, Cpu } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 interface SettingsModalProps {
   user: UserProfile;
   isOpen: boolean;
   onClose: () => void;
-  onSaveApiKey: (key: string) => void;
+  onSaveApiKey: (updatedUser: UserProfile) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   user,
   isOpen,
   onClose,
-  onSaveApiKey
+  onSaveApiKey,
 }) => {
-  const [apiKey, setApiKey] = useState(user.geminiApiKey || '');
+  const [geminiKey, setGeminiKey] = useState(user.geminiApiKey || '');
+  const [mwKey, setMwKey] = useState(user.merriamWebsterApiKey || '');
+  const [saplingKey, setSaplingKey] = useState(user.saplingApiKey || '');
+  const [azureKey, setAzureKey] = useState(user.azureSpeechKey || '');
+  const [azureRegion, setAzureRegion] = useState(user.azureSpeechRegion || 'eastus');
+  const [speechSuperAppKey, setSpeechSuperAppKey] = useState(user.speechSuperAppKey || '');
+  const [speechSuperSecretKey, setSpeechSuperSecretKey] = useState(user.speechSuperSecretKey || '');
+
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   if (!isOpen) return null;
 
   const handleSave = () => {
-    onSaveApiKey(apiKey.trim());
+    const updatedUser: UserProfile = {
+      ...user,
+      geminiApiKey: geminiKey.trim(),
+      merriamWebsterApiKey: mwKey.trim(),
+      saplingApiKey: saplingKey.trim(),
+      azureSpeechKey: azureKey.trim(),
+      azureSpeechRegion: azureRegion.trim(),
+      speechSuperAppKey: speechSuperAppKey.trim(),
+      speechSuperSecretKey: speechSuperSecretKey.trim(),
+    };
+
+    onSaveApiKey(updatedUser);
     setSavedSuccess(true);
     setTimeout(() => {
       setSavedSuccess(false);
@@ -41,99 +59,120 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 100,
-        padding: '1rem'
+        padding: '1rem',
       }}
       onClick={onClose}
     >
       <div
         style={{
           width: '100%',
-          maxWidth: '540px',
+          maxWidth: '650px',
           backgroundColor: '#121824',
           border: '1px solid rgba(0, 240, 255, 0.3)',
           borderRadius: 'var(--radius-lg)',
           padding: '2rem',
           boxShadow: '0 0 40px rgba(0, 240, 255, 0.2)',
-          position: 'relative'
+          position: 'relative',
+          maxHeight: '90vh',
+          overflowY: 'auto',
         }}
         onClick={(e) => e.stopPropagation()}
+        className="custom-scrollbar"
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
           <div style={{ padding: '0.6rem', borderRadius: '12px', background: 'rgba(0, 240, 255, 0.15)', color: 'var(--accent-cyan)' }}>
             <Key size={24} />
           </div>
           <div>
-            <h3 style={{ fontSize: '1.3rem', margin: 0 }}>Cấu Hình Gemini API Key</h3>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Dành cho Chatbot 1:1 (Adam & Eva) và AI Gia Sư</span>
+            <h3 style={{ fontSize: '1.3rem', margin: 0 }}>Cấu Hình Hệ Thống API &amp; Services</h3>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Gemini AI, Merriam-Webster, Sapling AI &amp; Azure Speech Engine</span>
           </div>
         </div>
 
-        {/* Info Box */}
-        <div
-          style={{
-            backgroundColor: 'rgba(138, 43, 226, 0.12)',
-            border: '1px solid rgba(138, 43, 226, 0.3)',
-            borderRadius: 'var(--radius-md)',
-            padding: '1rem',
-            marginBottom: '1.5rem',
-            fontSize: '0.85rem',
-            lineHeight: 1.6
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent-purple)', fontWeight: 700, marginBottom: '0.4rem' }}>
-            <ShieldCheck size={18} />
-            <span>Cách lấy API Key Miễn Phí (Google AI Studio)</span>
+        {/* Gemini API Key Box */}
+        <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-3 mb-4">
+          <div className="flex items-center gap-2 text-cyan-400 font-semibold text-sm">
+            <Sparkles className="w-4 h-4" />
+            <span>Google Gemini AI API Key (Chatbot &amp; AI Tutor)</span>
           </div>
-          <p style={{ color: 'var(--text-secondary)' }}>
-            1. Đăng nhập bằng chính tài khoản Google của bạn tại <strong>Google AI Studio</strong>.
-          </p>
-          <p style={{ color: 'var(--text-secondary)' }}>
-            2. Nhấn nút <strong>"Get API key"</strong> và tạo Key miễn phí (Model Gemini 1.5 Flash).
-          </p>
-          <a
-            href="https://aistudio.google.com/app/apikey"
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              color: 'var(--accent-cyan)',
-              fontWeight: 600,
-              marginTop: '0.5rem',
-              textDecoration: 'none'
-            }}
-          >
-            Mở Google AI Studio ngay <ExternalLink size={14} />
-          </a>
-        </div>
-
-        {/* Input Form */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
-            Nhập Gemini API Key của bạn:
-          </label>
           <input
             type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
+            value={geminiKey}
+            onChange={(e) => setGeminiKey(e.target.value)}
             placeholder="AIzaSy..."
-            style={{
-              width: '100%',
-              padding: '0.85rem 1rem',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid var(--glass-border)',
-              color: 'var(--text-primary)',
-              fontSize: '0.95rem',
-              outline: 'none'
-            }}
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-cyan-500"
           />
+          <span className="text-xs text-slate-400 block">
+            Miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-cyan-400 underline">Google AI Studio</a>. Nếu để trống, hệ thống dùng Smart Offline Fallback.
+          </span>
+        </div>
+
+        {/* Merriam-Webster API Key Box */}
+        <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-3 mb-4">
+          <div className="flex items-center gap-2 text-purple-400 font-semibold text-sm">
+            <BookOpen className="w-4 h-4" />
+            <span>Merriam-Webster Dictionary Key (Tùy chọn)</span>
+          </div>
+          <input
+            type="password"
+            value={mwKey}
+            onChange={(e) => setMwKey(e.target.value)}
+            placeholder="Key tra từ Merriam-Webster ESL..."
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-purple-500"
+          />
+          <span className="text-xs text-slate-400 block">
+            Miễn phí tại <a href="https://dictionaryapi.com/" target="_blank" rel="noreferrer" className="text-purple-400 underline">dictionaryapi.com</a>. Mặc định dùng Free Dictionary API &amp; Wiktionary (Không cần Key).
+          </span>
+        </div>
+
+        {/* Sapling AI API Key Box */}
+        <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-3 mb-4">
+          <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+            <Cpu className="w-4 h-4" />
+            <span>Sapling AI API Key (Viết văn &amp; Đánh giá Flesch-Kincaid)</span>
+          </div>
+          <input
+            type="password"
+            value={saplingKey}
+            onChange={(e) => setSaplingKey(e.target.value)}
+            placeholder="Key Sapling AI Statistics..."
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500"
+          />
+          <span className="text-xs text-slate-400 block">
+            Tài khoản miễn phí tại <a href="https://sapling.ai/docs/" target="_blank" rel="noreferrer" className="text-emerald-400 underline">sapling.ai</a>. Nếu để trống, hệ thống tự động chạy Local Readability Math Engine.
+          </span>
+        </div>
+
+        {/* Azure Speech & SpeechSuper Key Box */}
+        <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-3 mb-4">
+          <div className="flex items-center gap-2 text-amber-400 font-semibold text-sm">
+            <Mic className="w-4 h-4" />
+            <span>Azure Speech / SpeechSuper Engine (Đánh giá phát âm nâng cao)</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input
+              type="password"
+              value={azureKey}
+              onChange={(e) => setAzureKey(e.target.value)}
+              placeholder="Azure Speech Subscription Key..."
+              className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-amber-500"
+            />
+            <input
+              type="text"
+              value={azureRegion}
+              onChange={(e) => setAzureRegion(e.target.value)}
+              placeholder="Region (ví dụ: eastus)"
+              className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-amber-500"
+            />
+          </div>
+          <span className="text-xs text-slate-400 block">
+            Nếu để trống, hệ thống tự động dùng <strong>Web Speech API STT + Levenshtein Similarity Engine (Miễn phí 100%)</strong>.
+          </span>
         </div>
 
         {savedSuccess && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent-green)', marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 600 }}>
-            <CheckCircle size={16} /> Đã lưu API Key thành công!
+            <CheckCircle size={16} /> Đã lưu cấu hình API thành công!
           </div>
         )}
 
@@ -142,8 +181,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <Button variant="secondary" onClick={onClose}>
             Hủy Bỏ
           </Button>
-          <Button variant="primary" onClick={handleSave} disabled={!apiKey.trim()}>
-            Lưu API Key
+          <Button variant="primary" onClick={handleSave}>
+            Lưu Cấu Hình
           </Button>
         </div>
       </div>
