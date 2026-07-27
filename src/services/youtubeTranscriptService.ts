@@ -58,15 +58,37 @@ export const extractYouTubeId = (url: string): string | null => {
 };
 
 /**
- * Generate timed transcript for custom YouTube URL using Gemini AI or rich interactive fallback
+ * Fetch YouTube video title via public oEmbed endpoint
+ */
+export const fetchYouTubeVideoTitle = async (youtubeId: string): Promise<string | null> => {
+  try {
+    const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${youtubeId}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.title) {
+        return data.title;
+      }
+    }
+  } catch (e) {
+    console.warn('Could not fetch YouTube oEmbed metadata:', e);
+  }
+  return null;
+};
+
+/**
+ * Generate timed transcript for custom YouTube URL using YouTube Metadata + Gemini AI or rich dynamic fallback
  */
 export const fetchOrGenerateTranscript = async (
   youtubeId: string,
   apiKey?: string
 ): Promise<ShadowingLesson> => {
+  // Try fetching actual video title from YouTube oEmbed API
+  const videoTitle = await fetchYouTubeVideoTitle(youtubeId);
+  const displayTitle = videoTitle || `YouTube Interactive Video (${youtubeId})`;
+
   const defaultLesson: ShadowingLesson = {
     id: `custom-${youtubeId}`,
-    title: `YouTube Interactive Video (${youtubeId})`,
+    title: displayTitle,
     youtubeId: youtubeId,
     thumbnailUrl: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
     duration: '03:45',
@@ -77,57 +99,57 @@ export const fetchOrGenerateTranscript = async (
         id: 'line-1',
         startTime: 0,
         endTime: 4.5,
-        text: 'Welcome to this English practice video. Listen carefully and repeat each sentence.',
-        translation: 'Chào mừng bạn đến với video luyện tiếng Anh này. Hãy lắng nghe kỹ và nhại lại từng câu.',
+        text: `Welcome to this shadowing lesson on "${displayTitle}".`,
+        translation: `Chào mừng bạn đến với bài học nhại giọng cho video "${displayTitle}".`,
       },
       {
         id: 'line-2',
         startTime: 4.8,
         endTime: 9.5,
-        text: 'Shadowing is one of the most effective techniques to improve your pronunciation and fluency.',
-        translation: 'Shadowing là một trong những phương pháp hiệu quả nhất để nâng cao phát âm và độ trôi chảy.',
+        text: 'Listen carefully to the native speaker\'s pronunciation and rhythm in this clip.',
+        translation: 'Hãy lắng nghe kỹ phát âm và nhịp điệu của người bản xứ trong đoạn clip này.',
       },
       {
         id: 'line-3',
         startTime: 9.8,
         endTime: 15.0,
-        text: 'Practice every day to build confidence and master natural spoken English.',
-        translation: 'Luyện tập mỗi ngày để xây dựng sự tự tin và làm chủ tiếng Anh giao tiếp tự nhiên.',
+        text: 'Shadowing this content helps you absorb key topic vocabulary and natural sentence patterns.',
+        translation: 'Luyện nhại giọng theo nội dung này giúp bạn hấp thụ từ vựng chủ đề và mẫu câu tự nhiên.',
       },
       {
         id: 'line-4',
         startTime: 15.3,
         endTime: 20.2,
-        text: 'Focus on imitating the intonation, stress patterns, and rhythm of the native speaker.',
-        translation: 'Tập trung vào việc nhại theo ngữ điệu, trọng âm và nhịp điệu của người bản xứ.',
+        text: 'Pay close attention to word stress, linking sounds, and natural intonation pauses.',
+        translation: 'Chú ý kỹ trọng âm từ, âm nối và các điểm dừng ngữ điệu tự nhiên.',
       },
       {
         id: 'line-5',
         startTime: 20.5,
         endTime: 26.0,
-        text: 'Record your voice and compare it with the original video audio for instant self-assessment.',
-        translation: 'Ghi âm giọng nói của bạn và so sánh với video gốc để tự đánh giá ngay lập tức.',
+        text: 'Use the microphone to record your voice and instantly evaluate your speaking accuracy.',
+        translation: 'Sử dụng micro để ghi âm giọng nói của bạn và đánh giá ngay độ chính xác khi phát âm.',
       },
       {
         id: 'line-6',
         startTime: 26.3,
         endTime: 32.0,
-        text: 'Consistent daily practice will expand your practical vocabulary and spoken response speed.',
-        translation: 'Luyện tập đều đặn hàng ngày sẽ mở rộng vốn từ vựng thực tế và tốc độ phản xạ nói.',
+        text: 'Click any word in the interactive transcript below to view its Vietnamese definition.',
+        translation: 'Bấm vào bất kỳ từ nào trong phụ đề bên dưới để xem định nghĩa tiếng Việt tương ứng.',
       },
       {
         id: 'line-7',
         startTime: 32.3,
         endTime: 38.0,
-        text: 'Click on any unfamiliar word in the transcript to inspect definitions and IPA pronunciation.',
-        translation: 'Bấm vào bất kỳ từ mới nào trong phụ đề để xem nghĩa tiếng Việt và phiên âm IPA.',
+        text: 'Repeating sentences multiple times builds strong muscle memory for spoken English fluency.',
+        translation: 'Lặp lại các câu nhiều lần tạo phản xạ nói tự nhiên và trôi chảy.',
       },
       {
         id: 'line-8',
         startTime: 38.3,
         endTime: 45.0,
-        text: 'Great job! Keep going to master advanced English communication step by step.',
-        translation: 'Tốt lắm! Hãy tiếp tục rèn luyện để làm chủ giao tiếp tiếng Anh nâng cao từng bước.',
+        text: 'Excellent work! Keep practicing to master real-world English communication.',
+        translation: 'Tuyệt vời! Hãy tiếp tục luyện tập để làm chủ giao tiếp tiếng Anh thực tế.',
       }
     ],
   };
@@ -147,21 +169,25 @@ export const fetchOrGenerateTranscript = async (
     });
 
     const prompt = `
-Create a full English shadowing transcript JSON for a YouTube video with ID "${youtubeId}".
+You are an AI English Tutor analyzing a YouTube Video titled "${displayTitle}" with Video ID "${youtubeId}".
+
+Based on the title "${displayTitle}", perform a realistic content analysis of this video's topic.
+Generate an accurate, sequential 8 to 12 sentence English shadowing transcript that accurately reflects the video's subject, dialogue, or educational material.
+
 Output ONLY valid JSON matching this schema:
 {
-  "title": "A short descriptive English title for the video",
-  "category": "Daily Conversation or Business English or Educational or Technology",
+  "title": "${displayTitle.replace(/"/g, "'")}",
+  "category": "Educational / Business / Tech / Daily Conversation",
   "level": "A2 or B1 or B2 or C1",
   "transcript": [
     {
       "id": "line-1",
       "startTime": 0,
       "endTime": 5.0,
-      "text": "Natural spoken English sentence for shadowing practice",
+      "text": "First natural spoken English sentence relevant to this video topic",
       "translation": "Accurate Vietnamese translation"
     },
-    ... (provide 8 to 12 sequential timed lines matching realistic dialogue)
+    ... (8 to 12 sequential timed lines starting at 0.0s to 50.0s)
   ]
 }
 `;
@@ -179,7 +205,7 @@ Output ONLY valid JSON matching this schema:
     if (parsed && Array.isArray(parsed.transcript) && parsed.transcript.length > 0) {
       return {
         id: `custom-${youtubeId}`,
-        title: parsed.title || `Custom Video (${youtubeId})`,
+        title: parsed.title || displayTitle,
         youtubeId: youtubeId,
         thumbnailUrl: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
         duration: '03:45',

@@ -297,6 +297,19 @@ const LISTENING_POOL = [
   }
 ];
 
+// Helper function to shuffle options and track updated correct answer index (A/B/C/D)
+function shuffleOptionsAndAnswer(options: string[], originalCorrectIdx: number): { options: string[]; correctAnswer: number } {
+  const indexed = options.map((opt, idx) => ({ opt, isCorrect: idx === originalCorrectIdx }));
+  for (let i = indexed.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+  }
+  return {
+    options: indexed.map(item => item.opt),
+    correctAnswer: indexed.findIndex(item => item.isCorrect)
+  };
+}
+
 // Generator for 30-Question Tests across 4 Skills with 100% Unique Questions per Test
 export function generateExamTest(testNumber: number): ExamTest {
   const levels: CEFRLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -311,6 +324,7 @@ export function generateExamTest(testNumber: number): ExamTest {
     const qId = `${testId}_q${i}`;
     const tmplIdx = (testNumber * 7 + (i - 1)) % VOCAB_TEMPLATES.length;
     const tmpl = VOCAB_TEMPLATES[tmplIdx];
+    const { options, correctAnswer } = shuffleOptionsAndAnswer(tmpl.opts, tmpl.ans);
 
     questions.push({
       id: qId,
@@ -318,8 +332,8 @@ export function generateExamTest(testNumber: number): ExamTest {
       type: 'multiple-choice',
       level: level,
       question: `[Vocabulary Q${i}] ${tmpl.q}`,
-      options: tmpl.opts,
-      correctAnswer: tmpl.ans,
+      options: options,
+      correctAnswer: correctAnswer,
       explanation: `Giải thích chi tiết (Từ vựng câu ${i}): ${tmpl.exp}`
     });
   }
@@ -329,6 +343,7 @@ export function generateExamTest(testNumber: number): ExamTest {
     const qId = `${testId}_q${i}`;
     const tmplIdx = (testNumber * 7 + (i - 8)) % GRAMMAR_TEMPLATES.length;
     const tmpl = GRAMMAR_TEMPLATES[tmplIdx];
+    const { options, correctAnswer } = shuffleOptionsAndAnswer(tmpl.opts, tmpl.ans);
 
     questions.push({
       id: qId,
@@ -336,8 +351,8 @@ export function generateExamTest(testNumber: number): ExamTest {
       type: 'multiple-choice',
       level: level,
       question: `[Grammar Q${i - 7}] ${tmpl.q}`,
-      options: tmpl.opts,
-      correctAnswer: tmpl.ans,
+      options: options,
+      correctAnswer: correctAnswer,
       explanation: `Giải thích chi tiết (Ngữ pháp câu ${i - 7}): ${tmpl.exp}`
     });
   }
@@ -417,6 +432,7 @@ export function generateExamTest(testNumber: number): ExamTest {
   for (let i = 15; i <= 22; i++) {
     const qId = `${testId}_q${i}`;
     const aspect = readingQuestionAspects[i - 15];
+    const { options, correctAnswer } = shuffleOptionsAndAnswer(aspect.opts, aspect.ans);
 
     questions.push({
       id: qId,
@@ -425,8 +441,8 @@ export function generateExamTest(testNumber: number): ExamTest {
       level: level,
       readingPassage: passage,
       question: `[Reading Q${i - 14}] ${aspect.q}`,
-      options: aspect.opts,
-      correctAnswer: aspect.ans,
+      options: options,
+      correctAnswer: correctAnswer,
       explanation: `Giải thích chi tiết (Đọc hiểu câu ${i - 14}): ${aspect.exp}`
     });
   }
@@ -436,6 +452,7 @@ export function generateExamTest(testNumber: number): ExamTest {
     const qId = `${testId}_q${i}`;
     const scenarioIdx = (testNumber * 8 + (i - 23)) % LISTENING_POOL.length;
     const scenario = LISTENING_POOL[scenarioIdx];
+    const { options, correctAnswer } = shuffleOptionsAndAnswer(scenario.opts, scenario.ans);
 
     questions.push({
       id: qId,
@@ -444,8 +461,8 @@ export function generateExamTest(testNumber: number): ExamTest {
       level: level,
       audioText: scenario.text,
       question: `[Listening Q${i - 22}] ${scenario.q}`,
-      options: scenario.opts,
-      correctAnswer: scenario.ans,
+      options: options,
+      correctAnswer: correctAnswer,
       explanation: `Giải thích chi tiết (Nghe hiểu câu ${i - 22}): ${scenario.exp}`
     });
   }

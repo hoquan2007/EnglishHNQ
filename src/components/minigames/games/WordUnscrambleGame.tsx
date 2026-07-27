@@ -41,7 +41,15 @@ export const WordUnscrambleGame: React.FC<WordUnscrambleProps> = ({ onComplete, 
     }
     const current = WORDS_POOL[index];
     const letters = current.word.split('');
-    letters.sort(() => Math.random() - 0.5);
+    // Fisher-Yates shuffle
+    for (let i = letters.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [letters[i], letters[j]] = [letters[j], letters[i]];
+    }
+    // If by chance scrambled matches original word, swap first 2 characters
+    if (letters.join('') === current.word && letters.length > 1) {
+      [letters[0], letters[1]] = [letters[1], letters[0]];
+    }
     setScrambled(letters);
     setUserLetters([]);
   };

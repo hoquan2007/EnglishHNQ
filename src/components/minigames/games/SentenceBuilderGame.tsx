@@ -9,11 +9,25 @@ interface SentenceBuilderProps {
   onBack: () => void;
 }
 
+// Fisher-Yates shuffle algorithm to guarantee words are properly scrambled
+const shuffleWords = (arr: string[]): string[] => {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  // If scrambled result matches original order by chance, swap adjacent elements
+  if (copy.length > 1 && copy.join(' ') === arr.join(' ')) {
+    [copy[0], copy[1]] = [copy[1], copy[0]];
+  }
+  return copy;
+};
+
 export const SentenceBuilderGame: React.FC<SentenceBuilderProps> = ({ onComplete, onBack }) => {
   const [index, setIndex] = useState<number>(0);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
-  const [availableWords, setAvailableWords] = useState<string[]>(
-    SENTENCE_BUILDER_POOL[0].scrambled
+  const [availableWords, setAvailableWords] = useState<string[]>(() =>
+    shuffleWords(SENTENCE_BUILDER_POOL[0].scrambled)
   );
   const [score, setScore] = useState<number>(0);
   const [isDone, setIsDone] = useState<boolean>(false);
@@ -45,7 +59,7 @@ export const SentenceBuilderGame: React.FC<SentenceBuilderProps> = ({ onComplete
       const nextIdx = index + 1;
       setIndex(nextIdx);
       setSelectedWords([]);
-      setAvailableWords(SENTENCE_BUILDER_POOL[nextIdx].scrambled);
+      setAvailableWords(shuffleWords(SENTENCE_BUILDER_POOL[nextIdx].scrambled));
     }
   };
 
