@@ -1,4 +1,4 @@
-import { DatamuseSuggestion, DetailedWordLookup, DictionaryMeaning, DictionaryPhonetic } from '../types';
+import { DatamuseSuggestion, DetailedWordLookup, DictionaryMeaning, DictionaryPhonetic, WordItem, CEFRLevel } from '../types';
 
 /**
  * Fetch word entry from Free Dictionary API (api.dictionaryapi.dev)
@@ -271,6 +271,88 @@ export const fetchDatamuseRelatedWords = async (concept: string): Promise<Datamu
     }));
   } catch (error) {
     console.warn('Datamuse Related Words API failed:', error);
+    return [];
+  }
+};
+
+/**
+ * Fetch & format ANY word from online dictionary APIs into a clean WordItem flashcard object
+ */
+export const fetchDynamicWordItem = async (word: string, level?: CEFRLevel, topic?: string): Promise<WordItem> => {
+  const cleanWord = word.trim().toLowerCase();
+  const lookup = await lookupWord(cleanWord);
+
+  const phonetic = lookup.phonetics.find(p => p.text)?.text || `/${cleanWord}/`;
+  const firstMeaning = lookup.meanings[0];
+  const firstDefObj = firstMeaning?.definitions[0];
+  
+  const definition = firstDefObj?.definition || `Definition for ${cleanWord}`;
+  const exampleSentence = firstDefObj?.example || `Practice using "${cleanWord}" in your daily conversations.`;
+  
+  const vietnameseMeaning = firstDefObj?.definition 
+    ? `${firstMeaning.partOfSpeech ? '(' + firstMeaning.partOfSpeech + ') ' : ''}${firstDefObj.definition}`
+    : `Từ vựng "${cleanWord}"`;
+
+  return {
+    id: `dyn_${cleanWord}_${Date.now()}`,
+    term: lookup.word || cleanWord,
+    phonetic,
+    definition,
+    vietnameseMeaning,
+    exampleSentence,
+    exampleTranslation: `Ví dụ câu minh họa cho từ "${lookup.word || cleanWord}".`,
+    level: level || 'B1',
+    topic: topic || 'General'
+  };
+};
+
+/**
+ * Fetch infinite random high-frequency words matching student's rank/level via Datamuse API
+ */
+export const fetchRandomWordsByRank = async (rank: string = 'silver', count: number = 6): Promise<WordItem[]> => {
+  let cefrLevel: CEFRLevel = 'B1';
+  let seedTopic = 'daily';
+  
+  const rankLower = rank.toLowerCase();
+  if (rankLower === 'bronze') {
+    cefrLevel = 'A1';
+    seedTopic = 'family,food,house,happy,work';
+  } else if (rankLower === 'silver') {
+    cefrLevel = 'A2';
+    seedTopic = 'travel,weather,hobbies,health,shopping';
+  } else if (rankLower === 'gold') {
+    cefrLevel = 'B1';
+    seedTopic = 'technology,business,education,culture,emotion';
+  } else if (rankLower === 'platinum') {
+    cefrLevel = 'B2';
+    seedTopic = 'environment,science,art,law,media';
+  } else {
+    cefrLevel = 'C1';
+    seedTopic = 'academic,philosophy,psychology,innovation,resilience';
+  }
+
+  try {
+    const topicList = seedTopic.split(',');
+    const randomTopic = topicList[Math.floor(Math.random() * topicList.length)];
+    const res = await fetch(`https://api.datamuse.com/words?topics=${encodeURIComponent(randomTopic)}&max=25`);
+    
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) return [];
+
+    const validWords = data
+      .map((item: any) => item.word)
+      .filter((w: string) => /^[a-zA-Z]{3,15}$/.test(w))
+      .sort(() => 0.5 - Math.random())
+      .slice(0, count);
+
+    const items = await Promise.all(
+      validWords.map(w => fetchDynamicWordItem(w, cefrLevel, randomTopic.toUpperCase()))
+    );
+
+    return items;
+  } catch (error) {
+    console.warn('Fetch random words by rank failed:', error);
     return [];
   }
 };

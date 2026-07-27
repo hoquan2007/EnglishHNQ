@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { UserProfile, CEFRLevel, WordItem, DatamuseSuggestion } from '../../types';
 import { fullVocabularyDatabase, vocabularyTopics } from '../../data/vocabularyData';
 import { addXpToUser, saveUserProfile } from '../../services/storage';
-import { fetchDatamuseSuggestions } from '../../services/dictionaryService';
+import { fetchDatamuseSuggestions, fetchDynamicWordItem, fetchRandomWordsByRank } from '../../services/dictionaryService';
 import { WordLookupModal } from '../ui/WordLookupModal';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { BookOpen, Volume2, RotateCw, CheckCircle, ChevronLeft, ChevronRight, Shuffle, Gamepad2, Award, Sparkles, Search, ExternalLink, Timer, Zap, HelpCircle, AlertCircle } from 'lucide-react';
+import { BookOpen, Volume2, RotateCw, CheckCircle, ChevronLeft, ChevronRight, Shuffle, Gamepad2, Award, Sparkles, Search, ExternalLink, Timer, Zap, HelpCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 interface VocabularyViewProps {
   user: UserProfile;
@@ -24,6 +24,8 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [suggestions, setSuggestions] = useState<DatamuseSuggestion[]>([]);
   const [lookupWord, setLookupWord] = useState<string | null>(null);
+  const [loadingDynamicWord, setLoadingDynamicWord] = useState<boolean>(false);
+  const [loadingRankWords, setLoadingRankWords] = useState<boolean>(false);
 
   // Flashcard state
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -63,6 +65,59 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Auto-fetch & Insert ANY word into Vocabulary Flashcards
+  const handleSelectOrSearchWord = async (termToLookup: string) => {
+    const clean = termToLookup.trim().toLowerCase();
+    if (!clean) return;
+
+    setSearchQuery(termToLookup);
+    setSuggestions([]);
+    setLookupWord(termToLookup);
+
+    // If word already exists in local list, jump to it
+    const existingIdx = words.findIndex((w) => w.term.toLowerCase() === clean);
+    if (existingIdx >= 0) {
+      setCurrentIndex(existingIdx);
+      return;
+    }
+
+    // Otherwise fetch online dynamically and prepend to flashcards list
+    setLoadingDynamicWord(true);
+    try {
+      const newItem = await fetchDynamicWordItem(clean);
+      setWords((prev) => [newItem, ...prev]);
+      setSelectedLevel('All');
+      setSelectedTopic('All');
+      setCurrentIndex(0);
+    } catch (err) {
+      console.error('Error fetching dynamic word item:', err);
+    } finally {
+      setLoadingDynamicWord(false);
+    }
+  };
+
+  // Generate infinite random high-frequency words matching student's rank
+  const handleGenerateRankWords = async () => {
+    setLoadingRankWords(true);
+    try {
+      const newItems = await fetchRandomWordsByRank(user.rank, 8);
+      if (newItems.length > 0) {
+        const uniqueNewItems = newItems.filter(
+          (item) => !words.some((w) => w.term.toLowerCase() === item.term.toLowerCase())
+        );
+        if (uniqueNewItems.length > 0) {
+          setWords((prev) => [...uniqueNewItems, ...prev]);
+          setCurrentIndex(0);
+          onUpdateUser(addXpToUser(25));
+        }
+      }
+    } catch (err) {
+      console.error('Error generating rank words:', err);
+    } finally {
+      setLoadingRankWords(false);
+    }
+  };
 
   // Speed Quiz Timer Effect
   useEffect(() => {
@@ -338,9 +393,15 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
       {activeTab === 'flashcards' && (
         <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {/* Search Bar with Datamuse Suggestions */}
-          <div className="relative">
+          <form
+            className="relative"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (searchQuery.trim()) handleSelectOrSearchWord(searchQuery);
+            }}
+          >
             <Input
-              placeholder="Tra cứu từ vựng (Datamuse Autocomplete API)... Ví dụ: resilient, happiness, travel"
+              placeholder="Nhập BẤT KỲ từ Tiếng Anh nào (không giới hạn)... Nhấn Enter để tự động tra & nạp Thẻ Lật 3D!"
               value={searchQuery}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               icon={<Search size={18} />}
@@ -368,11 +429,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                 {suggestions.map((sug, idx) => (
                   <div
                     key={idx}
-                    onClick={() => {
-                      setSearchQuery(sug.word);
-                      setLookupWord(sug.word);
-                      setSuggestions([]);
-                    }}
+                    onClick={() => handleSelectOrSearchWord(sug.word)}
                     style={{
                       padding: '12px 18px',
                       display: 'flex',
@@ -394,14 +451,14 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                       {sug.word}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
-                      <span>Tra từ điển</span>
+                      <span>Tra từ điển &amp; Nạp thẻ 3D</span>
                       <ExternalLink size={14} color="var(--accent-cyan)" />
                     </span>
                   </div>
                 ))}
               </div>
             )}
-          </div>
+          </form>
 
           {/* Level & Topic Filters */}
           <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -450,6 +507,20 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                 ))}
               </select>
             </div>
+
+            {/* Rank-Adaptive Infinite Word Generator Button */}
+            <div style={{ marginLeft: 'auto' }}>
+              <Button
+                variant="gradient"
+                size="sm"
+                onClick={handleGenerateRankWords}
+                disabled={loadingRankWords}
+                style={{ background: 'linear-gradient(135deg, #7000FF, #00F0FF)', boxShadow: '0 4px 15px rgba(112, 0, 255, 0.3)' }}
+              >
+                {loadingRankWords ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                <span>{loadingRankWords ? 'Đang Sinh Từ Vựng...' : `🎲 Sinh Từ Ngẫu Nhiên Vô Hạn (${user.rank.toUpperCase()})`}</span>
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -458,13 +529,27 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
       {activeTab === 'flashcards' ? (
         <div>
           {filteredWords.length === 0 ? (
-            <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                Không tìm thấy từ vựng nào phù hợp với từ khóa "{searchQuery}".
-              </p>
+            <div className="glass-panel" style={{ padding: '3.5rem 2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem' }}>
+              <Zap size={48} color="var(--accent-cyan)" />
+              <div>
+                <h3 style={{ fontSize: '1.4rem', color: '#ffffff', marginBottom: '0.5rem' }}>
+                  Phá Bỏ Giới Hạn Từ Vựng 5000+!
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', maxWidth: '550px', margin: '0 auto', fontSize: '0.95rem' }}>
+                  Từ vựng "{searchQuery}" chưa có trong danh sách bộ lọc. Bấm nút bên dưới để tự động tra cứu online &amp; nạp trực tiếp thành Thẻ Lật 3D học tập ngay lập tức!
+                </p>
+              </div>
+
               {searchQuery && (
-                <Button variant="gradient" onClick={() => setLookupWord(searchQuery)}>
-                  Tra trực tiếp từ "{searchQuery}" trong Từ điển Online
+                <Button
+                  variant="gradient"
+                  size="lg"
+                  onClick={() => handleSelectOrSearchWord(searchQuery)}
+                  disabled={loadingDynamicWord}
+                  style={{ background: 'linear-gradient(135deg, #00F0FF, #7000FF)', padding: '0.8rem 2rem', fontSize: '1.05rem', fontWeight: 700 }}
+                >
+                  {loadingDynamicWord ? <Loader2 size={20} className="animate-spin" /> : <Zap size={20} />}
+                  <span>{loadingDynamicWord ? 'Đang Tra & Nạp Thẻ 3D Online...' : `⚡ Tự Động Tra & Nạp Thẻ Lật 3D Cho "${searchQuery}"`}</span>
                 </Button>
               )}
             </div>
