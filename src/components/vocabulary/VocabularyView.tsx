@@ -348,7 +348,23 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
 
             {/* Autocomplete Dropdown List */}
             {suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-30 mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden divide-y divide-slate-800">
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  zIndex: 999,
+                  marginTop: '8px',
+                  background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(10, 15, 30, 0.98))',
+                  border: '1px solid rgba(0, 240, 255, 0.3)',
+                  borderRadius: '16px',
+                  boxShadow: '0 15px 40px rgba(0, 0, 0, 0.85), 0 0 25px rgba(0, 240, 255, 0.15)',
+                  overflow: 'hidden',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)'
+                }}
+              >
                 {suggestions.map((sug, idx) => (
                   <div
                     key={idx}
@@ -357,11 +373,29 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                       setLookupWord(sug.word);
                       setSuggestions([]);
                     }}
-                    className="px-4 py-2.5 flex items-center justify-between text-sm text-slate-200 hover:bg-cyan-500/10 hover:text-cyan-400 cursor-pointer transition"
+                    style={{
+                      padding: '12px 18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      borderBottom: idx < suggestions.length - 1 ? '1px solid rgba(255, 255, 255, 0.08)' : 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      background: 'transparent'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.background = 'rgba(0, 240, 255, 0.15)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}
                   >
-                    <span className="font-medium">{sug.word}</span>
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      Tra từ điển <ExternalLink size={12} />
+                    <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff', textTransform: 'lowercase' }}>
+                      {sug.word}
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                      <span>Tra từ điển</span>
+                      <ExternalLink size={14} color="var(--accent-cyan)" />
                     </span>
                   </div>
                 ))}
