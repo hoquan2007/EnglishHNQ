@@ -836,8 +836,8 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
 
               {/* Result Feedback & Next Button */}
               {speedQuizFeedback !== null && (
-                <div className="pt-2 flex items-center justify-between">
-                  <div className="text-sm font-semibold">
+                <div className="pt-2 space-y-3">
+                  <div className="text-sm font-semibold flex items-center justify-between">
                     {speedQuizFeedback === 'correct' && (
                       <span className="text-emerald-400 flex items-center gap-1.5">
                         <CheckCircle className="w-5 h-5" /> Chính xác! {speedCombo >= 3 ? 'Combo x' + speedCombo + ' (+25 XP)' : '(+15 XP)'}
@@ -853,16 +853,37 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                         <Timer className="w-5 h-5" /> Hết giờ! Đáp án đúng là: "{speedQuizTarget.vietnameseMeaning}"
                       </span>
                     )}
+
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => setLookupWord(speedQuizTarget.term)}>
+                        📖 Xem Từ Điển & Giải Thích
+                      </Button>
+                      <Button variant="gradient" size="sm" onClick={startSpeedQuizRound}>
+                        Câu Tiếp Theo &rarr;
+                      </Button>
+                    </div>
                   </div>
 
-                  <Button variant="gradient" onClick={startSpeedQuizRound}>
-                    Câu Tiếp Theo &rarr;
-                  </Button>
+                  {speedQuizTarget.exampleSentence && (
+                    <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-xs text-slate-300">
+                      <strong className="text-cyan-400 block mb-1">💡 GIẢI THÍCH & VÍ DỤ NỐI NGHĨA:</strong>
+                      <p className="italic">"{speedQuizTarget.exampleSentence}"</p>
+                      <p className="text-slate-400 mt-1">Dịch nghĩa: {speedQuizTarget.vietnameseMeaning} ({speedQuizTarget.topic})</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           )}
         </div>
+      )}
+
+      {/* Word Lookup Modal */}
+      {lookupWord && (
+        <WordLookupModal
+          word={lookupWord}
+          onClose={() => setLookupWord(null)}
+        />
       )}
     </div>
   );

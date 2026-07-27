@@ -173,11 +173,25 @@ export const lookupWord = async (word: string, mwApiKey?: string): Promise<Detai
   // Merge results seamlessly
   const mergedWord = primaryResult?.word || secondaryResult?.word || cleanWord;
   
-  // Combine phonetics without duplicates
+  // Combine phonetics without duplicates and clean up raw tags
   const phoneticsMap = new Map<string, DictionaryPhonetic>();
   [...(primaryResult?.phonetics || []), ...(secondaryResult?.phonetics || []), ...(mwResult?.phonetics || [])].forEach(p => {
-    const key = `${p.text || ''}-${p.audio || ''}`;
-    if (!phoneticsMap.has(key)) phoneticsMap.set(key, p);
+    if (!p.text && !p.audio) return;
+    
+    // Clean string if text contains ipa: or US:
+    let cleanText = (p.text || '').replace(/^(ipa:|US:|UK:|AU:|\/)+/gi, '/').trim();
+    if (cleanText && !cleanText.startsWith('/')) cleanText = `/${cleanText}`;
+    if (cleanText && !cleanText.endsWith('/')) cleanText = `${cleanText}/`;
+
+    const tag = p.tag || (cleanText.includes('US') ? 'US' : cleanText.includes('UK') ? 'UK' : 'IPA');
+    const cleanedPhonetic: DictionaryPhonetic = {
+      text: cleanText || `/${cleanWord}/`,
+      audio: p.audio,
+      tag: tag
+    };
+
+    const key = `${cleanedPhonetic.text}-${cleanedPhonetic.audio || ''}`;
+    if (!phoneticsMap.has(key)) phoneticsMap.set(key, cleanedPhonetic);
   });
 
   // Combine meanings

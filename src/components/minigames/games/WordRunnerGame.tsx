@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
-import { Activity, Trophy, Flame } from 'lucide-react';
+import { Activity, Trophy, Flame, BookOpen } from 'lucide-react';
+import { GameReviewModal, ReviewItem } from '../ui/GameReviewModal';
 
 interface WordRunnerProps {
   onComplete: (xp: number) => void;
@@ -9,28 +10,57 @@ interface WordRunnerProps {
 }
 
 const RUNNER_STAGES = [
-  { target: 'Happiness (Sự hạnh phúc)', wordA: 'Happiness', wordB: 'Hapiness', correct: 'A' },
-  { target: 'Delicious (Ngon miệng)', wordA: 'Delicius', wordB: 'Delicious', correct: 'B' },
-  { target: 'Environment (Môi trường)', wordA: 'Environment', wordB: 'Enviroment', correct: 'A' }
+  { target: 'Happiness (Sự hạnh phúc)', wordA: 'Happiness', wordB: 'Hapiness', correct: 'A', exp: 'Chính tả chuẩn là "Happiness" với 2 chữ p.' },
+  { target: 'Delicious (Ngon miệng)', wordA: 'Delicius', wordB: 'Delicious', correct: 'B', exp: 'Chính tả chuẩn là "Delicious" (đuôi -ious).' },
+  { target: 'Environment (Môi trường)', wordA: 'Environment', wordB: 'Enviroment', correct: 'A', exp: 'Chính tả chuẩn là "Environment" (chú ý chữ n âm câm sau enviro-).' }
 ];
 
 export const WordRunnerGame: React.FC<WordRunnerProps> = ({ onComplete, onBack }) => {
   const [index, setIndex] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
   const [isFinished, setIsFinished] = useState<boolean>(false);
+  const [reviewItems, setReviewItems] = useState<ReviewItem[]>([]);
+  const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
 
   const current = RUNNER_STAGES[index];
 
   const handleChoice = (lane: 'A' | 'B') => {
-    if (lane === current.correct) {
-      setScore(prev => prev + 1);
+    const isCorrect = lane === current.correct;
+    const chosenWord = lane === 'A' ? current.wordA : current.wordB;
+    const correctWord = current.correct === 'A' ? current.wordA : current.wordB;
+
+    const newReview: ReviewItem = {
+      question: `Chính tả từ: "${current.target}"`,
+      userAnswer: chosenWord,
+      correctAnswer: correctWord,
+      isCorrect,
+      explanation: current.exp,
+      category: 'Word Runner'
+    };
+
+    setReviewItems(prev => [...prev, newReview]);
+
+    let newScore = score;
+    if (isCorrect) {
+      newScore = score + 1;
+      setScore(newScore);
     }
+
     if (index + 1 >= RUNNER_STAGES.length) {
       setIsFinished(true);
-      onComplete(35);
+      const earnedXp = Math.max(15, newScore * 12);
+      onComplete(earnedXp);
     } else {
       setIndex(prev => prev + 1);
     }
+  };
+
+  const handleRestart = () => {
+    setIndex(0);
+    setScore(0);
+    setIsFinished(false);
+    setReviewItems([]);
+    setShowReviewModal(false);
   };
 
   return (
@@ -42,11 +72,19 @@ export const WordRunnerGame: React.FC<WordRunnerProps> = ({ onComplete, onBack }
 
       {isFinished ? (
         <Card hoverable={false} style={{ textAlign: 'center', padding: '3rem' }}>
-          <Trophy size={48} color="#FFB800" style={{ marginBottom: '1rem' }} />
-          <h2>HOÀN THÀNH ĐƯỜNG CHẠY!</h2>
-          <p>Thu thập từ đúng: {score}/{RUNNER_STAGES.length}</p>
-          <div style={{ fontSize: '1.2rem', color: 'var(--accent-cyan)', margin: '1.5rem 0' }}>+35 XP Thưởng! ⚡</div>
-          <Button variant="primary" onClick={onBack}>Về Arcade Hub</Button>
+          <Trophy size={48} color="#FFB800" style={{ marginBottom: '1rem', margin: '0 auto' }} />
+          <h2 style={{ color: '#FFB800', marginTop: '0.5rem' }}>HOÀN THÀNH ĐƯỜNG CHẠY!</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>Thu thập từ đúng: <strong>{score}</strong>/{RUNNER_STAGES.length}</p>
+          <div style={{ fontSize: '1.2rem', color: 'var(--accent-cyan)', margin: '1rem 0', fontWeight: 700 }}>
+            +{Math.max(15, score * 12)} XP Thưởng! ⚡
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+            <Button variant="primary" onClick={() => setShowReviewModal(true)}>
+              <BookOpen size={16} style={{ marginRight: '6px' }} /> Giải Thích Lỗi Chính Tả
+            </Button>
+            <Button variant="secondary" onClick={onBack}>Về Arcade Hub</Button>
+          </div>
         </Card>
       ) : (
         <Card hoverable={false} style={{ padding: '2rem', textAlign: 'center', background: 'linear-gradient(180deg, rgba(255,0,229,0.1), transparent)' }}>
@@ -65,6 +103,18 @@ export const WordRunnerGame: React.FC<WordRunnerProps> = ({ onComplete, onBack }
           </div>
         </Card>
       )}
+
+      {/* Game Review Modal */}
+      <GameReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        gameTitle="Word Runner Arcade"
+        score={score}
+        totalQuestions={RUNNER_STAGES.length}
+        earnedXp={Math.max(15, score * 12)}
+        reviewItems={reviewItems}
+        onPlayAgain={handleRestart}
+      />
     </div>
   );
 };

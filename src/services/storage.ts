@@ -101,3 +101,15 @@ export const saveUserMasteredWord = (word: string): void => {
   }
 };
 
+export const saveUserWeakness = (item: any): void => {
+  try {
+    const current = getUserProfile();
+    if (item.title && !current.weakTopics.includes(item.title)) {
+      current.weakTopics.push(item.title);
+      saveUserProfile(current);
+    }
+  } catch (e) {
+    console.error('Error saving weakness:', e);
+  }
+};
+

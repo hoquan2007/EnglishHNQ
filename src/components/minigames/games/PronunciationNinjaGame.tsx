@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
-import { Mic, Volume2, Trophy, Sparkles } from 'lucide-react';
+import { Mic, Volume2, Trophy, Sparkles, BookOpen } from 'lucide-react';
 import { startSpeechRecognition } from '../../../utils/speechUtils';
+import { GameReviewModal, ReviewItem } from '../ui/GameReviewModal';
 
 interface PronunciationNinjaProps {
   onComplete: (xp: number) => void;
@@ -10,9 +11,9 @@ interface PronunciationNinjaProps {
 }
 
 const TARGET_WORDS = [
-  { word: 'Perseverance', vi: 'Sự kiên trì' },
-  { word: 'Sustainability', vi: 'Phát triển bền vững' },
-  { word: 'Serendipity', vi: 'Sự may mắn cờ duyên' }
+  { word: 'Perseverance', vi: 'Sự kiên trì', exp: 'Perseverance /ˌpɜː.sɪˈvɪə.rəns/ có trọng âm rơi vào âm tiết thứ 3 "vɪə". Đọc rõ các âm tiết: Per - se - ver - ance.' },
+  { word: 'Sustainability', vi: 'Phát triển bền vững', exp: 'Sustainability /səˌsteɪ.nəˈbɪl.ə.ti/ có 6 âm tiết. Trọng âm chính nằm ở "bɪl".' },
+  { word: 'Serendipity', vi: 'Sự may mắn cờ duyên', exp: 'Serendipity /ˌser.ənˈdɪp.ə.ti/ có 5 âm tiết. Trọng âm chính ở "dɪp".' }
 ];
 
 export const PronunciationNinjaGame: React.FC<PronunciationNinjaProps> = ({ onComplete, onBack }) => {
@@ -21,6 +22,8 @@ export const PronunciationNinjaGame: React.FC<PronunciationNinjaProps> = ({ onCo
   const [spokenText, setSpokenText] = useState<string>('');
   const [score, setScore] = useState<number>(0);
   const [isFinished, setIsFinished] = useState<boolean>(false);
+  const [reviewItems, setReviewItems] = useState<ReviewItem[]>([]);
+  const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
 
   const current = TARGET_WORDS[index];
 
@@ -32,13 +35,26 @@ export const PronunciationNinjaGame: React.FC<PronunciationNinjaProps> = ({ onCo
       (transcript: string) => {
         setIsRecording(false);
         setSpokenText(transcript);
-        if (transcript.toLowerCase().includes(current.word.toLowerCase())) {
+        const isMatch = transcript.toLowerCase().includes(current.word.toLowerCase());
+
+        const newReview: ReviewItem = {
+          question: `Phát âm từ Ninja: "${current.word}" (${current.vi})`,
+          userAnswer: transcript,
+          correctAnswer: current.word,
+          isCorrect: isMatch,
+          explanation: current.exp,
+          category: 'Pronunciation Ninja'
+        };
+
+        setReviewItems(prev => [...prev, newReview]);
+
+        if (isMatch) {
           setScore(prev => prev + 1);
         }
       },
       (error: string) => {
         setIsRecording(false);
-        setSpokenText('Chưa nghe rõ, hãy thử bấm nói lại nhé!');
+        setSpokenText(error || 'Không kết nối được mic. Vui lòng kiểm tra lại mic.');
       }
     );
   };
@@ -46,11 +62,21 @@ export const PronunciationNinjaGame: React.FC<PronunciationNinjaProps> = ({ onCo
   const handleNext = () => {
     if (index + 1 >= TARGET_WORDS.length) {
       setIsFinished(true);
-      onComplete(45);
+      const earnedXp = Math.max(15, score * 15);
+      onComplete(earnedXp);
     } else {
       setIndex(prev => prev + 1);
       setSpokenText('');
     }
+  };
+
+  const handleRestart = () => {
+    setIndex(0);
+    setScore(0);
+    setIsFinished(false);
+    setSpokenText('');
+    setReviewItems([]);
+    setShowReviewModal(false);
   };
 
   return (
@@ -62,11 +88,19 @@ export const PronunciationNinjaGame: React.FC<PronunciationNinjaProps> = ({ onCo
 
       {isFinished ? (
         <Card hoverable={false} style={{ textAlign: 'center', padding: '3rem' }}>
-          <Sparkles size={48} color="#FFB800" style={{ marginBottom: '1rem' }} />
-          <h2>NINJA PHÁT ÂM THUẦN THỤC!</h2>
-          <p>Phát âm chuẩn: {score}/{TARGET_WORDS.length}</p>
-          <div style={{ fontSize: '1.2rem', color: 'var(--accent-cyan)', margin: '1.5rem 0' }}>+45 XP Thưởng! ⚡</div>
-          <Button variant="primary" onClick={onBack}>Về Arcade Hub</Button>
+          <Sparkles size={48} color="#FFB800" style={{ marginBottom: '1rem', margin: '0 auto' }} />
+          <h2 style={{ color: '#FFB800', marginTop: '0.5rem' }}>NINJA PHÁT ÂM THUẦN THỤC!</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>Phát âm chuẩn: <strong>{score}</strong>/{TARGET_WORDS.length}</p>
+          <div style={{ fontSize: '1.2rem', color: 'var(--accent-cyan)', margin: '1rem 0', fontWeight: 700 }}>
+            +{Math.max(15, score * 15)} XP Thưởng! ⚡
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+            <Button variant="primary" onClick={() => setShowReviewModal(true)}>
+              <BookOpen size={16} style={{ marginRight: '6px' }} /> Xem Giải Thích Trọng Âm & Phiên Âm
+            </Button>
+            <Button variant="secondary" onClick={onBack}>Về Arcade Hub</Button>
+          </div>
         </Card>
       ) : (
         <Card hoverable={false} style={{ padding: '2rem', textAlign: 'center' }}>
@@ -103,6 +137,18 @@ export const PronunciationNinjaGame: React.FC<PronunciationNinjaProps> = ({ onCo
           </Button>
         </Card>
       )}
+
+      {/* Game Review Modal */}
+      <GameReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        gameTitle="Pronunciation Ninja"
+        score={score}
+        totalQuestions={TARGET_WORDS.length}
+        earnedXp={Math.max(15, score * 15)}
+        reviewItems={reviewItems}
+        onPlayAgain={handleRestart}
+      />
     </div>
   );
 };

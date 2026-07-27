@@ -326,3 +326,55 @@ button {
   }
 }
 
+/* Modal Overlay & Word Lookup Custom Styling */
+.dict-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(4, 8, 18, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: fadeIn 0.25s ease-out;
+}
+
+.dict-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(10, 15, 30, 0.98));
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 24px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 240, 255, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+}
+
+.dict-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 15, 28, 0.7);
+}
+
+.dict-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+

@@ -101,10 +101,29 @@ export const isSTTSupported = (): boolean => {
   return !!(win.SpeechRecognition || win.webkitSpeechRecognition);
 };
 
+/**
+ * Request microphone permission via getUserMedia to prevent Chrome network socket error
+ */
+export const requestMicrophonePermission = async (): Promise<boolean> => {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    return true;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    // Stop tracks immediately after granting permission
+    stream.getTracks().forEach(track => track.stop());
+    return true;
+  } catch (err) {
+    console.warn('Microphone permission denied or unavailable:', err);
+    return false;
+  }
+};
+
 let currentRecognition: any = null;
+let networkRetryCount = 0;
 
 /**
- * Start listening via Web Speech API (STT)
+ * Start listening via Web Speech API (STT) with permission pre-check & network retry
  */
 export const startListening = (
   onResult: (transcript: string) => void,
@@ -119,62 +138,80 @@ export const startListening = (
     return false;
   }
 
-  try {
-    if (currentRecognition) {
-      currentRecognition.stop();
+  // Pre-request getUserMedia to initialize hardware mic stream
+  requestMicrophonePermission().then((hasPermission) => {
+    if (!hasPermission && onError) {
+      onError('Quyền truy cập Microphone bị từ chối. Vui lòng cấp quyền trong cài đặt trình duyệt.');
+      return;
     }
 
-    const recognition = new SpeechRecognitionClass();
-    recognition.lang = 'en-US';
-    recognition.interimResults = true;
-    recognition.continuous = false;
+    try {
+      if (currentRecognition) {
+        try { currentRecognition.stop(); } catch (e) {}
+      }
 
-    recognition.onresult = (event: any) => {
-      let finalTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
-        } else {
+      const recognition = new SpeechRecognitionClass();
+      recognition.lang = 'en-US';
+      recognition.interimResults = true;
+      recognition.continuous = false;
+
+      recognition.onresult = (event: any) => {
+        networkRetryCount = 0; // reset retry on successful result
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
           finalTranscript += event.results[i][0].transcript;
         }
-      }
-      if (finalTranscript) {
-        onResult(finalTranscript);
-      }
-    };
-
-    recognition.onerror = (event: any) => {
-      console.warn('Speech recognition error:', event.error);
-      if (onError) {
-        if (event.error === 'not-allowed') {
-          onError('Quyền truy cập Microphone bị từ chối.');
-        } else {
-          onError(`Lỗi mic: ${event.error}`);
+        if (finalTranscript) {
+          onResult(finalTranscript);
         }
-      }
-    };
+      };
 
-    recognition.onend = () => {
-      currentRecognition = null;
-      if (onEnd) onEnd();
-    };
+      recognition.onerror = (event: any) => {
+        console.warn('Speech recognition error:', event.error);
+        if (event.error === 'network') {
+          if (networkRetryCount < 1) {
+            networkRetryCount++;
+            console.log('Retrying SpeechRecognition due to network glitch...');
+            setTimeout(() => {
+              try { recognition.start(); } catch (e) {}
+            }, 400);
+            return;
+          }
+          if (onError) {
+            onError('Không thể kết nối dịch vụ giọng nói Google (Lỗi network). Vui lòng kiểm tra lại kết nối mạng hoặc thử gõ phím.');
+          }
+        } else if (event.error === 'not-allowed') {
+          if (onError) onError('Quyền truy cập Microphone bị từ chối. Vui lòng kiểm tra cài đặt Chrome.');
+        } else if (event.error === 'no-speech') {
+          if (onError) onError('Không nghe thấy âm thanh. Vui lòng thử nói lại!');
+        } else {
+          if (onError) onError(`Lỗi mic: ${event.error}`);
+        }
+      };
 
-    currentRecognition = recognition;
-    recognition.start();
-    return true;
-  } catch (err: any) {
-    console.error('Error starting speech recognition:', err);
-    if (onError) onError(err.message || 'Không thể bắt đầu thu âm.');
-    return false;
-  }
+      recognition.onend = () => {
+        currentRecognition = null;
+        if (onEnd) onEnd();
+      };
+
+      currentRecognition = recognition;
+      recognition.start();
+    } catch (err: any) {
+      console.error('Error starting speech recognition:', err);
+      if (onError) onError(err.message || 'Không thể bắt đầu thu âm.');
+    }
+  });
+
+  return true;
 };
 
 /**
  * Stop active speech recognition
  */
 export const stopListening = (): void => {
+  networkRetryCount = 0;
   if (currentRecognition) {
-    currentRecognition.stop();
+    try { currentRecognition.stop(); } catch (e) {}
     currentRecognition = null;
   }
 };

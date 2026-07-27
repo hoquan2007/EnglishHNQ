@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
-import { Trophy, RefreshCw, Sparkles } from 'lucide-react';
+import { Trophy, RefreshCw, Sparkles, BookOpen } from 'lucide-react';
+import { GameReviewModal, ReviewItem } from '../ui/GameReviewModal';
 
 interface CardItem {
   id: string;
@@ -18,12 +19,12 @@ interface WordMatchGameProps {
 }
 
 const SAMPLE_PAIRS = [
-  { pairId: 'p1', english: 'Happiness', vietnamese: 'Sự hạnh phúc' },
-  { pairId: 'p2', english: 'Resilience', vietnamese: 'Sự kiên cường' },
-  { pairId: 'p3', english: 'Innovation', vietnamese: 'Sự đổi mới' },
-  { pairId: 'p4', english: 'Perseverance', vietnamese: 'Sự kiên trì' },
-  { pairId: 'p5', english: 'Ubiquitous', vietnamese: 'Có ở khắp nơi' },
-  { pairId: 'p6', english: 'Serendipity', vietnamese: 'Sự may mắn cờ duyên' }
+  { pairId: 'p1', english: 'Happiness', vietnamese: 'Sự hạnh phúc', exp: 'Happiness (n): Trạng thái sung sướng, vui vẻ.' },
+  { pairId: 'p2', english: 'Resilience', vietnamese: 'Sự kiên cường', exp: 'Resilience (n): Khả năng phục hồi nhanh chóng sau biến cố.' },
+  { pairId: 'p3', english: 'Innovation', vietnamese: 'Sự đổi mới', exp: 'Innovation (n): Sáng kiến, phát minh mới mang lại giá trị.' },
+  { pairId: 'p4', english: 'Perseverance', vietnamese: 'Sự kiên trì', exp: 'Perseverance (n): Sự nhẫn nại, nỗ lực không ngừng nghỉ.' },
+  { pairId: 'p5', english: 'Ubiquitous', vietnamese: 'Có ở khắp nơi', exp: 'Ubiquitous (adj): Hiện diện phổ biến khắp nơi cùng lúc.' },
+  { pairId: 'p6', english: 'Serendipity', vietnamese: 'Sự may mắn cờ duyên', exp: 'Serendipity (n): Sự tình cờ gặp điều may mắn bất ngờ.' }
 ];
 
 export const WordMatchGame: React.FC<WordMatchGameProps> = ({ onComplete, onBack }) => {
@@ -32,6 +33,7 @@ export const WordMatchGame: React.FC<WordMatchGameProps> = ({ onComplete, onBack
   const [matchesCount, setMatchesCount] = useState<number>(0);
   const [moves, setMoves] = useState<number>(0);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
+  const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
 
   useEffect(() => {
     initGame();
@@ -65,6 +67,7 @@ export const WordMatchGame: React.FC<WordMatchGameProps> = ({ onComplete, onBack
     setMatchesCount(0);
     setMoves(0);
     setIsGameOver(false);
+    setShowReviewModal(false);
   };
 
   const handleCardClick = (card: CardItem) => {
@@ -112,6 +115,15 @@ export const WordMatchGame: React.FC<WordMatchGameProps> = ({ onComplete, onBack
     }
   };
 
+  const reviewItems: ReviewItem[] = SAMPLE_PAIRS.map((pair, idx) => ({
+    question: `Cặp từ vựng #${idx + 1}: ${pair.english}`,
+    userAnswer: pair.vietnamese,
+    correctAnswer: pair.vietnamese,
+    isCorrect: true,
+    explanation: pair.exp,
+    category: 'Word Match'
+  }));
+
   return (
     <div className="glass-panel" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -128,17 +140,19 @@ export const WordMatchGame: React.FC<WordMatchGameProps> = ({ onComplete, onBack
 
       {isGameOver ? (
         <Card hoverable={false} style={{ textAlign: 'center', padding: '3rem 2rem' }}>
-          <Sparkles size={48} color="#FFB800" style={{ marginBottom: '1rem' }} />
+          <Sparkles size={48} color="#FFB800" style={{ marginBottom: '1rem', margin: '0 auto' }} />
           <h2 style={{ color: '#FFB800', margin: '0 0 0.5rem 0' }}>XIN CHÚC MỪNG! THẮNG LỢI RỰC RỠ!</h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-            Bạn đã hoàn thành ghép thẻ với <strong>{moves}</strong> lượt bấm!
+            Bạn đã hoàn thành ghép toàn bộ thẻ với <strong>{moves}</strong> lượt bấm!
           </p>
           <div style={{ fontSize: '1.2rem', color: 'var(--accent-cyan)', fontWeight: 700, marginBottom: '2rem' }}>
             +35 XP Đã Được Cộng Vào Tài Khoản! ⚡
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+            <Button variant="primary" onClick={() => setShowReviewModal(true)}>
+              <BookOpen size={16} style={{ marginRight: '6px' }} /> Xem Giải Thích Các Cặp Từ
+            </Button>
             <Button variant="secondary" onClick={onBack}>Về Arcade Hub</Button>
-            <Button variant="primary" onClick={initGame}>Chơi Lại Bài Mới</Button>
           </div>
         </Card>
       ) : (
@@ -177,6 +191,18 @@ export const WordMatchGame: React.FC<WordMatchGameProps> = ({ onComplete, onBack
           ))}
         </div>
       )}
+
+      {/* Game Review Modal */}
+      <GameReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        gameTitle="Word Match 3D Pro"
+        score={SAMPLE_PAIRS.length}
+        totalQuestions={SAMPLE_PAIRS.length}
+        earnedXp={35}
+        reviewItems={reviewItems}
+        onPlayAgain={initGame}
+      />
     </div>
   );
 };

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
-import { Layers, CheckCircle, Trophy } from 'lucide-react';
+import { Layers, CheckCircle, Trophy, BookOpen, RotateCw } from 'lucide-react';
 import { SENTENCE_BUILDER_POOL } from '../../../data/miniGamesData';
+import { GameReviewModal, ReviewItem } from '../ui/GameReviewModal';
 
 interface SentenceBuilderProps {
   onComplete: (xp: number) => void;
@@ -31,6 +32,8 @@ export const SentenceBuilderGame: React.FC<SentenceBuilderProps> = ({ onComplete
   );
   const [score, setScore] = useState<number>(0);
   const [isDone, setIsDone] = useState<boolean>(false);
+  const [reviewItems, setReviewItems] = useState<ReviewItem[]>([]);
+  const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
 
   const currentItem = SENTENCE_BUILDER_POOL[index];
 
@@ -49,18 +52,46 @@ export const SentenceBuilderGame: React.FC<SentenceBuilderProps> = ({ onComplete
   };
 
   const handleCheck = () => {
-    if (selectedWords.join(' ') === currentItem.correct) {
-      setScore(prev => prev + 1);
+    const userBuiltSentence = selectedWords.join(' ');
+    const isCorrect = userBuiltSentence === currentItem.correct;
+
+    const newReview: ReviewItem = {
+      question: `Bản dịch Tiếng Việt: "${currentItem.translation}"`,
+      userAnswer: userBuiltSentence,
+      correctAnswer: currentItem.correct,
+      isCorrect,
+      explanation: `Cấu trúc chuẩn Tiếng Anh: "${currentItem.correct}". Chú ý trật tự từ (S + V + O) và sự hòa hợp thì trong câu.`,
+      category: 'Sentence Builder'
+    };
+
+    setReviewItems(prev => [...prev, newReview]);
+
+    let newScore = score;
+    if (isCorrect) {
+      newScore = score + 1;
+      setScore(newScore);
     }
+
     if (index + 1 >= SENTENCE_BUILDER_POOL.length) {
       setIsDone(true);
-      onComplete(40);
+      const earnedXp = Math.max(15, newScore * 10);
+      onComplete(earnedXp);
     } else {
       const nextIdx = index + 1;
       setIndex(nextIdx);
       setSelectedWords([]);
       setAvailableWords(shuffleWords(SENTENCE_BUILDER_POOL[nextIdx].scrambled));
     }
+  };
+
+  const handleRestart = () => {
+    setIndex(0);
+    setSelectedWords([]);
+    setAvailableWords(shuffleWords(SENTENCE_BUILDER_POOL[0].scrambled));
+    setScore(0);
+    setIsDone(false);
+    setReviewItems([]);
+    setShowReviewModal(false);
   };
 
   return (
@@ -72,11 +103,21 @@ export const SentenceBuilderGame: React.FC<SentenceBuilderProps> = ({ onComplete
 
       {isDone ? (
         <Card hoverable={false} style={{ textAlign: 'center', padding: '3rem' }}>
-          <Trophy size={48} color="#FFB800" style={{ marginBottom: '1rem' }} />
-          <h2>XẾP CÂU HOÀN HẢO!</h2>
-          <p>Điểm: {score}/{SENTENCE_BUILDER_POOL.length}</p>
-          <div style={{ fontSize: '1.2rem', color: 'var(--accent-cyan)', margin: '1.5rem 0' }}>+40 XP Đã Thêm! ⚡</div>
-          <Button variant="primary" onClick={onBack}>Về Arcade Hub</Button>
+          <Trophy size={48} color="#FFB800" style={{ marginBottom: '1rem', margin: '0 auto' }} />
+          <h2 style={{ color: '#FFB800', marginTop: '0.5rem' }}>XẾP CÂU HOÀN HẢO!</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>Điểm: <strong>{score}</strong>/{SENTENCE_BUILDER_POOL.length}</p>
+          <div style={{ fontSize: '1.2rem', color: 'var(--accent-cyan)', margin: '1rem 0', fontWeight: 700 }}>
+            +{Math.max(15, score * 10)} XP Đã Thêm! ⚡
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+            <Button variant="primary" onClick={() => setShowReviewModal(true)}>
+              <BookOpen size={16} style={{ marginRight: '6px' }} /> Phân Tích & Giải Thích Cấu Trúc Câu
+            </Button>
+            <Button variant="secondary" onClick={onBack}>
+              Về Arcade Hub
+            </Button>
+          </div>
         </Card>
       ) : (
         <Card hoverable={false} style={{ padding: '2rem' }}>
@@ -103,6 +144,18 @@ export const SentenceBuilderGame: React.FC<SentenceBuilderProps> = ({ onComplete
           </Button>
         </Card>
       )}
+
+      {/* Game Review Modal */}
+      <GameReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        gameTitle="Sentence Builder"
+        score={score}
+        totalQuestions={SENTENCE_BUILDER_POOL.length}
+        earnedXp={Math.max(15, score * 10)}
+        reviewItems={reviewItems}
+        onPlayAgain={handleRestart}
+      />
     </div>
   );
 };

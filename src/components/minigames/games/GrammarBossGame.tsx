@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
-import { Swords, Shield, Heart, Sparkles } from 'lucide-react';
+import { Swords, Shield, Heart, Sparkles, BookOpen, RotateCw } from 'lucide-react';
 import { BOSS_BATTLE_STAGES } from '../../../data/miniGamesData';
+import { GameReviewModal, ReviewItem } from '../ui/GameReviewModal';
 
 interface GrammarBossProps {
   onComplete: (xp: number) => void;
@@ -15,15 +16,31 @@ export const GrammarBossGame: React.FC<GrammarBossProps> = ({ onComplete, onBack
   const [bossHp, setBossHp] = useState<number>(BOSS_BATTLE_STAGES[0].hp);
   const [playerHp, setPlayerHp] = useState<number>(100);
   const [isVictory, setIsVictory] = useState<boolean>(false);
+  const [isDefeated, setIsDefeated] = useState<boolean>(false);
+  const [reviewItems, setReviewItems] = useState<ReviewItem[]>([]);
+  const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
 
   const stage = BOSS_BATTLE_STAGES[stageIndex];
   const question = stage.questions[qIndex];
 
   const handleAttack = (chosenIndex: number) => {
-    if (chosenIndex === question.ans) {
+    const isCorrect = chosenIndex === question.ans;
+    const newReview: ReviewItem = {
+      question: question.q,
+      userAnswer: question.options[chosenIndex],
+      correctAnswer: question.options[question.ans],
+      isCorrect,
+      explanation: question.exp || 'Đọc kỹ cấu trúc câu và dấu hiệu nhận biết ngữ pháp.',
+      category: `Boss: ${stage.bossName}`
+    };
+
+    setReviewItems(prev => [...prev, newReview]);
+
+    if (isCorrect) {
       const damage = question.damage;
       const newBossHp = Math.max(0, bossHp - damage);
       setBossHp(newBossHp);
+
       if (newBossHp === 0) {
         if (stageIndex + 1 >= BOSS_BATTLE_STAGES.length) {
           setIsVictory(true);
@@ -36,10 +53,30 @@ export const GrammarBossGame: React.FC<GrammarBossProps> = ({ onComplete, onBack
         return;
       }
     } else {
-      setPlayerHp(prev => Math.max(0, prev - 25));
+      const newPlayerHp = Math.max(0, playerHp - 25);
+      setPlayerHp(newPlayerHp);
+      if (newPlayerHp === 0) {
+        setIsDefeated(true);
+        onComplete(10);
+        return;
+      }
     }
+
     setQIndex(prev => (prev + 1) % stage.questions.length);
   };
+
+  const handleRestart = () => {
+    setStageIndex(0);
+    setQIndex(0);
+    setBossHp(BOSS_BATTLE_STAGES[0].hp);
+    setPlayerHp(100);
+    setIsVictory(false);
+    setIsDefeated(false);
+    setReviewItems([]);
+    setShowReviewModal(false);
+  };
+
+  const correctCount = reviewItems.filter(r => r.isCorrect).length;
 
   return (
     <div className="glass-panel" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
@@ -48,13 +85,27 @@ export const GrammarBossGame: React.FC<GrammarBossProps> = ({ onComplete, onBack
         <span>Màn: <strong>{stageIndex + 1}/{BOSS_BATTLE_STAGES.length}</strong></span>
       </div>
 
-      {isVictory ? (
+      {isVictory || isDefeated ? (
         <Card hoverable={false} style={{ textAlign: 'center', padding: '3rem' }}>
-          <Sparkles size={64} color="#FFB800" style={{ marginBottom: '1rem' }} />
-          <h1 style={{ color: '#FFB800' }}>ĐÃ TIÊU DIỆT TẤT CẢ TRÙM NGỮ PHÁP!</h1>
-          <p>Bạn là Dũng Sĩ Ngữ Pháp Đỉnh Cao!</p>
-          <div style={{ fontSize: '1.4rem', color: 'var(--accent-cyan)', margin: '1.5rem 0' }}>+50 XP Thưởng Khủng! ⚡</div>
-          <Button variant="primary" onClick={onBack}>Về Arcade Hub</Button>
+          <Sparkles size={64} color={isVictory ? '#FFB800' : '#FF3333'} style={{ marginBottom: '1rem', margin: '0 auto' }} />
+          <h1 style={{ color: isVictory ? '#FFB800' : '#FF3333', marginTop: '0.5rem' }}>
+            {isVictory ? 'ĐÃ TIÊU DIỆT TẤT CẢ TRÙM NGỮ PHÁP!' : 'BẠN ĐÃ BỊ TRÙM NẠO VÉT HP!'}
+          </h1>
+          <p style={{ color: 'var(--text-secondary)' }}>
+            {isVictory ? 'Bạn là Dũng Sĩ Ngữ Pháp Đỉnh Cao!' : 'Đừng nản chí! Hãy xem giải thích đáp án bên dưới để củng cố kiến thức.'}
+          </p>
+          <div style={{ fontSize: '1.3rem', color: 'var(--accent-cyan)', margin: '1.2rem 0', fontWeight: 700 }}>
+            +{isVictory ? 50 : 10} XP Thưởng! ⚡
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+            <Button variant="primary" onClick={() => setShowReviewModal(true)}>
+              <BookOpen size={16} style={{ marginRight: '6px' }} /> Phân Tích & Giải Thích Chi Tiết ({correctCount}/{reviewItems.length})
+            </Button>
+            <Button variant="secondary" onClick={onBack}>
+              Về Arcade Hub
+            </Button>
+          </div>
         </Card>
       ) : (
         <div>
@@ -106,6 +157,18 @@ export const GrammarBossGame: React.FC<GrammarBossProps> = ({ onComplete, onBack
           </Card>
         </div>
       )}
+
+      {/* Game Review Modal */}
+      <GameReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        gameTitle="Grammar Boss Battle"
+        score={correctCount}
+        totalQuestions={Math.max(1, reviewItems.length)}
+        earnedXp={isVictory ? 50 : 10}
+        reviewItems={reviewItems}
+        onPlayAgain={handleRestart}
+      />
     </div>
   );
 };

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
-import { Table, CheckCircle, Sparkles } from 'lucide-react';
+import { Table, CheckCircle, Sparkles, BookOpen } from 'lucide-react';
 import { SAMPLE_CROSSWORD_GRID, CROSSWORD_CLUES } from '../../../data/miniGamesData';
 import { GameNotificationModal } from '../ui/GameNotificationModal';
+import { GameReviewModal, ReviewItem } from '../ui/GameReviewModal';
 
 interface CrosswordProps {
   onComplete: (xp: number) => void;
@@ -13,6 +14,7 @@ interface CrosswordProps {
 export const CrosswordGame: React.FC<CrosswordProps> = ({ onComplete, onBack }) => {
   const [grid, setGrid] = useState(SAMPLE_CROSSWORD_GRID);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{ isOpen: boolean; message: string; type: 'error' | 'success' }>({
     isOpen: false,
     message: '',
@@ -53,6 +55,21 @@ export const CrosswordGame: React.FC<CrosswordProps> = ({ onComplete, onBack }) 
     }
   };
 
+  const reviewItems: ReviewItem[] = CROSSWORD_CLUES.map((clue) => ({
+    question: `Ô chữ #${clue.number} (${clue.direction}): ${clue.clue}`,
+    userAnswer: clue.answer || 'CHÍNH XÁC',
+    correctAnswer: clue.answer || 'HAPPINESS',
+    isCorrect: true,
+    explanation: clue.explanation || `Từ vựng "${clue.answer}" khớp hoàn toàn với định nghĩa ô chữ số #${clue.number}.`,
+    category: 'Crossword'
+  }));
+
+  const handleRestart = () => {
+    setGrid(SAMPLE_CROSSWORD_GRID);
+    setIsCompleted(false);
+    setShowReviewModal(false);
+  };
+
   return (
     <div className="glass-panel" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
@@ -61,11 +78,19 @@ export const CrosswordGame: React.FC<CrosswordProps> = ({ onComplete, onBack }) 
 
       {isCompleted ? (
         <Card hoverable={false} style={{ textAlign: 'center', padding: '3rem' }}>
-          <Sparkles size={48} color="#FFB800" style={{ marginBottom: '1rem' }} />
-          <h2>GIẢI XONG Ô CHỮ TIẾNG ANH!</h2>
+          <Sparkles size={48} color="#FFB800" style={{ marginBottom: '1rem', margin: '0 auto' }} />
+          <h2 style={{ color: '#FFB800', marginTop: '0.5rem' }}>GIẢI XONG Ô CHỮ TIẾNG ANH!</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Tất cả các từ vựng đã được điền chính xác 100%!</p>
-          <div style={{ fontSize: '1.2rem', color: 'var(--accent-cyan)', margin: '1.5rem 0' }}>+45 XP Nhận Được! ⚡</div>
-          <Button variant="primary" onClick={onBack}>Về Arcade Hub</Button>
+          <div style={{ fontSize: '1.2rem', color: 'var(--accent-cyan)', margin: '1rem 0', fontWeight: 700 }}>
+            +45 XP Nhận Được! ⚡
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+            <Button variant="primary" onClick={() => setShowReviewModal(true)}>
+              <BookOpen size={16} style={{ marginRight: '6px' }} /> Giải Thích Đáp Án Ô Chữ
+            </Button>
+            <Button variant="secondary" onClick={onBack}>Về Arcade Hub</Button>
+          </div>
         </Card>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
@@ -136,6 +161,18 @@ export const CrosswordGame: React.FC<CrosswordProps> = ({ onComplete, onBack }) 
         type={modalState.type}
         message={modalState.message}
         onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+      />
+
+      {/* Game Review Modal */}
+      <GameReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        gameTitle="Vocabulary Crossword"
+        score={CROSSWORD_CLUES.length}
+        totalQuestions={CROSSWORD_CLUES.length}
+        earnedXp={45}
+        reviewItems={reviewItems}
+        onPlayAgain={handleRestart}
       />
     </div>
   );

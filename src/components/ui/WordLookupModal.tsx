@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Volume2, ExternalLink, BookmarkPlus, Check, X, BookOpen, Sparkles } from 'lucide-react';
+import { Volume2, ExternalLink, BookmarkPlus, Check, X, BookOpen, Sparkles, Loader2, Lightbulb } from 'lucide-react';
 import { DetailedWordLookup } from '../../types';
 import { lookupWord } from '../../services/dictionaryService';
 import { speakText } from '../../services/speechService';
 import { saveUserMasteredWord } from '../../services/storage';
+import { generateTutorExplanation } from '../../services/geminiService';
 
 interface WordLookupModalProps {
   word: string | null;
@@ -21,17 +22,21 @@ export const WordLookupModal: React.FC<WordLookupModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [wordData, setWordData] = useState<DetailedWordLookup | null>(null);
   const [saved, setSaved] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState<string | null>(null);
+  const [loadingAi, setLoadingAi] = useState(false);
 
   useEffect(() => {
     if (!word) {
       setWordData(null);
       setSaved(false);
+      setAiExplanation(null);
       return;
     }
 
     let isMounted = true;
     setLoading(true);
     setSaved(false);
+    setAiExplanation(null);
 
     lookupWord(word, merriamWebsterApiKey)
       .then(res => {
@@ -41,7 +46,7 @@ export const WordLookupModal: React.FC<WordLookupModalProps> = ({
         }
       })
       .catch(err => {
-        console.error(err);
+        console.error('Lookup error:', err);
         if (isMounted) setLoading(false);
       });
 
@@ -67,60 +72,126 @@ export const WordLookupModal: React.FC<WordLookupModalProps> = ({
     if (onWordAdded) onWordAdded(word);
   };
 
+  const handleAskAi = async () => {
+    if (loadingAi || aiExplanation) return;
+    setLoadingAi(true);
+    try {
+      const explanation = await generateTutorExplanation(
+        `Hãy giải thích từ vựng tiếng Anh "${word}" ngắn gọn bằng tiếng Việt bao gồm: Nghĩa chính, 2 cụm từ thông dụng (collocations), và 1 mẹo nhớ nhanh từ này.`,
+        'B2'
+      );
+      setAiExplanation(explanation);
+    } catch (err) {
+      setAiExplanation('Không thể kết nối với AI Gia Sư lúc này. Vui lòng thử lại sau!');
+    } finally {
+      setLoadingAi(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+    <div className="dict-modal-backdrop" onClick={onClose}>
+      <div className="dict-modal-card" onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/60">
-          <div className="flex items-center gap-2 text-cyan-400 font-semibold text-sm">
-            <BookOpen className="w-4 h-4" />
-            <span>Instant Dictionary & Lookup</span>
+        <div className="dict-modal-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--accent-cyan)', fontWeight: 700, fontSize: '0.95rem' }}>
+            <BookOpen size={20} />
+            <span style={{ background: 'linear-gradient(135deg, #00F0FF, #7000FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Instant Dictionary & AI Lookup
+            </span>
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: 'none',
+              color: '#94a3b8',
+              borderRadius: '8px',
+              padding: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={e => (e.currentTarget.style.color = '#ffffff')}
+            onMouseOut={e => (e.currentTarget.style.color = '#94a3b8')}
           >
-            <X className="w-5 h-5" />
+            <X size={20} />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
+        {/* Content Body */}
+        <div className="dict-modal-body custom-scrollbar">
           {loading ? (
-            <div className="py-12 flex flex-col items-center justify-center space-y-3">
-              <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-sm text-slate-400">Fetching definitions & phonetics for "{word}"...</p>
+            <div style={{ padding: '3rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+              <Loader2 size={36} color="var(--accent-cyan)" className="animate-spin" />
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Đang tra cứu từ vựng & phiên âm cho "{word}"...</p>
             </div>
           ) : wordData ? (
             <>
               {/* Word Header Card */}
-              <div className="flex items-start justify-between bg-slate-800/60 border border-slate-700/50 p-5 rounded-xl">
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  background: 'rgba(30, 41, 59, 0.7)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '1.25rem'
+                }}
+              >
                 <div>
-                  <h2 className="text-3xl font-bold text-white tracking-tight capitalize flex items-center gap-3">
-                    {wordData.word}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', margin: 0, textTransform: 'capitalize' }}>
+                      {wordData.word}
+                    </h2>
                     <button
                       onClick={() => handlePlayAudio(wordData.phonetics.find(p => p.audio)?.audio)}
-                      className="p-2 rounded-full bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white transition shadow-sm"
-                      title="Phát âm"
+                      style={{
+                        background: 'rgba(0, 240, 255, 0.15)',
+                        border: '1px solid rgba(0, 240, 255, 0.4)',
+                        color: 'var(--accent-cyan)',
+                        borderRadius: '50%',
+                        width: '38px',
+                        height: '38px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      title="Nghe phát âm"
                     >
-                      <Volume2 className="w-5 h-5" />
+                      <Volume2 size={20} />
                     </button>
-                  </h2>
+                  </div>
 
                   {/* Phonetics Chips */}
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.6rem' }}>
                     {wordData.phonetics.length > 0 ? (
                       wordData.phonetics.map((p, idx) => (
                         <span
                           key={idx}
-                          className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-md bg-slate-700/60 text-cyan-300 font-mono"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            fontSize: '0.8rem',
+                            padding: '4px 10px',
+                            borderRadius: '6px',
+                            background: 'rgba(15, 23, 42, 0.8)',
+                            border: '1px solid rgba(0, 240, 255, 0.2)',
+                            color: '#00F0FF',
+                            fontFamily: 'monospace'
+                          }}
                         >
-                          {p.tag && <span className="text-[10px] uppercase font-bold text-slate-400">{p.tag}:</span>}
-                          {p.text || '/.../'}
+                          {p.tag && <strong style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#94a3b8' }}>{p.tag}:</strong>}
+                          {p.text}
                         </span>
                       ))
                     ) : (
-                      <span className="text-xs text-slate-400 font-mono">/{wordData.word}/</span>
+                      <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontFamily: 'monospace' }}>/{wordData.word}/</span>
                     )}
                   </div>
                 </div>
@@ -128,57 +199,165 @@ export const WordLookupModal: React.FC<WordLookupModalProps> = ({
                 <button
                   onClick={handleSaveWord}
                   disabled={saved}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg transition ${
-                    saved
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                      : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:opacity-90 shadow-md'
-                  }`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    padding: '8px 14px',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    borderRadius: '10px',
+                    border: 'none',
+                    cursor: saved ? 'default' : 'pointer',
+                    background: saved
+                      ? 'rgba(16, 185, 129, 0.2)'
+                      : 'linear-gradient(135deg, #00F0FF, #0072FF)',
+                    color: saved ? '#34d399' : '#ffffff',
+                    boxShadow: saved ? 'none' : '0 4px 15px rgba(0, 240, 255, 0.3)',
+                    transition: 'all 0.2s'
+                  }}
                 >
                   {saved ? (
                     <>
-                      <Check className="w-4 h-4" />
-                      <span>Saved</span>
+                      <Check size={16} />
+                      <span>Đã Lưu</span>
                     </>
                   ) : (
                     <>
-                      <BookmarkPlus className="w-4 h-4" />
-                      <span>Save Word</span>
+                      <BookmarkPlus size={16} />
+                      <span>Lưu Từ Vựng</span>
                     </>
                   )}
                 </button>
               </div>
 
-              {/* Meanings by Part of Speech */}
-              <div className="space-y-4">
+              {/* Ask AI Tutor Banner */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, rgba(138, 43, 226, 0.15), rgba(0, 240, 255, 0.1))',
+                  border: '1px solid rgba(138, 43, 226, 0.3)',
+                  borderRadius: '14px',
+                  padding: '1rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#c084fc', fontWeight: 600, fontSize: '0.9rem' }}>
+                    <Sparkles size={18} /> Phân Tích Chuyên Sâu AI (Dr. HNQ)
+                  </div>
+                  {!aiExplanation && (
+                    <button
+                      onClick={handleAskAi}
+                      disabled={loadingAi}
+                      style={{
+                        background: 'linear-gradient(135deg, #7000FF, #00F0FF)',
+                        border: 'none',
+                        color: '#ffffff',
+                        padding: '6px 12px',
+                        borderRadius: '8px',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.4rem'
+                      }}
+                    >
+                      {loadingAi ? <Loader2 size={14} className="animate-spin" /> : <Lightbulb size={14} />}
+                      <span>{loadingAi ? 'AI Đang Phân Tích...' : 'Hỏi AI Ngay'}</span>
+                    </button>
+                  )}
+                </div>
+
+                {aiExplanation && (
+                  <div
+                    style={{
+                      background: 'rgba(10, 15, 26, 0.8)',
+                      padding: '0.85rem',
+                      borderRadius: '10px',
+                      border: '1px solid rgba(138, 43, 226, 0.2)',
+                      fontSize: '0.85rem',
+                      color: '#e2e8f0',
+                      whiteSpace: 'pre-line',
+                      lineHeight: 1.6
+                    }}
+                  >
+                    {aiExplanation}
+                  </div>
+                )}
+              </div>
+
+              {/* Meanings & Definitions */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {wordData.meanings.map((meaning, idx) => (
-                  <div key={idx} className="space-y-3 bg-slate-950/40 p-4 rounded-xl border border-slate-800">
-                    <div className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  <div
+                    key={idx}
+                    style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '14px',
+                      padding: '1rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.75rem'
+                    }}
+                  >
+                    <span
+                      style={{
+                        alignSelf: 'flex-start',
+                        padding: '3px 10px',
+                        borderRadius: '20px',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        background: 'rgba(168, 85, 247, 0.2)',
+                        color: '#c084fc',
+                        border: '1px solid rgba(168, 85, 247, 0.3)'
+                      }}
+                    >
                       {meaning.partOfSpeech}
-                    </div>
+                    </span>
 
-                    <ul className="space-y-3 pl-1">
+                    <ol style={{ paddingLeft: '1.2rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                       {meaning.definitions.map((def, dIdx) => (
-                        <li key={dIdx} className="text-sm text-slate-200 space-y-1">
-                          <p className="font-medium text-slate-100">
-                            <span className="text-cyan-400 mr-2 font-bold">{dIdx + 1}.</span>
-                            {def.definition}
-                          </p>
-
+                        <li key={dIdx} style={{ fontSize: '0.9rem', color: '#f1f5f9', lineHeight: 1.5 }}>
+                          <span>{def.definition}</span>
                           {def.example && (
-                            <p className="text-xs text-slate-400 italic pl-5 border-l-2 border-slate-700">
+                            <div
+                              style={{
+                                marginTop: '4px',
+                                paddingLeft: '0.75rem',
+                                borderLeft: '2px solid var(--accent-cyan)',
+                                fontSize: '0.82rem',
+                                color: '#94a3b8',
+                                fontStyle: 'italic'
+                              }}
+                            >
                               "{def.example}"
-                            </p>
+                            </div>
                           )}
                         </li>
                       ))}
-                    </ul>
+                    </ol>
 
                     {/* Synonyms */}
                     {meaning.synonyms && meaning.synonyms.length > 0 && (
-                      <div className="pt-2 flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
-                        <span className="font-semibold text-slate-300">Synonyms:</span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem', marginTop: '0.4rem' }}>
+                        <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600 }}>Từ đồng nghĩa:</span>
                         {meaning.synonyms.slice(0, 6).map((syn, sIdx) => (
-                          <span key={sIdx} className="px-2 py-0.5 rounded bg-slate-800 text-cyan-300">
+                          <span
+                            key={sIdx}
+                            style={{
+                              fontSize: '0.75rem',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              background: 'rgba(0, 240, 255, 0.1)',
+                              color: '#00F0FF',
+                              border: '1px solid rgba(0, 240, 255, 0.2)'
+                            }}
+                          >
                             {syn}
                           </span>
                         ))}
@@ -188,24 +367,34 @@ export const WordLookupModal: React.FC<WordLookupModalProps> = ({
                 ))}
               </div>
 
-              {/* External Source Link */}
+              {/* Source Link */}
               {wordData.sourceUrl && (
-                <div className="pt-2 border-t border-slate-800 flex justify-end">
+                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '0.75rem', display: 'flex', justifyContent: 'flex-end' }}>
                   <a
                     href={wordData.sourceUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-cyan-400 transition"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                      fontSize: '0.8rem',
+                      color: '#94a3b8',
+                      textDecoration: 'none',
+                      transition: 'color 0.2s'
+                    }}
+                    onMouseOver={e => (e.currentTarget.style.color = '#00F0FF')}
+                    onMouseOut={e => (e.currentTarget.style.color = '#94a3b8')}
                   >
-                    <span>View full dictionary details</span>
-                    <ExternalLink className="w-3 h-3" />
+                    <span>Xem từ điển Oxford/Wiktionary đầy đủ</span>
+                    <ExternalLink size={14} />
                   </a>
                 </div>
               )}
             </>
           ) : (
-            <div className="py-8 text-center text-slate-400">
-              No definition found for "{word}".
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
+              Không tìm thấy dữ liệu từ điển cho "{word}".
             </div>
           )}
         </div>

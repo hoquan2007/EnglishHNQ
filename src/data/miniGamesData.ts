@@ -216,7 +216,7 @@ export const SAMPLE_CROSSWORD_GRID: CrosswordCell[][] = [
 ];
 
 export const CROSSWORD_CLUES = [
-  { number: 1, direction: 'Across', clue: 'Feeling or showing pleasure and contentment (5 letters)' },
-  { number: 2, direction: 'Down', clue: 'A person who risks lives to save others (4 letters)' },
-  { number: 3, direction: 'Across', clue: 'A solid mass of geological material or genre of music (4 letters)' }
+  { number: 1, direction: 'Across', clue: 'Feeling or showing pleasure and contentment (5 letters)', answer: 'HAPPY', explanation: 'HAPPY (tính từ) có 5 chữ cái, nghĩa là vui vẻ, hạnh phúc.' },
+  { number: 2, direction: 'Down', clue: 'A person who risks lives to save others (4 letters)', answer: 'HERO', explanation: 'HERO (danh từ) gồm 4 chữ cái, nghĩa là người anh hùng.' },
+  { number: 3, direction: 'Across', clue: 'A solid mass of geological material or genre of music (4 letters)', answer: 'ROCK', explanation: 'ROCK (danh từ) nghĩa là đá khối hoặc thể loại nhạc Rock.' }
 ];
