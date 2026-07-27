@@ -475,17 +475,30 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                       border: '1px solid rgba(138, 43, 226, 0.3)'
                     }}
                   >
-                    <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                       <span className="badge" style={{ background: 'rgba(0, 240, 255, 0.2)', color: 'var(--accent-cyan)' }}>
                         {currentWord.level} • {currentWord.topic}
                       </span>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             setLookupWord(currentWord.term);
                           }}
-                          className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500 hover:text-white transition flex items-center gap-1"
+                          style={{
+                            background: 'rgba(0, 240, 255, 0.15)',
+                            color: 'var(--accent-cyan)',
+                            border: '1px solid rgba(0, 240, 255, 0.3)',
+                            padding: '0.4rem 0.85rem',
+                            borderRadius: 'var(--radius-full)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            fontSize: '0.8rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap'
+                          }}
                         >
                           <Search size={14} /> Tra Chi Tiết
                         </button>
@@ -495,12 +508,16 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                           style={{
                             background: currentWord.mastered ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 255, 255, 0.08)',
                             color: currentWord.mastered ? 'var(--accent-green)' : 'var(--text-muted)',
-                            padding: '0.4rem 0.8rem',
+                            border: currentWord.mastered ? '1px solid rgba(0, 255, 136, 0.4)' : '1px solid var(--glass-border)',
+                            padding: '0.4rem 0.85rem',
                             borderRadius: 'var(--radius-full)',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.35rem',
-                            fontSize: '0.8rem'
+                            fontSize: '0.8rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap'
                           }}
                         >
                           <CheckCircle size={16} /> {currentWord.mastered ? 'Đã Thuộc (+15 XP)' : 'Đánh dấu thuộc'}

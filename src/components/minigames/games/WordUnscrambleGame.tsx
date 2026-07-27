@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
 import { Shuffle, CheckCircle, ArrowRight, Sparkles } from 'lucide-react';
+import { GameNotificationModal } from '../ui/GameNotificationModal';
 
 interface WordUnscrambleProps {
   onComplete: (xp: number) => void;
@@ -22,6 +23,11 @@ export const WordUnscrambleGame: React.FC<WordUnscrambleProps> = ({ onComplete, 
   const [userLetters, setUserLetters] = useState<string[]>([]);
   const [score, setScore] = useState<number>(0);
   const [isFinished, setIsFinished] = useState<boolean>(false);
+  const [modalState, setModalState] = useState<{ isOpen: boolean; message: string; type: 'error' | 'success' }>({
+    isOpen: false,
+    message: '',
+    type: 'error'
+  });
 
   useEffect(() => {
     loadWord(currentIndex);
@@ -60,7 +66,11 @@ export const WordUnscrambleGame: React.FC<WordUnscrambleProps> = ({ onComplete, 
       setScore(prev => prev + 1);
       setCurrentIndex(prev => prev + 1);
     } else {
-      alert('Chưa chính xác! Thử sắp xếp lại nhé.');
+      setModalState({
+        isOpen: true,
+        type: 'error',
+        message: 'Chưa chính xác! Thử bấm vào các chữ cái đã ghép để bỏ và xếp lại nhé.'
+      });
     }
   };
 
@@ -136,6 +146,13 @@ export const WordUnscrambleGame: React.FC<WordUnscrambleProps> = ({ onComplete, 
           </Button>
         </Card>
       )}
+
+      <GameNotificationModal
+        isOpen={modalState.isOpen}
+        type={modalState.type}
+        message={modalState.message}
+        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

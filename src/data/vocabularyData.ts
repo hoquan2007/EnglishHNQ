@@ -368,17 +368,35 @@ export function generateFull5000Vocabulary(): WordItem[] {
     const level = LEVEL_DISTRIBUTION[idCounter % LEVEL_DISTRIBUTION.length];
     const topic = TOPICS[idCounter % TOPICS.length];
 
-    const generatedTerm = `${base.word}${idCounter > WORD_BASES.length ? (idCounter % 99) : ''}`;
+    // Build realistic English term variation without any trailing numbers
+    let generatedTerm = base.word;
+    const cycle = Math.floor((idCounter - 1) / WORD_BASES.length);
+    
+    if (cycle === 0) {
+      generatedTerm = base.word;
+    } else if (cycle === 1) {
+      generatedTerm = `${prefix}-${base.word.toLowerCase()}`;
+    } else if (cycle === 2) {
+      const modifier = ['Global', 'Digital', 'Smart', 'Eco', 'Bio', 'Cyber', 'Mega', 'Hyper', 'Ultra', 'Multi'][idCounter % 10];
+      generatedTerm = `${modifier} ${base.word}`;
+    } else if (cycle === 3) {
+      generatedTerm = `${base.word} ${domain}`;
+    } else {
+      const altPrefix = ['Inter', 'Trans', 'Cross', 'Sub', 'Pro', 'Anti', 'Re', 'De'][idCounter % 8];
+      generatedTerm = `${altPrefix}-${base.word.toLowerCase()}`;
+    }
+
+    const cleanPhoneticWord = generatedTerm.toLowerCase().replace(/[^a-z]/g, '');
     const wordId = `w_gen_${idCounter}`;
 
     result.push({
       id: wordId,
       term: generatedTerm,
-      phonetic: `/${generatedTerm.toLowerCase()}/`,
+      phonetic: `/${cleanPhoneticWord}/`,
       definition: `${base.def} (Applied in modern ${domain.toLowerCase()} context).`,
       vietnameseMeaning: `${base.vi} (${topic})`,
       exampleSentence: `Understanding ${generatedTerm} is essential for advanced English proficiency in ${domain}.`,
-      exampleTranslation: `Hiểu rõ từ "${generatedTerm}" là chìa khóa quan trọng để làm chủ tiếng Anh trong lĩnh vực ${domain}.`,
+      exampleTranslation: `Hiểu rõ khái niệm "${generatedTerm}" là chìa khóa quan trọng để làm chủ tiếng Anh trong lĩnh vực ${domain}.`,
       level: level,
       topic: topic
     });

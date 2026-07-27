@@ -3,6 +3,7 @@ import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
 import { Table, CheckCircle, Sparkles } from 'lucide-react';
 import { SAMPLE_CROSSWORD_GRID, CROSSWORD_CLUES } from '../../../data/miniGamesData';
+import { GameNotificationModal } from '../ui/GameNotificationModal';
 
 interface CrosswordProps {
   onComplete: (xp: number) => void;
@@ -12,6 +13,11 @@ interface CrosswordProps {
 export const CrosswordGame: React.FC<CrosswordProps> = ({ onComplete, onBack }) => {
   const [grid, setGrid] = useState(SAMPLE_CROSSWORD_GRID);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [modalState, setModalState] = useState<{ isOpen: boolean; message: string; type: 'error' | 'success' }>({
+    isOpen: false,
+    message: '',
+    type: 'error'
+  });
 
   const handleCellChange = (r: number, c: number, val: string) => {
     const newGrid = grid.map((row, ri) =>
@@ -39,7 +45,11 @@ export const CrosswordGame: React.FC<CrosswordProps> = ({ onComplete, onBack }) 
       setIsCompleted(true);
       onComplete(45);
     } else {
-      alert('Vẫn còn chữ chưa đúng, hãy đọc kỹ gợi ý nhé!');
+      setModalState({
+        isOpen: true,
+        type: 'error',
+        message: 'Vẫn còn một số ô chữ chưa điền đúng! Hãy kiểm tra lại các gợi ý Ngang / Dọc nhé.'
+      });
     }
   };
 
@@ -120,6 +130,13 @@ export const CrosswordGame: React.FC<CrosswordProps> = ({ onComplete, onBack }) 
           </div>
         </div>
       )}
+
+      <GameNotificationModal
+        isOpen={modalState.isOpen}
+        type={modalState.type}
+        message={modalState.message}
+        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };
