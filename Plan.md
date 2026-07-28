@@ -45,48 +45,91 @@
 | 6 | **ChatbotView**: `chatHistory[persona]` bị mutate trực tiếp | `ChatbotView:89-93` | React state mutation |
 
 **HÀNH ĐỘNG KHẮC PHỤC:**
-- [ ] Sửa VocabularyView - chỉ gọi 1 trong 2 (modal HOẶC function)
-- [ ] ShadowingView/MiniGamesHub - dùng `addXpToUser` thay vì tự tính
-- [ ] GrammarView - reset quizScore khi chuyển lesson
+- [x] Sửa VocabularyView - chỉ gọi 1 trong 2 (modal HOẶC function)
+- [x] ShadowingView/MiniGamesHub - dùng `addXpToUser` thay vì tự tính
+- [x] GrammarView - reset quizScore khi chuyển lesson
 - [ ] TrackingService - tạo quiz động từ weak data thực
-- [ ] ChatbotView - dùng Immer hoặc spread operator đúng cách
+- [x] ChatbotView - kiểm tra đã dùng spread operator đúng cách
 
 ### 2.3. UI/UX ISSUES 🟠
 
-| # | Vấn đề | File | Mô tả |
-|---|---------|------|--------|
-| 1 | **YouTube Transcript**: CORS proxy allorigins.win không reliable | `youtubeTranscriptService.ts` | Có thể fail |
-| 2 | **Shadowing**: Chỉ lấy 10 dòng transcript đầu tiên | `youtubeTranscriptService.ts:144` | Giới hạn không cần |
-| 3 | **Flashcard**: Flip animation không smooth trên mobile | CSS | UX kém |
-| 4 | **Settings Modal**: Body scroll vẫn hoạt động khi modal mở | Toàn app | Scroll conflict |
-| 5 | **Typing Indicator**: Không hiển thị khi AI đang xử lý | `ChatbotView` | UX unclear |
-| 6 | **Error States**: Không có error boundary toàn cục | Toàn app | Crash toàn trang |
+| # | Vấn đề | File | Mô tả | Trạng thái |
+|---|---------|------|--------|-------------|
+| 1 | **YouTube Transcript**: CORS proxy allorigins.win không reliable | `youtubeTranscriptService.ts` | Có thể fail | Chưa sửa |
+| 2 | **Shadowing**: Chỉ lấy 10 dòng transcript đầu tiên | `youtubeTranscriptService.ts:144` | Giới hạn không cần | ✅ Đã sửa (10→50) |
+| 3 | **Flashcard**: Flip animation không smooth trên mobile | CSS | UX kém | Chưa sửa |
+| 4 | **Settings Modal**: Body scroll vẫn hoạt động khi modal mở | Toàn app | Scroll conflict | ✅ Đã sửa |
+| 5 | **Typing Indicator**: Không hiển thị khi AI đang xử lý | `ChatbotView` | UX unclear | Chưa sửa |
+| 6 | **Error States**: Không có error boundary toàn cục | Toàn app | Crash toàn trang | ✅ Đã tạo ErrorBoundary |
 
 ### 2.4. PERFORMANCE ISSUES 🟡
 
-| # | Vấn đề | File | Ảnh hưởng |
-|---|---------|------|-----------|
-| 1 | **VocabularyData**: 5200+ words import 1 lần | `vocabularyData.ts` | Bundle ~500KB |
-| 2 | **Chat History**: Không có pagination/culling | `ChatbotView` | localStorage满了 |
-| 3 | **Speech Recognition**: Cleanup không triệt để | `speechService.ts` | Memory leak |
-| 4 | **Re-renders**: State management có thể gây unnecessary renders | Nhiều component | Chậm |
+| # | Vấn đề | File | Ảnh hưởng | Trạng thái |
+|---|---------|------|-----------|-------------|
+| 1 | **VocabularyData**: 5200+ words import 1 lần | `vocabularyData.ts` | Bundle ~500KB | Chưa sửa |
+| 2 | **Chat History**: Không có pagination/culling | `ChatbotView` | localStorage满了 | Chưa sửa |
+| 3 | **Speech Recognition**: Cleanup không triệt để | `speechService.ts` | Memory leak | Chưa sửa |
+| 4 | **Re-renders**: State management có thể gây unnecessary renders | Nhiều component | Chậm | Chưa sửa
 
 ### 2.5. MISSING FEATURES CẦN IMPLEMENT 🌟
 
-| # | Tính năng | Trạng thái hiện tại |
-|---|-----------|---------------------|
-| 1 | **Streak system** | Chỉ hiển thị, không update theo ngày |
-| 2 | **Daily tasks** | Hardcoded, không tạo task mới theo ngày |
-| 3 | **Weak word tracking** | Mock data, chưa auto track thật |
-| 4 | **Placement test** | 20 câu fixed, cần shuffle |
-| 5 | **Speaking practice** | STT hoạt động nhưng chưa chấm điểm chi tiết |
-| 6 | **Progress persistence** | Một số state không được persist |
+| # | Tính năng | Trạng thái hiện tại | Ưu tiên |
+|---|-----------|---------------------|---------|
+| 1 | **Streak system** | Chỉ hiển thị, không update theo ngày | Cao |
+| 2 | **Daily tasks** | Hardcoded, không tạo task mới theo ngày | Cao |
+| 3 | **Weak word tracking** | Mock data, chưa auto track thật | Cao |
+| 4 | **Placement test** | 20 câu fixed, cần shuffle | Trung bình |
+| 5 | **Speaking practice** | STT hoạt động nhưng chưa chấm điểm chi tiết | Trung bình |
+| 6 | **Progress persistence** | Một số state không được persist | Cao |
 
 ---
 
 ## 3. QUY TẮC PHÁT TRIỂN MỚI
 
-### 3.1. Nguyên tắc Bảo Mật (BẮT BUỘC)
+### 3.0. Nguyên tắc Cập nhật Tiến độ (BẮT BUỘC) ⚠️
+
+```
+1. SAU KHI HOÀN THÀNH BẤT KỲ TASK/NHIỆM VỤ NÀO liên quan đến dự án:
+   → PHẢI CẬP NHẬT tiến độ vào file Plan.md, mục "## 6. NHẬT KÝ TIẾN ĐỘ"
+   → Ghi rõ: ngày, nội dung cụ thể đã làm, trạng thái (HOÀN THÀNH/ĐANG LÀM)
+
+2. MỤC ĐÍCH: Khi bắt đầu new chat hoặc dev khác nhận dự án:
+   → Chỉ cần đọc Plan.md sẽ hiểu TOÀN BỘ dự án
+   → Biết được tiến độ hiện tại, đang làm gì, còn gì phải làm
+
+3. FORMAT cập nhật:
+   | **YYYY-MM-DD** | **Mô tả task đã hoàn thành cụ thể** | **Trạng thái** |
+
+4. CHECKLIST trước khi commit:
+   □ Đã cập nhật Plan.md chưa?
+   □ Đã chạy `npm run build` verify 0 errors chưa?
+   □ Code có clean (không có console.log thừa, không có TODO comment)?
+```
+
+### 3.1. Nguyên tắc Tìm và Sửa Lỗi (Root Cause Analysis) 🎯
+
+```
+1. KHI GẶP BẤT KỲ VẤN ĐỀ/BUG NÀO:
+   → TÌM NGUYÊN NHÂN GỐC (Root Cause) trước khi sửa
+   → KHÔNG sửa triệu chứng, phải sửa tận gốc
+   
+2. CHỈ SỬA NHỮNG FILE LIÊN QUAN:
+   → Xác định chính xác file chứa bug
+   → KHÔNG đụng vào những file khác không liên quan
+   → Tránh sửa nhầm gây ra bug mới
+   
+3. TRƯỚC KHI SỬA, KIỂM TRA:
+   → Bug này đã được ghi nhận trong Plan.md chưa?
+   → Nếu chưa → ghi nhận vào section 2 (Báo cáo đánh giá code)
+   → Đánh dấu [ĐANG SỬA] trong khi làm
+   
+4. SAU KHI SỬA XONG:
+   → Cập nhật trạng thái trong Plan.md: ✅ Đã sửa / ⬜ Chưa sửa
+   → Ghi rõ đã sửa ở file nào, dòng nào
+   → Test lại để xác nhận không gây regression
+```
+
+### 3.2. Nguyên tắc Bảo Mật (BẮT BUỘC)
 
 ```
 1. KHÔNG BAO GIỜ hardcode API keys trong code
@@ -95,7 +138,7 @@
 4. Nếu cần lưu user API key → encrypt trước khi lưu
 ```
 
-### 3.2. Nguyên tắc State Management
+### 3.3. Nguyên tắc State Management
 
 ```
 1. KHÔNG bao giờ mutate state trực tiếp (use immer hoặc spread)
@@ -104,7 +147,7 @@
 4. Cleanup effects và subscriptions trong useEffect return
 ```
 
-### 3.3. Nguyên tắc Error Handling
+### 3.4. Nguyên tắc Error Handling
 
 ```
 1. Tất cả async calls phải có try-catch
@@ -191,7 +234,12 @@
 | **2026-07-27** | **HOÀN THÀNH PHASE 5:** Xây dựng Phân hệ Smart Central AI Tutor (Dr. HNQ): Tracking Engine tự động theo dõi từ vựng yếu, bài tập ngữ pháp sai, Báo cáo phân tích học tập cá nhân hóa, Đề xuất lộ trình hàng ngày (Daily Recommended Tasks), Phòng Sửa Điểm Yếu (Remediation Lab), Chat 1:1 với Dr. HNQ có Voice STT/TTS, Floating AI Tutor Widget. | **HOÀN THÀNH** |
 | **2026-07-27** | **HOÀN THÀNH PHASE 6:** Kiểm thử toàn bộ User Flow, Tối ưu Responsive CSS cho Mobile/Tablet, hoàn thiện xử lý ngoại lệ & Smart Offline Fallback khi không có API Key, chạy `npm run build` đạt 100% clean build. | **HOÀN THÀNH** |
 | **2026-07-28** | **ĐÁNH GIÁ CODE TOÀN DIỆN:** Phát hiện 5 vấn đề bảo mật nghiêm trọng (API key hardcode base64), 6 logic bugs (XP calculation, state mutation), 6 UI/UX issues, 4 performance issues, 6 missing features. Lập kế hoạch sửa lỗi toàn diện Phase 1-6. | **ĐÃ HOÀN THÀNH ĐÁNH GIÁ** |
-| **2026-07-28** | **TẠO PLAN.MD V2:** Cập nhật Plan.md với báo cáo đánh giá chi tiết, quy tắc phát triển mới (bảo mật, state management, error handling), lộ trình sửa lỗi 6 phases từ bảo mật khẩn cấp đến testing và deploy. | **ĐANG THỰC HIỆN** |
+| **2026-07-28** | **TẠO PLAN.MD V2:** Cập nhật Plan.md với báo cáo đánh giá chi tiết, quy tắc phát triển mới (bảo mật, state management, error handling), lộ trình sửa lỗi 6 phases. | **HOÀN THÀNH** |
+| **2026-07-28** | **SỬA BẢO MẬT KHẨN CẤP:** Xóa base64 API key, chỉ dùng VITE_GEMINI_API_KEY env variable, thêm cảnh báo bảo mật trong SettingsModal. | **HOÀN THÀNH** |
+| **2026-07-28** | **SỬA LOGIC BUGS:** VocabularyView (xóa duplicate modal), ShadowingView & MiniGamesHub (dùng addXpToUser), GrammarView (reset quizScore). | **HOÀN THÀNH** |
+| **2026-07-28** | **CẢI THIỆN UI/UX:** Thêm body scroll lock khi modal mở, tăng transcript lines từ 10→50, tạo ErrorBoundary toàn cục. | **HOÀN THÀNH** |
+| **2026-07-28** | **BUILD & PUSH:** Chạy `npm run build` thành công 0 errors. Commit `3698af9` và push lên GitHub. Cấu hình .env với VITE_GEMINI_API_KEY (đã .gitignore bảo vệ). | **HOÀN THÀNH** |
+| **2026-07-28** | **THÊM RULES MỚI VÀO PLAN.MD:** Thêm 2 nguyên tắc quan trọng: (1) 3.0 Cập nhật tiến độ bắt buộc sau mỗi task - nhằm đảm bảo new chat/dev khác chỉ cần đọc Plan.md là hiểu toàn bộ dự án; (2) 3.1 Root Cause Analysis - tìm nguyên nhân gốc vấn đề trước khi sửa, chỉ sửa file liên quan, không đụng file không liên quan. Thêm section 8 Hướng dẫn nhanh cho dev mới với cấu trúc project. | **HOÀN THÀNH** |
 
 ---
 
@@ -283,4 +331,42 @@ const handleSelectLesson = (lessonId: string) => {
 
 ---
 
-*Dự án Nền tảng Học Tiếng Anh AI English HNQ - Plan.md v2.0 - Cập nhật: 2026-07-28*
+## 8. HƯỚNG DẪN NHANH CHO DEV MỚI
+
+### 8.1. Bắt đầu với dự án này
+
+```
+1. ĐỌC TRƯỚC: Plan.md (file này)
+2. CÀI ĐẶT:
+   - npm install
+   - Tạo file .env với VITE_GEMINI_API_KEY (lấy key từ Google AI Studio)
+3. CHẠY: npm run dev
+4. KIỂM TRA: npm run build (phải 0 errors)
+```
+
+### 8.2. Khi nhận task mới
+
+```
+1. Đọc mục "## 6. NHẬT KÝ TIẾN ĐỘ" để biết tiến độ hiện tại
+2. Tìm task trong "## 4. LỘ TRÌNH SỬA LỖI VÀ NÂNG CẤP"
+3. Theo rule 3.1: Tìm root cause → chỉ sửa file liên quan
+4. Sau khi xong: Cập nhật tiến độ vào "## 6"
+5. Checklist trước commit: build + clean code + update Plan.md
+```
+
+### 8.3. Cấu trúc Project
+
+```
+src/
+├── components/          # UI Components (Header, Sidebar, Modal, etc.)
+├── views/              # Main Views (Dashboard, Vocabulary, Grammar, etc.)
+├── services/          # API Services (storage, gemini, speech, tracking)
+├── data/              # Static Data (vocabularyData, grammarLessons)
+├── types/             # TypeScript Types
+├── styles/           # CSS Files
+└── utils/            # Utility Functions
+```
+
+---
+
+*Dự án Nền tảng Học Tiếng Anh AI English HNQ - Plan.md v2.2 - Cập nhật: 2026-07-28*
