@@ -103,11 +103,60 @@ export const saveUserWeakness = (item: any): void => {
   try {
     const current = getUserProfile();
     if (item.title && !current.weakTopics.includes(item.title)) {
-      current.weakTopics.push(item.title);
-      saveUserProfile(current);
+      // Immutable update using spread operator
+      const updated: UserProfile = {
+        ...current,
+        weakTopics: [...current.weakTopics, item.title]
+      };
+      saveUserProfile(updated);
     }
   } catch (e) {
     console.error('Error saving weakness:', e);
   }
+};
+
+/**
+ * Check and update user streak based on consecutive login days
+ * Call this function when user opens the app or performs any activity
+ */
+export const checkAndUpdateStreak = (): UserProfile => {
+  const current = getUserProfile();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const lastActive = current.lastActiveDate ? new Date(current.lastActiveDate) : null;
+  if (lastActive) {
+    lastActive.setHours(0, 0, 0, 0);
+  }
+
+  let newStreak = current.streak;
+
+  if (!lastActive) {
+    // First time user - start streak at 1
+    newStreak = 1;
+  } else {
+    const daysDiff = Math.floor((today.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysDiff === 0) {
+      // Same day - no change to streak
+      return current;
+    } else if (daysDiff === 1) {
+      // Consecutive day - increment streak
+      newStreak = current.streak + 1;
+    } else {
+      // Gap in days - reset streak to 1
+      newStreak = 1;
+    }
+  }
+
+  // Update user profile with new streak and today's date
+  const updated: UserProfile = {
+    ...current,
+    streak: newStreak,
+    lastActiveDate: today.toISOString()
+  };
+
+  saveUserProfile(updated);
+  return updated;
 };
 

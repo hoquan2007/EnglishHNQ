@@ -4,7 +4,7 @@ import { DetailedWordLookup } from '../../types';
 import { lookupWord } from '../../services/dictionaryService';
 import { speakText } from '../../services/speechService';
 import { saveUserMasteredWord } from '../../services/storage';
-import { generateTutorExplanation } from '../../services/geminiService';
+import { sendMessageToGemini, PersonaType } from '../../services/geminiService';
 
 interface WordLookupModalProps {
   word: string | null;
@@ -76,11 +76,9 @@ export const WordLookupModal: React.FC<WordLookupModalProps> = ({
     if (loadingAi || aiExplanation) return;
     setLoadingAi(true);
     try {
-      const explanation = await generateTutorExplanation(
-        `Hãy giải thích từ vựng tiếng Anh "${word}" ngắn gọn bằng tiếng Việt bao gồm: Nghĩa chính, 2 cụm từ thông dụng (collocations), và 1 mẹo nhớ nhanh từ này.`,
-        'B2'
-      );
-      setAiExplanation(explanation);
+      const prompt = `Hãy giải thích từ vựng tiếng Anh "${word}" ngắn gọn bằng tiếng Việt bao gồm: Nghĩa chính, 2 cụm từ thông dụng (collocations), và 1 mẹo nhớ nhanh từ này.`;
+      const response = await sendMessageToGemini(undefined, 'adam' as PersonaType, prompt);
+      setAiExplanation(response.reply);
     } catch (err) {
       setAiExplanation('Không thể kết nối với AI Gia Sư lúc này. Vui lòng thử lại sau!');
     } finally {

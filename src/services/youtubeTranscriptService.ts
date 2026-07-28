@@ -94,13 +94,46 @@ const translateToVietnamese = async (text: string): Promise<string> => {
 };
 
 /**
+ * CORS Proxy fallback chain - try multiple proxies for reliability
+ */
+const CORS_PROXIES = [
+  'https://api.allorigins.win/raw?url=',
+  'https://corsproxy.io/?',
+  'https://api.codetabs.com/v1/proxy?quest='
+];
+
+/**
+ * Fetch with CORS proxy fallback
+ */
+const fetchWithProxyFallback = async (targetUrl: string, timeout = 10000): Promise<Response | null> => {
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+      const res = await fetch(proxy + encodeURIComponent(targetUrl), {
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+      if (res.ok) return res;
+    } catch (e) {
+      console.warn(`Proxy ${proxy} failed, trying next...`);
+      continue;
+    }
+  }
+  return null;
+};
+
+/**
  * Fetch real timed YouTube subtitles using CORS proxy + Google Translate
  */
 export const fetchRealYouTubeSubtitles = async (youtubeId: string): Promise<TranscriptLine[] | null> => {
   try {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.youtube.com/watch?v=' + youtubeId)}`;
-    const pageRes = await fetch(proxyUrl);
-    if (!pageRes.ok) return null;
+    const youtubeUrl = 'https://www.youtube.com/watch?v=' + youtubeId;
+    const pageRes = await fetchWithProxyFallback(youtubeUrl, 15000);
+    if (!pageRes) return null;
+
     const html = await pageRes.text();
     const match = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});/);
     if (!match) return null;
@@ -117,8 +150,9 @@ export const fetchRealYouTubeSubtitles = async (youtubeId: string): Promise<Tran
       targetUrl += '&fmt=json3';
     }
 
-    const subRes = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
-    if (!subRes.ok) return null;
+    const subRes = await fetchWithProxyFallback(targetUrl, 15000);
+    if (!subRes) return null;
+
     const subJson = await subRes.json();
     if (!subJson.events || subJson.events.length === 0) return null;
 

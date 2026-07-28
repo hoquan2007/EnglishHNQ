@@ -157,53 +157,79 @@ export const generateDailyTasks = (user: UserProfile): RecommendedTask[] => {
   ];
 };
 
+/**
+ * Shuffle array utility - Fisher-Yates algorithm
+ */
+const shuffleArray = <T,>(arr: T[]): T[] => {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 export const generateRemediationQuiz = (analytics: LearningAnalytics): RemediationQuestion[] => {
   const questions: RemediationQuestion[] = [];
 
-  // Generate word remediation questions
+  // Word meaning questions - create dynamic options based on weak word
   if (analytics.weakWords.length > 0) {
     const w1 = analytics.weakWords[0]?.term || 'environment';
+    const meanings1: Record<string, string[]> = {
+      'environment': ['Môi trường sống', 'Sự kiên cường', 'Hiện tượng tự nhiên', 'Nhiệt tình'],
+      'resilient': ['Kiên cường, có khả năng phục hồi', 'Yếu ớt, dễ tổn thương', 'Nhanh nhẹn, hoạt bát', 'Thông minh, sáng lắp'],
+      'enthusiastic': ['Nhiệt tình, hào hứng', 'Buồn chán, thờ ơ', 'Tức giận, khó chịu', 'Lo lắng, bất an'],
+      'phenomenon': ['Hiện tượng tự nhiên hoặc xã hội', 'Sự kiện thường ngày', 'Một loại sinh vật', 'Một loại vật chất']
+    };
+    const options1 = meanings1[w1.toLowerCase()] || ['Môi trường sống', 'Sự kiên cường', 'Hiện tượng tự nhiên', 'Nhiệt tình'];
+    const shuffled1 = shuffleArray(options1);
+    const correctIdx1 = shuffled1.indexOf(options1[0]);
+
     questions.push({
       id: 'rem_w1',
       type: 'word',
       question: `Chọn nghĩa đúng của từ vựng yếu "${w1}":`,
-      options: ['Môi trường sống', 'Sự kiên cường', 'Hiện tượng tự nhiên', 'Nhiệt tình'],
-      correctAnswer: 0,
-      explanation: `"${w1}" có nghĩa là môi trường sống surrounding elements.`,
+      options: shuffled1,
+      correctAnswer: correctIdx1,
+      explanation: `"${w1}" có nghĩa là ${options1[0].toLowerCase()}.`,
       targetItem: w1
     });
   }
 
   if (analytics.weakWords.length > 1) {
     const w2 = analytics.weakWords[1]?.term || 'resilient';
+    const options2 = shuffleArray([w2, 'environment', 'enthusiastic', 'phenomenon']);
+
     questions.push({
       id: 'rem_w2',
       type: 'word',
       question: `Điền từ thích hợp vào chỗ trống: "She is a very ________ person who recovers quickly from hardship."`,
-      options: ['resilient', 'environment', 'enthusiastic', 'phenomenon'],
-      correctAnswer: 0,
-      explanation: '"Resilient" tính từ nghĩa là kiên cường, có khả năng phục hồi nhanh chóng sau khó khăn.',
+      options: options2,
+      correctAnswer: options2.indexOf(w2),
+      explanation: `"${w2}" là tính từ nghĩa là kiên cường, có khả năng phục hồi nhanh chóng sau khó khăn.`,
       targetItem: w2
     });
   }
 
-  // Generate grammar remediation questions
+  // Grammar questions with shuffled options
+  const grammarOptions1 = shuffleArray(['I agree with your opinion.', 'I am agreed with your opinion.', 'I agreeing with your opinion.', 'I was agree with your opinion.']);
   questions.push({
       id: 'rem_g1',
       type: 'grammar',
       question: 'Sửa lỗi sai trong câu: "I am agree with your opinion."',
-      options: ['I agree with your opinion.', 'I am agreed with your opinion.', 'I agreeing with your opinion.', 'I was agree with your opinion.'],
-      correctAnswer: 0,
+      options: grammarOptions1,
+      correctAnswer: grammarOptions1.indexOf('I agree with your opinion.'),
       explanation: '"Agree" là động từ thường, không kết hợp to-be "am agree". Đáp án đúng là "I agree with your opinion."',
       targetItem: 'Present Simple vs To-Be'
   });
 
+  const grammarOptions2 = shuffleArray(['go', 'went', 'have gone', 'gone']);
   questions.push({
       id: 'rem_g2',
       type: 'grammar',
       question: 'Chọn dạng đúng của động từ: "Yesterday, I ________ (go) to the cinema with my friends."',
-      options: ['go', 'went', 'have gone', 'gone'],
-      correctAnswer: 1,
+      options: grammarOptions2,
+      correctAnswer: grammarOptions2.indexOf('went'),
       explanation: 'Có dấu hiệu thời gian "Yesterday" trong quá khứ xác định, sử dụng thì Quá khứ đơn (Past Simple): "went".',
       targetItem: 'Past Simple'
   });

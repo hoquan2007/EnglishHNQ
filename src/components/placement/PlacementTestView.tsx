@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { UserProfile, CEFRLevel, RankLevel } from '../../types';
+import React, { useState, useMemo } from 'react';
+import { UserProfile, CEFRLevel, RankLevel, PlacementQuestion } from '../../types';
 import { placementQuestions } from '../../data/placementQuestions';
 import { addXpToUser, saveUserProfile } from '../../services/storage';
 import { Button } from '../ui/Button';
@@ -11,6 +11,18 @@ interface PlacementTestViewProps {
   onUpdateUser: (updatedUser: UserProfile) => void;
   onNavigate: (tab: any) => void;
 }
+
+/**
+ * Fisher-Yates shuffle algorithm
+ */
+const shuffleArray = <T,>(arr: T[]): T[] => {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
 export const PlacementTestView: React.FC<PlacementTestViewProps> = ({
   user,
@@ -31,7 +43,13 @@ export const PlacementTestView: React.FC<PlacementTestViewProps> = ({
     bonusXp: number;
   } | null>(null);
 
-  const currentQ = placementQuestions[currentIndex];
+  // Shuffle questions when test starts
+  const shuffledQuestions = useMemo(() => {
+    if (!started) return placementQuestions;
+    return shuffleArray(placementQuestions);
+  }, [started]);
+
+  const currentQ = shuffledQuestions[currentIndex];
 
   const handlePlayAudio = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -58,7 +76,7 @@ export const PlacementTestView: React.FC<PlacementTestViewProps> = ({
     setShowExplanation(false);
     setSelectedAnswer('');
 
-    if (currentIndex + 1 < placementQuestions.length) {
+    if (currentIndex + 1 < shuffledQuestions.length) {
       setCurrentIndex(currentIndex + 1);
     } else {
       calculateResults();
@@ -69,13 +87,13 @@ export const PlacementTestView: React.FC<PlacementTestViewProps> = ({
     let score = 0;
     const finalAnswers = { ...answers, [currentQ.id]: selectedAnswer };
 
-    placementQuestions.forEach((q) => {
+    shuffledQuestions.forEach((q) => {
       if (finalAnswers[q.id] === q.correctAnswer) {
         score += 1;
       }
     });
 
-    const total = placementQuestions.length;
+    const total = shuffledQuestions.length;
     const percentage = (score / total) * 100;
 
     let cefr: CEFRLevel = 'A1';
@@ -240,7 +258,7 @@ export const PlacementTestView: React.FC<PlacementTestViewProps> = ({
             Level {currentQ.level}
           </span>
           <span style={{ marginLeft: '0.75rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-            Câu {currentIndex + 1} / {placementQuestions.length}
+            Câu {currentIndex + 1} / {shuffledQuestions.length}
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -254,7 +272,7 @@ export const PlacementTestView: React.FC<PlacementTestViewProps> = ({
         <div 
           style={{ 
             height: '100%', 
-            width: `${((currentIndex + 1) / placementQuestions.length) * 100}%`,
+            width: `${((currentIndex + 1) / shuffledQuestions.length) * 100}%`,
             background: 'linear-gradient(90deg, var(--accent-cyan), var(--accent-purple))',
             transition: 'width 0.3s ease'
           }} 
@@ -354,7 +372,7 @@ export const PlacementTestView: React.FC<PlacementTestViewProps> = ({
           </Button>
         ) : (
           <Button variant="gradient" onClick={handleNextQuestion}>
-            {currentIndex + 1 < placementQuestions.length ? 'Câu Tiếp Theo' : 'Xem Kết Quả'} <ArrowRight size={18} style={{ marginLeft: '0.5rem' }} />
+            {currentIndex + 1 < shuffledQuestions.length ? 'Câu Tiếp Theo' : 'Xem Kết Quả'} <ArrowRight size={18} style={{ marginLeft: '0.5rem' }} />
           </Button>
         )}
       </div>

@@ -1,5 +1,38 @@
 import { DatamuseSuggestion, DetailedWordLookup, DictionaryMeaning, DictionaryPhonetic, WordItem, CEFRLevel } from '../types';
 
+// ==============================
+// Dictionary API Cache
+// ==============================
+const wordCache = new Map<string, { data: DetailedWordLookup; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+const getCachedWord = (word: string): DetailedWordLookup | null => {
+  const cached = wordCache.get(word.toLowerCase());
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+  wordCache.delete(word.toLowerCase());
+  return null;
+};
+
+const setCachedWord = (word: string, data: DetailedWordLookup): void => {
+  wordCache.set(word.toLowerCase(), { data, timestamp: Date.now() });
+};
+
+const clearExpiredCache = (): void => {
+  const now = Date.now();
+  for (const [key, value] of wordCache.entries()) {
+    if (now - value.timestamp >= CACHE_TTL) {
+      wordCache.delete(key);
+    }
+  }
+};
+
+// Clear expired entries periodically
+if (typeof window !== 'undefined') {
+  setInterval(clearExpiredCache, 60000);
+}
+
 /**
  * Fetch word entry from Free Dictionary API (api.dictionaryapi.dev)
  */
@@ -154,9 +187,16 @@ export const fetchMerriamWebster = async (word: string, apiKey: string): Promise
 
 /**
  * Combined Dictionary Lookup Engine (Primary -> Secondary -> Merriam-Webster)
+ * With caching to avoid repeated API calls
  */
 export const lookupWord = async (word: string, mwApiKey?: string): Promise<DetailedWordLookup> => {
   const cleanWord = word.trim().replace(/^[^\w]+|[^\w]+$/g, '');
+
+  // Check cache first
+  const cached = getCachedWord(cleanWord);
+  if (cached) {
+    return cached;
+  }
 
   // 1. Try Free Dictionary API first (has MP3 audio direct link & clear structure)
   const primaryResult = await fetchFreeDictionary(cleanWord);
@@ -207,7 +247,7 @@ export const lookupWord = async (word: string, mwApiKey?: string): Promise<Detai
 
   // Fallback default structure if no API returned results
   if (phoneticsMap.size === 0 && meaningsMap.size === 0) {
-    return {
+    const fallbackResult = {
       word: cleanWord,
       phonetics: [{ text: `/${cleanWord}/`, tag: 'Standard' }],
       meanings: [
@@ -222,14 +262,20 @@ export const lookupWord = async (word: string, mwApiKey?: string): Promise<Detai
       ],
       sourceUrl: `https://en.wiktionary.org/wiki/${cleanWord}`,
     };
+    setCachedWord(cleanWord, fallbackResult);
+    return fallbackResult;
   }
 
-  return {
+  const result = {
     word: mergedWord,
     phonetics: Array.from(phoneticsMap.values()),
     meanings: Array.from(meaningsMap.values()),
     sourceUrl: primaryResult?.sourceUrl || secondaryResult?.sourceUrl || `https://en.wiktionary.org/wiki/${cleanWord}`,
   };
+
+  // Cache successful result
+  setCachedWord(cleanWord, result);
+  return result;
 };
 
 /**

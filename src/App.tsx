@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserProfile, ActiveTab } from './types';
-import { getUserProfile, saveUserProfile } from './services/storage';
+import { getUserProfile, saveUserProfile, checkAndUpdateStreak } from './services/storage';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { SettingsModal } from './components/modals/SettingsModal';
@@ -21,7 +21,9 @@ import { Button } from './components/ui/Button';
 import { Bot, Youtube, GraduationCap, Settings as SettingsIcon, AlertTriangle, RefreshCw } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const [user, setUser] = useState<UserProfile>(getUserProfile());
+  // Check and update streak on app load
+  const initialUser = checkAndUpdateStreak();
+  const [user, setUser] = useState<UserProfile>(initialUser);
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<{ message: string; subText?: string; type?: 'xp' | 'rank' } | null>(null);
