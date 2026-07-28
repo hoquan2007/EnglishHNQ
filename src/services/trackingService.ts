@@ -1,6 +1,14 @@
 import { LearningAnalytics, RecommendedTask, RemediationQuestion, UserProfile } from '../types';
 
 const ANALYTICS_STORAGE_KEY = 'english_hnq_analytics';
+const DAILY_TASKS_KEY = 'english_hnq_daily_tasks';
+
+// Storage for daily tasks with date tracking
+interface DailyTasksData {
+  date: string; // YYYY-MM-DD format
+  tasks: RecommendedTask[];
+  completedTaskIds: string[];
+}
 
 export const defaultAnalytics: LearningAnalytics = {
   weakWords: [
@@ -116,45 +124,161 @@ export const recordChatGrammarFix = (original: string, corrected: string, explan
   saveLearningAnalytics(analytics);
 };
 
+// Helper to get today's date string
+const getTodayString = (): string => {
+  const today = new Date();
+  return today.toISOString().split('T')[0];
+};
+
+// Get today's date in Vietnamese format
+const getTodayVietnamese = (): string => {
+  const today = new Date();
+  const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+  return today.toLocaleDateString('vi-VN', options);
+};
+
+/**
+ * Get daily tasks - generates new tasks if it's a new day
+ * Tasks are cached per day to provide consistent daily experience
+ */
 export const generateDailyTasks = (user: UserProfile): RecommendedTask[] => {
+  const today = getTodayString();
+
+  try {
+    const saved = localStorage.getItem(DAILY_TASKS_KEY);
+    if (saved) {
+      const data: DailyTasksData = JSON.parse(saved);
+      // If same day, return cached tasks
+      if (data.date === today) {
+        return data.tasks;
+      }
+    }
+  } catch (e) {
+    console.error('Error reading daily tasks:', e);
+  }
+
+  // Generate new tasks for today
   const analytics = getLearningAnalytics();
+  const todayFormatted = getTodayVietnamese();
   const topWeakWord = analytics.weakWords[0]?.term || 'environment';
   const topWeakTopic = analytics.weakTopics[0]?.topic || 'Present Perfect';
 
-  return [
-    {
+  // Dynamic task generation based on user weakness data
+  const tasks: RecommendedTask[] = [];
+
+  // Task 1: Vocabulary practice for weakest word
+  if (analytics.weakWords.length > 0) {
+    tasks.push({
       id: 'task_1',
-      title: `Ôn tập từ vựng còn yếu: "${topWeakWord}"`,
-      description: `Bạn chưa ghi nhớ vững từ "${topWeakWord}" (bị sai ${analytics.weakWords[0]?.count || 2} lần). Hãy ôn flashcard ngay!`,
+      title: `Ôn tập từ vựng: "${topWeakWord}"`,
+      description: `Hôm nay ${todayFormatted} - Bạn chưa ghi nhớ vững từ "${topWeakWord}" (sai ${analytics.weakWords[0]?.count || 1} lần). Ôn ngay!`,
       category: 'vocabulary',
       targetTab: 'vocabulary',
       xpReward: 30
-    },
-    {
+    });
+  } else {
+    tasks.push({
+      id: 'task_1',
+      title: 'Luyện từ vựng mới',
+      description: `Hôm nay ${todayFormatted} - Học thêm 5 từ vựng mới để mở rộng vốn từ!`,
+      category: 'vocabulary',
+      targetTab: 'vocabulary',
+      xpReward: 25
+    });
+  }
+
+  // Task 2: Grammar for weakest topic
+  if (analytics.weakTopics.length > 0) {
+    tasks.push({
       id: 'task_2',
-      title: `Củng cố Ngữ pháp: ${topWeakTopic}`,
-      description: `Phân tích cho thấy bạn thường nhầm lẫn chủ đề "${topWeakTopic}". Hãy làm lại 3 bài tập trắc nghiệm này.`,
+      title: `Củng cố: ${topWeakTopic}`,
+      description: `Hôm nay ${todayFormatted} - Phân tích cho thấy bạn cần ôn lại "${topWeakTopic}". Hãy làm bài tập!`,
       category: 'grammar',
       targetTab: 'grammar',
       xpReward: 40
-    },
-    {
-      id: 'task_3',
-      title: 'Luyện Shadowing nâng điểm phát âm (>80%)',
-      description: `Điểm Shadowing trung bình hiện tại: ${analytics.overallAccuracy}%. Nhại giọng 1 video YouTube để nâng hạng!`,
-      category: 'shadowing',
-      targetTab: 'shadowing',
-      xpReward: 50
-    },
-    {
-      id: 'task_4',
-      title: 'Trò chuyện 10 phút cùng AI Adam hoặc Eva',
-      description: 'Luyện phản xạ giao tiếp tự nhiên và nhận phản hồi Instant Grammar Correction trực tiếp.',
-      category: 'chatbot',
-      targetTab: 'chatbot',
+    });
+  } else {
+    tasks.push({
+      id: 'task_2',
+      title: 'Luyện ngữ pháp nâng cao',
+      description: `Hôm nay ${todayFormatted} - Thử sức với các bài ngữ pháp nâng cao để tiến bộ hơn!`,
+      category: 'grammar',
+      targetTab: 'grammar',
       xpReward: 35
+    });
+  }
+
+  // Task 3: Shadowing practice
+  const shadowingScore = analytics.overallAccuracy || 75;
+  tasks.push({
+    id: 'task_3',
+    title: shadowingScore < 80 ? 'Luyện Shadowing nâng điểm (>80%)' : 'Luyện Shadowing duy trì phong độ',
+    description: `Hôm nay ${todayFormatted} - Điểm Shadowing hiện tại: ${shadowingScore}%. ${shadowingScore < 80 ? 'Cần cải thiện!' : 'Giữ vững phong độ!'}`,
+    category: 'shadowing',
+    targetTab: 'shadowing',
+    xpReward: 50
+  });
+
+  // Task 4: Chat with AI
+  const chatFixCount = analytics.chatFixHistory.length;
+  tasks.push({
+    id: 'task_4',
+    title: chatFixCount > 0 ? `Trò chuyện AI - Sửa lỗi hội thoại` : 'Trò chuyện 10 phút với AI',
+    description: `Hôm nay ${todayFormatted} - ${chatFixCount > 0 ? `Bạn đã mắc ${chatFixCount} lỗi hội thoại gần đây. Hãy luyện tương tác!` : 'Luyện phản xạ giao tiếp tự nhiên cùng Adam & Eva!'}`,
+    category: 'chatbot',
+    targetTab: 'chatbot',
+    xpReward: 35
+  });
+
+  // Save today's tasks
+  const dailyData: DailyTasksData = {
+    date: today,
+    tasks,
+    completedTaskIds: []
+  };
+  try {
+    localStorage.setItem(DAILY_TASKS_KEY, JSON.stringify(dailyData));
+  } catch (e) {
+    console.error('Error saving daily tasks:', e);
+  }
+
+  return tasks;
+};
+
+/**
+ * Mark a daily task as completed
+ */
+export const markDailyTaskCompleted = (taskId: string): void => {
+  try {
+    const saved = localStorage.getItem(DAILY_TASKS_KEY);
+    if (saved) {
+      const data: DailyTasksData = JSON.parse(saved);
+      if (!data.completedTaskIds.includes(taskId)) {
+        data.completedTaskIds.push(taskId);
+        localStorage.setItem(DAILY_TASKS_KEY, JSON.stringify(data));
+      }
     }
-  ];
+  } catch (e) {
+    console.error('Error marking task completed:', e);
+  }
+};
+
+/**
+ * Get completed task IDs for today
+ */
+export const getCompletedTaskIds = (): string[] => {
+  try {
+    const saved = localStorage.getItem(DAILY_TASKS_KEY);
+    if (saved) {
+      const data: DailyTasksData = JSON.parse(saved);
+      if (data.date === getTodayString()) {
+        return data.completedTaskIds;
+      }
+    }
+  } catch (e) {
+    console.error('Error reading completed tasks:', e);
+  }
+  return [];
 };
 
 /**

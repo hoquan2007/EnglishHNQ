@@ -541,7 +541,10 @@ src/
 
 ---
 
-*Dự án Nền tảng Học Tiếng Anh AI English HNQ - Plan.md v2.4 - Cập nhật: 2026-07-28*
+*Dự án Nền tảng Học Tiếng Anh AI English HNQ - Plan.md v2.5 - Cập nhật: 2026-07-28*
+
+| **2026-07-28** | **TASK 6.2: DYNAMIC DAILY TASKS:** Cải tiến `generateDailyTasks()` trong trackingService.ts để tạo tasks khác nhau mỗi ngày. Thêm date tracking với localStorage cache. Tasks được cache theo ngày (YYYY-MM-DD) và regenerate khi sang ngày mới. | **HOÀN THÀNH** |
+| **2026-07-28** | **TASK 6.3: AUTO TRACK WEAK WORDS:** Thêm `trackWeakWord()` calls trong VocabularyView.tsx khi user trả lời sai trong games: Speed Quiz (sai/timeout), Word Unscramble (sai), Matching Game (ghép sai cặp). | **HOÀN THÀNH** |
 
 || **2026-07-28** | **KIỂM TRA LẠI TRẠNG THÁI:** Đọc lại Plan.md, xác nhận tất cả tasks đã hoàn thành. Build verify 0 errors. Kiểm tra linter - không có lỗi. | **ĐÃ HOÀN THÀNH** |
 

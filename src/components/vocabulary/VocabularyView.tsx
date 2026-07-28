@@ -3,6 +3,7 @@ import { UserProfile, CEFRLevel, WordItem, DatamuseSuggestion } from '../../type
 import { fullVocabularyDatabase, vocabularyTopics } from '../../data/vocabularyData';
 import { addXpToUser, saveUserProfile } from '../../services/storage';
 import { fetchDatamuseSuggestions, fetchDynamicWordItem, fetchRandomWordsByRank } from '../../services/dictionaryService';
+import { trackWeakWord } from '../../services/trackingService';
 import { WordLookupModal } from '../ui/WordLookupModal';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -126,6 +127,8 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
     if (speedTimer <= 0) {
       setSpeedQuizFeedback('timeout');
       setSpeedCombo(0);
+      // Track weak word when timeout
+      trackWeakWord(speedQuizTarget.term);
       return;
     }
 
@@ -134,7 +137,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [activeTab, speedQuizTarget, speedTimer, speedQuizFeedback]);
+  }, [activeTab, speedQuizTarget, speedQuizFeedback, speedTimer]);
 
   // Filtered words
   const filteredWords = words.filter((w) => {
@@ -240,6 +243,11 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
         onUpdateUser(addXpToUser(30));
       }
     } else {
+      // Wrong match - track the target word as weak
+      const targetWord = words.find((w) => w.id === firstCard?.wordId);
+      if (targetWord) {
+        trackWeakWord(targetWord.term);
+      }
       setSelectedCardId(card.id);
     }
   };
@@ -268,6 +276,8 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
       onUpdateUser(addXpToUser(20));
     } else {
       setUnscrambleResult('wrong');
+      // Track weak word when answered incorrectly
+      trackWeakWord(unscrambleTarget.term);
     }
   };
 
@@ -303,6 +313,8 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
     } else {
       setSpeedQuizFeedback('wrong');
       setSpeedCombo(0);
+      // Track weak word when answered incorrectly
+      trackWeakWord(speedQuizTarget.term);
     }
   };
 
