@@ -377,4 +377,76 @@ button {
   to { opacity: 1; transform: scale(1); }
 }
 
+/* Mobile Flashcard Optimizations */
+@media (max-width: 600px) {
+  /* Faster animation on mobile for better feel */
+  .flashcard-container {
+    transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) !important;
+    -webkit-transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) !important;
+  }
+
+  /* Enable hardware acceleration */
+  .flashcard-inner {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  /* Touch feedback */
+  .flashcard-touch-area:active {
+    opacity: 0.95;
+    transform: scale(0.99);
+  }
+}
+
+/* Skeleton Loading Animation */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Skeleton flashcard */
+.flashcard-skeleton {
+  background: linear-gradient(
+    135deg,
+    rgba(138, 43, 226, 0.08) 0%,
+    rgba(18, 24, 36, 0.9) 100%
+  );
+  border: 1px solid rgba(138, 43, 226, 0.15);
+}
+
+/* Content loading fade-in */
+.content-loading {
+  opacity: 0;
+  animation: fadeInContent 0.3s ease-out forwards;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 

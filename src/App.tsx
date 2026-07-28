@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProfile, ActiveTab } from './types';
 import { getUserProfile, saveUserProfile, checkAndUpdateStreak } from './services/storage';
+import { saveAppState, loadAppState } from './services/progressPersistence';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { SettingsModal } from './components/modals/SettingsModal';
@@ -23,10 +24,16 @@ import { Bot, Youtube, GraduationCap, Settings as SettingsIcon, AlertTriangle, R
 export const App: React.FC = () => {
   // Check and update streak on app load
   const initialUser = checkAndUpdateStreak();
+  const savedAppState = loadAppState();
   const [user, setUser] = useState<UserProfile>(initialUser);
-  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
+  const [activeTab, setActiveTab] = useState<ActiveTab>(savedAppState.lastActiveTab);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<{ message: string; subText?: string; type?: 'xp' | 'rank' } | null>(null);
+
+  // Persist activeTab to localStorage
+  useEffect(() => {
+    saveAppState({ lastActiveTab: activeTab });
+  }, [activeTab]);
 
   const handleUpdateUser = (updatedUser: UserProfile) => {
     const prevRank = user.rank;

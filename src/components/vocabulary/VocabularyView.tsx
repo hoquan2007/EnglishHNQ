@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { UserProfile, CEFRLevel, WordItem, DatamuseSuggestion } from '../../types';
 import { fullVocabularyDatabase, vocabularyTopics } from '../../data/vocabularyData';
 import { addXpToUser, saveUserProfile } from '../../services/storage';
+import { saveVocabularyProgress, loadVocabularyProgress } from '../../services/progressPersistence';
 import { fetchDatamuseSuggestions, fetchDynamicWordItem, fetchRandomWordsByRank } from '../../services/dictionaryService';
 import { trackWeakWord } from '../../services/trackingService';
 import { WordLookupModal } from '../ui/WordLookupModal';
@@ -16,21 +17,23 @@ interface VocabularyViewProps {
 }
 
 export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUser }) => {
+  // Load persisted progress on mount
+  const savedProgress = loadVocabularyProgress();
   const [words, setWords] = useState<WordItem[]>(fullVocabularyDatabase);
-  const [selectedLevel, setSelectedLevel] = useState<string>('All');
-  const [selectedTopic, setSelectedTopic] = useState<string>('All');
+  const [selectedLevel, setSelectedLevel] = useState<string>(savedProgress.selectedLevel);
+  const [selectedTopic, setSelectedTopic] = useState<string>(savedProgress.selectedTopic);
   const [activeTab, setActiveTab] = useState<'flashcards' | 'matching' | 'unscramble' | 'speedquiz'>('flashcards');
 
   // Search & Autocomplete State
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>(savedProgress.searchQuery);
   const [suggestions, setSuggestions] = useState<DatamuseSuggestion[]>([]);
   const [lookupWord, setLookupWord] = useState<string | null>(null);
   const [loadingDynamicWord, setLoadingDynamicWord] = useState<boolean>(false);
   const [loadingRankWords, setLoadingRankWords] = useState<boolean>(false);
 
   // Flashcard state
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [isFlipped, setIsFlipped] = useState<boolean>(false);
+  const [currentIndex, setCurrentIndex] = useState<number>(savedProgress.currentCardIndex);
+  const [isFlipped, setIsFlipped] = useState<boolean>(savedProgress.isFlipped);
 
   // GAME 1: Matching game state
   const [matchingCards, setMatchingCards] = useState<{ id: string; text: string; type: 'en' | 'vi'; wordId: string }[]>([]);
@@ -66,6 +69,17 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Persist vocabulary progress to localStorage
+  useEffect(() => {
+    saveVocabularyProgress({
+      selectedLevel,
+      selectedTopic,
+      currentCardIndex: currentIndex,
+      isFlipped,
+      searchQuery,
+    });
+  }, [selectedLevel, selectedTopic, currentIndex, isFlipped, searchQuery]);
 
   // Auto-fetch & Insert ANY word into Vocabulary Flashcards
   const handleSelectOrSearchWord = async (termToLookup: string) => {
@@ -567,25 +581,32 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
             </div>
           ) : (
             <div>
-              {/* 3D Flip Card Container */}
-              <div 
-                style={{ 
-                  perspective: '1000px', 
-                  maxWidth: '650px', 
-                  margin: '0 auto 2rem auto', 
-                  height: '380px', 
-                  cursor: 'pointer' 
+              {/* 3D Flip Card Container - Optimized for Mobile */}
+              <div
+                style={{
+                  perspective: '1200px',
+                  maxWidth: '650px',
+                  margin: '0 auto 2rem auto',
+                  height: '380px',
+                  cursor: 'pointer',
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent'
                 }}
                 onClick={() => setIsFlipped(!isFlipped)}
+                onTouchStart={() => {}}
               >
                 <div
                   style={{
                     position: 'relative',
                     width: '100%',
                     height: '100%',
-                    transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                    transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
                     transformStyle: 'preserve-3d',
-                    transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                    transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                    willChange: 'transform',
+                    WebkitBackfaceVisibility: 'hidden',
+                    backfaceVisibility: 'hidden',
                   }}
                 >
                   {/* FRONT SIDE */}
@@ -596,6 +617,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                       width: '100%',
                       height: '100%',
                       backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
                       padding: '2.5rem',
                       display: 'flex',
                       flexDirection: 'column',
@@ -603,7 +625,9 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                       alignItems: 'center',
                       textAlign: 'center',
                       background: 'linear-gradient(135deg, rgba(138, 43, 226, 0.15), rgba(18, 24, 36, 0.9))',
-                      border: '1px solid rgba(138, 43, 226, 0.3)'
+                      border: '1px solid rgba(138, 43, 226, 0.3)',
+                      WebkitTransform: 'translateZ(0)',
+                      transform: 'translateZ(0)',
                     }}
                   >
                     <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -684,7 +708,9 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
                       width: '100%',
                       height: '100%',
                       backfaceVisibility: 'hidden',
-                      transform: 'rotateY(180deg)',
+                      WebkitBackfaceVisibility: 'hidden',
+                      transform: 'rotateY(180deg) translateZ(0)',
+                      WebkitTransform: 'rotateY(180deg) translateZ(0)',
                       padding: '2.5rem',
                       display: 'flex',
                       flexDirection: 'column',

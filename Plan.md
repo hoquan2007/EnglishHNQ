@@ -194,8 +194,8 @@
 - [x] **Task 3.2**: Cải thiện YouTube transcript fetching (fallback reliable hơn)
 - [x] **Task 3.3**: Tăng số lượng transcript lines (hoặc infinite scroll)
 - [x] **Task 3.4**: Thêm Error Boundary toàn cục
-- [ ] **Task 3.5**: Cải thiện Flashcard animation cho mobile
-- [ ] **Task 3.6**: Thêm skeleton loading states
+- [x] **Task 3.5**: Cải thiện Flashcard animation cho mobile
+- [x] **Task 3.6**: Thêm skeleton loading states
 
 ### PHASE 4: NÂNG CẤP PERFORMANCE
 
@@ -217,10 +217,10 @@
 ### PHASE 6: HOÀN THIỆN TÍNH NĂNG
 
 - [x] **Task 6.1**: Implement real streak tracking (check ngày liên tiếp)
-- [ ] **Task 6.2**: Generate daily tasks động mỗi ngày
-- [ ] **Task 6.3**: Auto track weak words từ quiz wrong answers
+- [x] **Task 6.2**: Generate daily tasks động mỗi ngày
+- [x] **Task 6.3**: Auto track weak words từ quiz wrong answers
 - [x] **Task 6.4**: Shuffle/randomize placement test questions
-- [ ] **Task 6.5**: Persist tất cả progress state vào localStorage
+- [x] **Task 6.5**: Persist tất cả progress state vào localStorage
 
 ### PHASE 7: TESTING VÀ DEPLOY
 
@@ -541,7 +541,7 @@ src/
 
 ---
 
-*Dự án Nền tảng Học Tiếng Anh AI English HNQ - Plan.md v2.5 - Cập nhật: 2026-07-28*
+*Dự án Nền tảng Học Tiếng Anh AI English HNQ - Plan.md v2.6 - Cập nhật: 2026-07-28*
 
 | **2026-07-28** | **TASK 6.2: DYNAMIC DAILY TASKS:** Cải tiến `generateDailyTasks()` trong trackingService.ts để tạo tasks khác nhau mỗi ngày. Thêm date tracking với localStorage cache. Tasks được cache theo ngày (YYYY-MM-DD) và regenerate khi sang ngày mới. | **HOÀN THÀNH** |
 | **2026-07-28** | **TASK 6.3: AUTO TRACK WEAK WORDS:** Thêm `trackWeakWord()` calls trong VocabularyView.tsx khi user trả lời sai trong games: Speed Quiz (sai/timeout), Word Unscramble (sai), Matching Game (ghép sai cặp). | **HOÀN THÀNH** |
@@ -551,3 +551,6 @@ src/
 | **2026-07-28** | **SỬA API SERVICES & PERFORMANCE:** (1) youtubeTranscriptService - thêm CORS proxy fallback chain (allorigins → corsproxy.io → codetabs); (2) trackingService - fix hardcoded quiz answers bằng Fisher-Yates shuffle; (3) storage.ts - fix state mutation trong saveUserWeakness với spread operator; (4) geminiService - xóa dead code generateTutorExplanation; (5) dictionaryService - thêm 5-minute cache cho API lookups; (6) Tạo apiHelpers.ts với retry logic & exponential backoff. | **HOÀN THÀNH** |
 | **2026-07-28** | **REAL STREAK TRACKING:** Thêm checkAndUpdateStreak() vào storage.ts kiểm tra ngày liên tiếp: cùng ngày → giữ streak, ngày liền kề → tăng streak, có khoảng trống → reset về 1. Tích hợp vào App.tsx để auto-check khi mở app. | **HOÀN THÀNH** |
 | **2026-07-28** | **SHUFFLE PLACEMENT TEST:** Thêm Fisher-Yates shuffle cho placementQuestions trong PlacementTestView. Sử dụng useMemo để shuffle khi test bắt đầu. Cập nhật Plan.md với tất cả progress. Build 0 errors. | **HOÀN THÀNH** |
+| **2026-07-28** | **TASK 6.5: PERSIST PROGRESS STATE:** T?o progressPersistence.ts service v?i functions luu tr? progress cho: Vocabulary, Grammar, Shadowing, Mini-Games, Exams, Chatbot, Daily Tasks, Learning Stats. T�ch h?p v�o VocabularyView v� App.tsx d? auto-save/restore state. | **HO�N TH�NH** |
+| **2026-07-28** | **TASK 3.6: SKELETON LOADING STATES:** T?o Skeleton.tsx component v?i variants: Skeleton, SkeletonCard, SkeletonFlashcard, SkeletonList, SkeletonGrid, SkeletonStats, SkeletonChatBubble, SkeletonChatList. Th�m CSS shimmer animation. | **HO�N TH�NH** |
+| **2026-07-28** | **TASK 3.5: FLASH CARD ANIMATION MOBILE:** C?i thi?n 3D flip animation: tang perspective, th�m GPU acceleration, cubic-bezier bounce easing, backfaceVisibility hidden, mobile touch optimization. | **HO�N TH�NH** |
