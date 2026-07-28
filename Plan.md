@@ -1,237 +1,237 @@
-# DỰ ÁN: ENGLISH HNQ - NỀN TẢNG HỌC TIẾNG ANH AI THÔNG MINH
+# D? ?N: ENGLISH HNQ - N?N T?NG H?C TI?NG ANH AI TH?NG MINH
 
-> **Tài liệu Kế hoạch Tổng thể, Quy chuẩn Kỹ thuật, Lộ trình Chi tiết & Nhật ký Tiến độ Project.**
-> *Lưu ý cho AI Agent / Developer: Đọc file này ở đầu mỗi phiên chat để hiểu toàn bộ bối cảnh, quy tắc và trạng thái dự án hiện tại.*
-
----
-
-## 1. TỔNG QUAN DỰ ÁN
-
-**English HNQ** là nền tảng web học tiếng Anh đa tương tác tích hợp Trí tuệ nhân tạo (AI Gemini), mang lại trải nghiệm học tập cá nhân hóa toàn diện gồm các phân hệ:
-1. **Từ vựng & Ngữ pháp (Vocabulary & Grammar):** Kho bài học phân cấp theo chuẩn CEFR (A1 -> C2), thẻ ghi nhớ (Flashcards), bài tập tương tác.
-2. **Hệ thống Rank & Bài test phân cấp (Placement & Leveling System):** Đánh giá đầu vào, tích điểm XP, tăng hạng rank (Đồng, Bạc, Vàng, Kim Cương, Cao Thủ...), mở khóa bài học theo trình độ.
-3. **Chatbot 1:1 Giao tiếp (Adam & Eva):** Gia sư AI với 2 persona độc lập, tích hợp Voice Input (STT) & Voice Output (TTS).
-4. **Shadowing English qua YouTube Video:** Nhập URL YouTube -> AI/App tách Transcript -> Đồng bộ phụ đề -> Luyện nghe, nhại giọng (Shadowing).
-5. **AI Tutor Gia sư Tổng quản (Smart Central AI Tutor):** AI nắm toàn bộ dữ liệu học tập, đưa ra lời khuyên & bài tập gợi ý.
+> **T?i li?u K? ho?ch T?ng th?, Quy chu?n K? thu?t, L? tr?nh Chi ti?t & Nh?t k? Ti?n ?? Project.**
+> *L?u ? cho AI Agent / Developer: ??c file n?y ? ??u m?i phi?n chat ?? hi?u to?n b? b?i c?nh, quy t?c v? tr?ng th?i d? ?n hi?n t?i.*
 
 ---
 
-## 2. BÁO CÁO ĐÁNH GIÁ CODE - ISSUES FOUND (2026-07-28)
+## 1. T?NG QUAN D? ?N
 
-### 2.1. VẤN ĐỀ BẢO MẬT NGHIÊM TRỌNG 🔴
+**English HNQ** l? n?n t?ng web h?c ti?ng Anh ?a t??ng t?c t?ch h?p Tr? tu? nh?n t?o (AI Gemini), mang l?i tr?i nghi?m h?c t?p c? nh?n h?a to?n di?n g?m c?c ph?n h?:
+1. **T? v?ng & Ng? ph?p (Vocabulary & Grammar):** Kho b?i h?c ph?n c?p theo chu?n CEFR (A1 -> C2), th? ghi nh? (Flashcards), b?i t?p t??ng t?c.
+2. **H? th?ng Rank & B?i test ph?n c?p (Placement & Leveling System):** ??nh gi? ??u v?o, t?ch ?i?m XP, t?ng h?ng rank (??ng, B?c, V?ng, Kim C??ng, Cao Th?...), m? kh?a b?i h?c theo tr?nh ??.
+3. **Chatbot 1:1 Giao ti?p (Adam & Eva):** Gia s? AI v?i 2 persona ??c l?p, t?ch h?p Voice Input (STT) & Voice Output (TTS).
+4. **Shadowing English qua YouTube Video:** Nh?p URL YouTube -> AI/App t?ch Transcript -> ??ng b? ph? ?? -> Luy?n nghe, nh?i gi?ng (Shadowing).
+5. **AI Tutor Gia s? T?ng qu?n (Smart Central AI Tutor):** AI n?m to?n b? d? li?u h?c t?p, ??a ra l?i khuy?n & b?i t?p g?i ?.
 
-| # | Vấn đề | File | Mức độ |
+---
+
+## 2. B?O C?O ??NH GI? CODE - ISSUES FOUND (2026-07-28)
+
+### 2.1. V?N ?? B?O M?T NGHI?M TR?NG ??
+
+| # | V?n ?? | File | M?c ?? |
 |---|---------|------|---------|
-| 1 | **API Key bị hardcode dạng base64** trong code | `storage.ts:11` | CRITICAL |
-| 2 | **Giải mã API key** client-side = ai cũng đọc được qua DevTools | `storage.ts:11` | CRITICAL |
-| 3 | **API key lưu localStorage** = XSS có thể đánh cắp | `storage.ts` | HIGH |
-| 4 | **Fallback API key** tự động ghi đè localStorage mỗi lần load | `storage.ts:40-43` | HIGH |
+| 1 | **API Key b? hardcode d?ng base64** trong code | `storage.ts:11` | CRITICAL |
+| 2 | **Gi?i m? API key** client-side = ai c?ng ??c ???c qua DevTools | `storage.ts:11` | CRITICAL |
+| 3 | **API key l?u localStorage** = XSS c? th? ??nh c?p | `storage.ts` | HIGH |
+| 4 | **Fallback API key** t? ??ng ghi ?? localStorage m?i l?n load | `storage.ts:40-43` | HIGH |
 
-**HÀNH ĐỘNG KHẮC PHỤC:**
-- [ ] XÓA ngay base64 encoded key từ storage.ts
-- [ ] Chỉ dùng `import.meta.env.VITE_GEMINI_API_KEY` (env variable)
-- [ ] KHÔNG lưu API key vào localStorage - chỉ dùng session
-- [ ] Thêm cảnh báo bảo mật nếu user nhập key thủ công
+**H?NH ??NG KH?C PH?C:**
+- [ ] X?A ngay base64 encoded key t? storage.ts
+- [ ] Ch? d?ng `import.meta.env.VITE_GEMINI_API_KEY` (env variable)
+- [ ] KH?NG l?u API key v?o localStorage - ch? d?ng session
+- [ ] Th?m c?nh b?o b?o m?t n?u user nh?p key th? c?ng
 
-### 2.2. LOGIC BUGS CẦN SỬA 🟡
+### 2.2. LOGIC BUGS C?N S?A ??
 
-| # | Vấn đề | File | Ảnh hưởng | Trạng thái |
+| # | V?n ?? | File | ?nh h??ng | Tr?ng th?i |
 |---|---------|------|-----------|-------------|
-| 1 | **VocabularyView**: Gọi `lookupWord` 2 lần (modal + function) | `VocabularyView:1001-1006` | Duplicate modal | ✅ Đã sửa |
-| 2 | **ShadowingView**: Tự cộng XP thủ công thay vì gọi `addXpToUser` | `ShadowingView:93-104` | Miss rank-up | ✅ Đã sửa |
-| 3 | **GrammarView**: `quizScore` không reset khi chuyển bài | `GrammarView` | State leak | ✅ Đã sửa |
-| 4 | **MiniGamesHub**: XP update không qua `addXpToUser` → miss rank-up | `MiniGamesHub:56-63` | Miss rank-up | ✅ Đã sửa |
-| 5 | **TrackingService**: Remediation quiz hardcoded answers cố định | `trackingService.ts:160-212` | Chỉ 1 đáp án đúng | ✅ Đã sửa |
-| 6 | **ChatbotView**: `chatHistory[persona]` bị mutate trực tiếp | `ChatbotView:89-93` | React state mutation | ✅ Đã sửa |
+| 1 | **VocabularyView**: G?i `lookupWord` 2 l?n (modal + function) | `VocabularyView:1001-1006` | Duplicate modal | ? ?? s?a |
+| 2 | **ShadowingView**: T? c?ng XP th? c?ng thay v? g?i `addXpToUser` | `ShadowingView:93-104` | Miss rank-up | ? ?? s?a |
+| 3 | **GrammarView**: `quizScore` kh?ng reset khi chuy?n b?i | `GrammarView` | State leak | ? ?? s?a |
+| 4 | **MiniGamesHub**: XP update kh?ng qua `addXpToUser` ? miss rank-up | `MiniGamesHub:56-63` | Miss rank-up | ? ?? s?a |
+| 5 | **TrackingService**: Remediation quiz hardcoded answers c? ??nh | `trackingService.ts:160-212` | Ch? 1 ??p ?n ??ng | ? ?? s?a |
+| 6 | **ChatbotView**: `chatHistory[persona]` b? mutate tr?c ti?p | `ChatbotView:89-93` | React state mutation | ? ?? s?a |
 
-**HÀNH ĐỘNG KHẮC PHỤC:**
-- [x] Sửa VocabularyView - chỉ gọi 1 trong 2 (modal HOẶC function)
-- [x] ShadowingView/MiniGamesHub - dùng `addXpToUser` thay vì tự tính
-- [x] GrammarView - reset quizScore khi chuyển lesson
-- [x] TrackingService - tạo quiz động từ weak data thực
-- [x] ChatbotView - kiểm tra đã dùng spread operator đúng cách
+**H?NH ??NG KH?C PH?C:**
+- [x] S?a VocabularyView - ch? g?i 1 trong 2 (modal HO?C function)
+- [x] ShadowingView/MiniGamesHub - d?ng `addXpToUser` thay v? t? t?nh
+- [x] GrammarView - reset quizScore khi chuy?n lesson
+- [x] TrackingService - t?o quiz ??ng t? weak data th?c
+- [x] ChatbotView - ki?m tra ?? d?ng spread operator ??ng c?ch
 
-### 2.3. UI/UX ISSUES 🟠
+### 2.3. UI/UX ISSUES ??
 
-| # | Vấn đề | File | Mô tả | Trạng thái |
+| # | V?n ?? | File | M? t? | Tr?ng th?i |
 |---|---------|------|--------|-------------|
-| 1 | **YouTube Transcript**: CORS proxy allorigins.win không reliable | `youtubeTranscriptService.ts` | Có thể fail | ✅ Đã thêm fallback |
-| 2 | **Shadowing**: Chỉ lấy 10 dòng transcript đầu tiên | `youtubeTranscriptService.ts:144` | Giới hạn không cần | ✅ Đã sửa (10→50) |
-| 3 | **Flashcard**: Flip animation không smooth trên mobile | CSS | UX kém | Chưa sửa |
-| 4 | **Settings Modal**: Body scroll vẫn hoạt động khi modal mở | Toàn app | Scroll conflict | ✅ Đã sửa |
-| 5 | **Typing Indicator**: Không hiển thị khi AI đang xử lý | `ChatbotView` | UX unclear | Chưa sửa |
-| 6 | **Error States**: Không có error boundary toàn cục | Toàn app | Crash toàn trang | ✅ Đã tạo ErrorBoundary |
+| 1 | **YouTube Transcript**: CORS proxy allorigins.win kh?ng reliable | `youtubeTranscriptService.ts` | C? th? fail | ? ?? th?m fallback |
+| 2 | **Shadowing**: Ch? l?y 10 d?ng transcript ??u ti?n | `youtubeTranscriptService.ts:144` | Gi?i h?n kh?ng c?n | ? ?? s?a (10?50) |
+| 3 | **Flashcard**: Flip animation kh?ng smooth tr?n mobile | CSS | UX k?m | Ch?a s?a |
+| 4 | **Settings Modal**: Body scroll v?n ho?t ??ng khi modal m? | To?n app | Scroll conflict | ? ?? s?a |
+| 5 | **Typing Indicator**: Kh?ng hi?n th? khi AI ?ang x? l? | `ChatbotView` | UX unclear | Ch?a s?a |
+| 6 | **Error States**: Kh?ng c? error boundary to?n c?c | To?n app | Crash to?n trang | ? ?? t?o ErrorBoundary |
 
-### 2.4. PERFORMANCE ISSUES 🟡
+### 2.4. PERFORMANCE ISSUES ??
 
-| # | Vấn đề | File | Ảnh hưởng | Trạng thái |
+| # | V?n ?? | File | ?nh h??ng | Tr?ng th?i |
 |---|---------|------|-----------|-------------|
-| 1 | **VocabularyData**: 5200+ words import 1 lần | `vocabularyData.ts` | Bundle ~500KB | Chưa sửa |
-| 2 | **Chat History**: Không có pagination/culling | `ChatbotView` | localStorage满了 | Chưa sửa |
-| 3 | **Speech Recognition**: Cleanup không triệt để | `speechService.ts` | Memory leak | Chưa sửa |
-| 4 | **Re-renders**: State management có thể gây unnecessary renders | Nhiều component | Chậm | Chưa sửa |
+| 1 | **VocabularyData**: 5200+ words import 1 l?n | `vocabularyData.ts` | Bundle ~500KB | Ch?a s?a |
+| 2 | **Chat History**: Kh?ng c? pagination/culling | `ChatbotView` | localStorage?? | Ch?a s?a |
+| 3 | **Speech Recognition**: Cleanup kh?ng tri?t ?? | `speechService.ts` | Memory leak | Ch?a s?a |
+| 4 | **Re-renders**: State management c? th? g?y unnecessary renders | Nhi?u component | Ch?m | Ch?a s?a |
 
-### 2.6. API SERVICES ISSUES 🟠
+### 2.6. API SERVICES ISSUES ??
 
-| # | Vấn đề | File | Mô tả | Trạng thái |
+| # | V?n ?? | File | M? t? | Tr?ng th?i |
 |---|---------|------|--------|-------------|
-| 1 | **State Mutation**: `saveUserWeakness` mutate trực tiếp array | `storage.ts:102-112` | Vi phạm immutable pattern | ✅ Đã sửa |
-| 2 | **Hardcoded Quiz**: Remediation quiz `correctAnswer` luôn = 0 | `trackingService.ts:160-212` | Chỉ 1 đáp án đúng | ✅ Đã sửa |
-| 3 | **Dead Code**: `generateTutorExplanation` không dùng Gemini API | `geminiService.ts:242-247` | Code không hoạt động | ✅ Đã xóa |
-| 4 | **Unreliable Proxy**: allorigins.win CORS proxy hay fail | `youtubeTranscriptService.ts:101` | YouTube transcript lỗi | ✅ Đã thêm fallback |
-| 5 | **No Caching**: Dictionary API calls không cache | `dictionaryService.ts` | Gọi lại nhiều lần | ✅ Đã thêm cache 5 phút |
-| 6 | **No Retry Logic**: API calls fail → không retry | Nhiều service files | Reliability kém | ✅ Đã tạo apiHelpers.ts |
-| 7 | **Speech Cleanup**: Không cleanup khi component unmount | `speechService.ts` | Memory leak | Chưa sửa |
+| 1 | **State Mutation**: `saveUserWeakness` mutate tr?c ti?p array | `storage.ts:102-112` | Vi ph?m immutable pattern | ? ?? s?a |
+| 2 | **Hardcoded Quiz**: Remediation quiz `correctAnswer` lu?n = 0 | `trackingService.ts:160-212` | Ch? 1 ??p ?n ??ng | ? ?? s?a |
+| 3 | **Dead Code**: `generateTutorExplanation` kh?ng d?ng Gemini API | `geminiService.ts:242-247` | Code kh?ng ho?t ??ng | ? ?? x?a |
+| 4 | **Unreliable Proxy**: allorigins.win CORS proxy hay fail | `youtubeTranscriptService.ts:101` | YouTube transcript l?i | ? ?? th?m fallback |
+| 5 | **No Caching**: Dictionary API calls kh?ng cache | `dictionaryService.ts` | G?i l?i nhi?u l?n | ? ?? th?m cache 5 ph?t |
+| 6 | **No Retry Logic**: API calls fail ? kh?ng retry | Nhi?u service files | Reliability k?m | ? ?? t?o apiHelpers.ts |
+| 7 | **Speech Cleanup**: Kh?ng cleanup khi component unmount | `speechService.ts` | Memory leak | Ch?a s?a |
 
-### 2.5. MISSING FEATURES CẦN IMPLEMENT 🌟
+### 2.5. MISSING FEATURES C?N IMPLEMENT ??
 
-| # | Tính năng | Trạng thái hiện tại | Ưu tiên |
+| # | T?nh n?ng | Tr?ng th?i hi?n t?i | ?u ti?n |
 |---|-----------|---------------------|---------|
-| 1 | **Streak system** | Chỉ hiển thị, không update theo ngày | Cao |
-| 2 | **Daily tasks** | Hardcoded, không tạo task mới theo ngày | Cao |
-| 3 | **Weak word tracking** | Mock data, chưa auto track thật | Cao |
-| 4 | **Placement test** | 20 câu fixed, cần shuffle | Trung bình |
-| 5 | **Speaking practice** | STT hoạt động nhưng chưa chấm điểm chi tiết | Trung bình |
-| 6 | **Progress persistence** | Một số state không được persist | Cao |
+| 1 | **Streak system** | Ch? hi?n th?, kh?ng update theo ng?y | Cao |
+| 2 | **Daily tasks** | Hardcoded, kh?ng t?o task m?i theo ng?y | Cao |
+| 3 | **Weak word tracking** | Mock data, ch?a auto track th?t | Cao |
+| 4 | **Placement test** | 20 c?u fixed, c?n shuffle | Trung b?nh |
+| 5 | **Speaking practice** | STT ho?t ??ng nh?ng ch?a ch?m ?i?m chi ti?t | Trung b?nh |
+| 6 | **Progress persistence** | M?t s? state kh?ng ???c persist | Cao |
 
 ---
 
-## 3. QUY TẮC PHÁT TRIỂN MỚI
+## 3. QUY T?C PH?T TRI?N M?I
 
-### 3.0. Nguyên tắc Cập nhật Tiến độ (BẮT BUỘC) ⚠️
-
-```
-1. SAU KHI HOÀN THÀNH BẤT KỲ TASK/NHIỆM VỤ NÀO liên quan đến dự án:
-   → PHẢI CẬP NHẬT tiến độ vào file Plan.md, mục "## 6. NHẬT KÝ TIẾN ĐỘ"
-   → Ghi rõ: ngày, nội dung cụ thể đã làm, trạng thái (HOÀN THÀNH/ĐANG LÀM)
-
-2. MỤC ĐÍCH: Khi bắt đầu new chat hoặc dev khác nhận dự án:
-   → Chỉ cần đọc Plan.md sẽ hiểu TOÀN BỘ dự án
-   → Biết được tiến độ hiện tại, đang làm gì, còn gì phải làm
-
-3. FORMAT cập nhật:
-   | **YYYY-MM-DD** | **Mô tả task đã hoàn thành cụ thể** | **Trạng thái** |
-
-4. CHECKLIST trước khi commit:
-   □ Đã cập nhật Plan.md chưa?
-   □ Đã chạy `npm run build` verify 0 errors chưa?
-   □ Code có clean (không có console.log thừa, không có TODO comment)?
-```
-
-### 3.1. Nguyên tắc Tìm và Sửa Lỗi (Root Cause Analysis) 🎯
+### 3.0. Nguy?n t?c C?p nh?t Ti?n ?? (B?T BU?C) ??
 
 ```
-1. KHI GẶP BẤT KỲ VẤN ĐỀ/BUG NÀO:
-   → TÌM NGUYÊN NHÂN GỐC (Root Cause) trước khi sửa
-   → KHÔNG sửa triệu chứng, phải sửa tận gốc
+1. SAU KHI HO?N TH?NH B?T K? TASK/NHI?M V? N?O li?n quan ??n d? ?n:
+   ? PH?I C?P NH?T ti?n ?? v?o file Plan.md, m?c "## 6. NH?T K? TI?N ??"
+   ? Ghi r?: ng?y, n?i dung c? th? ?? l?m, tr?ng th?i (HO?N TH?NH/?ANG L?M)
+
+2. M?C ??CH: Khi b?t ??u new chat ho?c dev kh?c nh?n d? ?n:
+   ? Ch? c?n ??c Plan.md s? hi?u TO?N B? d? ?n
+   ? Bi?t ???c ti?n ?? hi?n t?i, ?ang l?m g?, c?n g? ph?i l?m
+
+3. FORMAT c?p nh?t:
+   | **YYYY-MM-DD** | **M? t? task ?? ho?n th?nh c? th?** | **Tr?ng th?i** |
+
+4. CHECKLIST tr??c khi commit:
+   ? ?? c?p nh?t Plan.md ch?a?
+   ? ?? ch?y `npm run build` verify 0 errors ch?a?
+   ? Code c? clean (kh?ng c? console.log th?a, kh?ng c? TODO comment)?
+```
+
+### 3.1. Nguy?n t?c T?m v? S?a L?i (Root Cause Analysis) ??
+
+```
+1. KHI G?P B?T K? V?N ??/BUG N?O:
+   ? T?M NGUY?N NH?N G?C (Root Cause) tr??c khi s?a
+   ? KH?NG s?a tri?u ch?ng, ph?i s?a t?n g?c
    
-2. CHỈ SỬA NHỮNG FILE LIÊN QUAN:
-   → Xác định chính xác file chứa bug
-   → KHÔNG đụng vào những file khác không liên quan
-   → Tránh sửa nhầm gây ra bug mới
+2. CH? S?A NH?NG FILE LI?N QUAN:
+   ? X?c ??nh ch?nh x?c file ch?a bug
+   ? KH?NG ??ng v?o nh?ng file kh?c kh?ng li?n quan
+   ? Tr?nh s?a nh?m g?y ra bug m?i
    
-3. TRƯỚC KHI SỬA, KIỂM TRA:
-   → Bug này đã được ghi nhận trong Plan.md chưa?
-   → Nếu chưa → ghi nhận vào section 2 (Báo cáo đánh giá code)
-   → Đánh dấu [ĐANG SỬA] trong khi làm
+3. TR??C KHI S?A, KI?M TRA:
+   ? Bug n?y ?? ???c ghi nh?n trong Plan.md ch?a?
+   ? N?u ch?a ? ghi nh?n v?o section 2 (B?o c?o ??nh gi? code)
+   ? ??nh d?u [?ANG S?A] trong khi l?m
    
-4. SAU KHI SỬA XONG:
-   → Cập nhật trạng thái trong Plan.md: ✅ Đã sửa / ⬜ Chưa sửa
-   → Ghi rõ đã sửa ở file nào, dòng nào
-   → Test lại để xác nhận không gây regression
+4. SAU KHI S?A XONG:
+   ? C?p nh?t tr?ng th?i trong Plan.md: ? ?? s?a / ? Ch?a s?a
+   ? Ghi r? ?? s?a ? file n?o, d?ng n?o
+   ? Test l?i ?? x?c nh?n kh?ng g?y regression
 ```
 
-### 3.2. Nguyên tắc Bảo Mật (BẮT BUỘC)
+### 3.2. Nguy?n t?c B?o M?t (B?T BU?C)
 
 ```
-1. KHÔNG BAO GIỜ hardcode API keys trong code
-2. KHÔNG BAO GIỜ lưu sensitive keys vào localStorage
-3. Chỉ dùng environment variables (VITE_*)
-4. Nếu cần lưu user API key → encrypt trước khi lưu
+1. KH?NG BAO GI? hardcode API keys trong code
+2. KH?NG BAO GI? l?u sensitive keys v?o localStorage
+3. Ch? d?ng environment variables (VITE_*)
+4. N?u c?n l?u user API key ? encrypt tr??c khi l?u
 ```
 
-### 3.3. Nguyên tắc State Management
+### 3.3. Nguy?n t?c State Management
 
 ```
-1. KHÔNG bao giờ mutate state trực tiếp (use immer hoặc spread)
-2. LUÔN dùng addXpToUser() cho XP updates (để check rank-up)
-3. Reset local state khi unmount hoặc chuyển view
-4. Cleanup effects và subscriptions trong useEffect return
+1. KH?NG bao gi? mutate state tr?c ti?p (use immer ho?c spread)
+2. LU?N d?ng addXpToUser() cho XP updates (?? check rank-up)
+3. Reset local state khi unmount ho?c chuy?n view
+4. Cleanup effects v? subscriptions trong useEffect return
 ```
 
-### 3.4. Nguyên tắc Error Handling
+### 3.4. Nguy?n t?c Error Handling
 
 ```
-1. Tất cả async calls phải có try-catch
-2. Luôn có fallback khi API fail
-3. Hiển thị user-friendly error messages
+1. T?t c? async calls ph?i c? try-catch
+2. Lu?n c? fallback khi API fail
+3. Hi?n th? user-friendly error messages
 4. Log errors ra console cho debugging
 ```
 
 ---
 
-## 4. LỘ TRÌNH SỬA LỖI VÀ NÂNG CẤP
+## 4. L? TR?NH S?A L?I V? N?NG C?P
 
-### PHASE 1: SỬA BẢO MẬT KHẨN CẤP (Ngay lập tức)
+### PHASE 1: S?A B?O M?T KH?N C?P (Ngay l?p t?c)
 
-- [ ] **Task 1.1**: Xóa base64 encoded API key từ `storage.ts`
-- [ ] **Task 1.2**: Chuyển sang environment variable `VITE_GEMINI_API_KEY`
-- [ ] **Task 1.3**: Không auto-fill API key vào localStorage
-- [ ] **Task 1.4**: Thêm warning khi user lưu API key vào localStorage
+- [ ] **Task 1.1**: X?a base64 encoded API key t? `storage.ts`
+- [ ] **Task 1.2**: Chuy?n sang environment variable `VITE_GEMINI_API_KEY`
+- [ ] **Task 1.3**: Kh?ng auto-fill API key v?o localStorage
+- [ ] **Task 1.4**: Th?m warning khi user l?u API key v?o localStorage
 
-### PHASE 2: SỬA LOGIC BUGS
+### PHASE 2: S?A LOGIC BUGS
 
-- [ ] **Task 2.1**: Sửa VocabularyView - loại bỏ duplicate modal call
-- [ ] **Task 2.2**: ShadowingView - dùng `addXpToUser()` đúng cách
-- [ ] **Task 2.3**: MiniGamesHub - dùng `addXpToUser()` đúng cách
-- [ ] **Task 2.4**: GrammarView - reset quizScore khi chuyển lesson
-- [ ] **Task 2.5**: TrackingService - generate quiz động từ weak data
+- [ ] **Task 2.1**: S?a VocabularyView - lo?i b? duplicate modal call
+- [ ] **Task 2.2**: ShadowingView - d?ng `addXpToUser()` ??ng c?ch
+- [ ] **Task 2.3**: MiniGamesHub - d?ng `addXpToUser()` ??ng c?ch
+- [ ] **Task 2.4**: GrammarView - reset quizScore khi chuy?n lesson
+- [ ] **Task 2.5**: TrackingService - generate quiz ??ng t? weak data
 - [ ] **Task 2.6**: ChatbotView - fix state mutation
 
-### PHASE 3: CẢI THIỆN UI/UX
+### PHASE 3: C?I THI?N UI/UX
 
-- [x] **Task 3.1**: Thêm body scroll lock khi mở modal
-- [x] **Task 3.2**: Cải thiện YouTube transcript fetching (fallback reliable hơn)
-- [x] **Task 3.3**: Tăng số lượng transcript lines (hoặc infinite scroll)
-- [x] **Task 3.4**: Thêm Error Boundary toàn cục
-- [x] **Task 3.5**: Cải thiện Flashcard animation cho mobile
-- [x] **Task 3.6**: Thêm skeleton loading states
+- [x] **Task 3.1**: Th?m body scroll lock khi m? modal
+- [x] **Task 3.2**: C?i thi?n YouTube transcript fetching (fallback reliable h?n)
+- [x] **Task 3.3**: T?ng s? l??ng transcript lines (ho?c infinite scroll)
+- [x] **Task 3.4**: Th?m Error Boundary to?n c?c
+- [x] **Task 3.5**: C?i thi?n Flashcard animation cho mobile
+- [x] **Task 3.6**: Th?m skeleton loading states
 
-### PHASE 4: NÂNG CẤP PERFORMANCE
+### PHASE 4: N?NG C?P PERFORMANCE
 
-- [x] **Task 4.1**: Lazy load vocabularyData (chỉ load khi cần)
+- [x] **Task 4.1**: Lazy load vocabularyData (ch? load khi c?n)
 - [x] **Task 4.2**: Implement chat history pagination (max 50 messages)
 - [x] **Task 4.3**: Cleanup speech recognition properly
-- [x] **Task 4.4**: Add React.memo cho các component nặng
+- [x] **Task 4.4**: Add React.memo cho c?c component n?ng
 - [x] **Task 4.5**: Add API caching cho dictionary lookups
 - [x] **Task 4.6**: Implement generic retry wrapper cho API calls
 - [x] **Task 4.7**: Fix state mutation trong storage.ts saveUserWeakness
 
-### PHASE 5: SỬA API SERVICES
+### PHASE 5: S?A API SERVICES
 
 - [x] **Task 5.1**: Fix hardcoded remediation quiz (dynamic correctAnswer + shuffle options)
-- [x] **Task 5.2**: Add CORS proxy fallback cho YouTube transcript (allorigins → corsproxy.io → codetabs)
+- [x] **Task 5.2**: Add CORS proxy fallback cho YouTube transcript (allorigins ? corsproxy.io ? codetabs)
 - [x] **Task 5.3**: Remove/update dead code generateTutorExplanation
 - [x] **Task 5.4**: Add cleanup function trong speechService cho component usage
 
-### PHASE 6: HOÀN THIỆN TÍNH NĂNG
+### PHASE 6: HO?N THI?N T?NH N?NG
 
-- [x] **Task 6.1**: Implement real streak tracking (check ngày liên tiếp)
-- [x] **Task 6.2**: Generate daily tasks động mỗi ngày
-- [x] **Task 6.3**: Auto track weak words từ quiz wrong answers
+- [x] **Task 6.1**: Implement real streak tracking (check ng?y li?n ti?p)
+- [x] **Task 6.2**: Generate daily tasks ??ng m?i ng?y
+- [x] **Task 6.3**: Auto track weak words t? quiz wrong answers
 - [x] **Task 6.4**: Shuffle/randomize placement test questions
-- [x] **Task 6.5**: Persist tất cả progress state vào localStorage
+- [x] **Task 6.5**: Persist t?t c? progress state v?o localStorage
 
-### PHASE 7: TESTING VÀ DEPLOY
+### PHASE 7: TESTING V? DEPLOY
 
-- [ ] **Task 7.1**: Chạy `npm run build` verify 0 errors
-- [ ] **Task 7.2**: Manual test tất cả user flows
-- [ ] **Task 7.3**: Git commit và push lên GitHub
+- [ ] **Task 7.1**: Ch?y `npm run build` verify 0 errors
+- [ ] **Task 7.2**: Manual test t?t c? user flows
+- [ ] **Task 7.3**: Git commit v? push l?n GitHub
 - [ ] **Task 7.4**: Verify Vercel deployment
 
 ---
 
-## 5. CÔNG NGHỆ BỘ KHUNG (TECH STACK)
+## 5. C?NG NGH? B? KHUNG (TECH STACK)
 
 - **Frontend Framework:** React 18 + Vite 6 + TypeScript
 - **Styling:** Vanilla CSS Custom Properties + Glassmorphism
@@ -239,68 +239,68 @@
 - **Animations:** Framer Motion
 - **AI Integration:** `@google/generative-ai` (Gemini 1.5 Flash)
 - **Media & Speech:** Web Speech API, YouTube IFrame Player API
-- **State Management:** React hooks + localStorage (nâng cấp: Zustand)
+- **State Management:** React hooks + localStorage (n?ng c?p: Zustand)
 - **Optional State:** Immer cho immutable updates
 
 ---
 
-## 6. NHẬT KÝ TIẾN ĐỘ VÀ THAY ĐỔI
+## 6. NH?T K? TI?N ?? V? THAY ??I
 
-| Ngày | Nội dung hoạt động / Cập nhật | Trạng thái |
+| Ng?y | N?i dung ho?t ??ng / C?p nh?t | Tr?ng th?i |
 |------|-------------------------------|------------|
-| **2026-07-27** | Khởi tạo file `Plan.md` v1. Hoàn thành phân tích kiến trúc, tài nguyên, giải đáp thắc mắc Gemini API và lập lộ trình chi tiết. | **ĐÃ HOÀN THÀNH** |
-| **2026-07-27** | **HOÀN THÀNH PHASE 1:** Khởi tạo project React + TypeScript + Vite, xây dựng Design System (Dark Glassmorphism, Ranks: Đồng -> Cao Thủ), Data Models (User, Word, Grammar, Chat, Shadowing), Header, Sidebar Navigation, Dashboard & Settings Modal với Gemini API Config. | **HOÀN THÀNH** |
-| **2026-07-27** | **HOÀN THÀNH PHASE 2:** Xây dựng Phân hệ Placement Test (A1-C2), Phân hệ Từ Vựng (Flashcards lật 3D, Web Speech Audio, Bộ lọc CEFR/Topic, Mini-Game Nối từ), Phân hệ Ngữ Pháp (Lý thuyết minh họa, ví dụ song ngữ audio, bài tập trắc nghiệm giải thích chi tiết), Hệ thống Toast thông báo thăng Rank & cộng XP. | **HOÀN THÀNH** |
-| **2026-07-27** | **HOÀN THÀNH PHASE 3:** Xây dựng Phân hệ Chatbot AI Giao tiếp 1:1 với 2 Persona (Adam & Eva), tích hợp Gemini 1.5 Flash SDK, Web Speech STT/TTS, tính năng Instant Grammar Correction, Topic Starter Pills gợi ý hội thoại & thưởng +15 XP sau mỗi 3 lượt trò chuyện. | **HOÀN THÀNH** |
-| **2026-07-27** | **HOÀN THÀNH PHASE 4:** Xây dựng Phân hệ YouTube Shadowing English: Tích hợp YouTube Iframe Player API, Interactive Transcript đồng bộ mốc thời gian, Thu âm giọng nói nhại giọng (Web Speech STT), Thuật toán chấm điểm độ chính xác % phát âm (Levenshtein Distance), Khả năng nhập URL YouTube tùy chỉnh & Gemini AI transcript generator. | **HOÀN THÀNH** |
-| **2026-07-27** | **HOÀN THÀNH PHASE 5:** Xây dựng Phân hệ Smart Central AI Tutor (Dr. HNQ): Tracking Engine tự động theo dõi từ vựng yếu, bài tập ngữ pháp sai, Báo cáo phân tích học tập cá nhân hóa, Đề xuất lộ trình hàng ngày (Daily Recommended Tasks), Phòng Sửa Điểm Yếu (Remediation Lab), Chat 1:1 với Dr. HNQ có Voice STT/TTS, Floating AI Tutor Widget. | **HOÀN THÀNH** |
-| **2026-07-27** | **HOÀN THÀNH PHASE 6:** Kiểm thử toàn bộ User Flow, Tối ưu Responsive CSS cho Mobile/Tablet, hoàn thiện xử lý ngoại lệ & Smart Offline Fallback khi không có API Key, chạy `npm run build` đạt 100% clean build. | **HOÀN THÀNH** |
-| **2026-07-28** | **ĐÁNH GIÁ CODE TOÀN DIỆN:** Phát hiện 5 vấn đề bảo mật nghiêm trọng (API key hardcode base64), 6 logic bugs (XP calculation, state mutation), 6 UI/UX issues, 4 performance issues, 6 missing features. Lập kế hoạch sửa lỗi toàn diện Phase 1-6. | **ĐÃ HOÀN THÀNH ĐÁNH GIÁ** |
-| **2026-07-28** | **TẠO PLAN.MD V2:** Cập nhật Plan.md với báo cáo đánh giá chi tiết, quy tắc phát triển mới (bảo mật, state management, error handling), lộ trình sửa lỗi 6 phases. | **HOÀN THÀNH** |
-| **2026-07-28** | **SỬA BẢO MẬT KHẨN CẤP:** Xóa base64 API key, chỉ dùng VITE_GEMINI_API_KEY env variable, thêm cảnh báo bảo mật trong SettingsModal. | **HOÀN THÀNH** |
-| **2026-07-28** | **SỬA LOGIC BUGS:** VocabularyView (xóa duplicate modal), ShadowingView & MiniGamesHub (dùng addXpToUser), GrammarView (reset quizScore). | **HOÀN THÀNH** |
-| **2026-07-28** | **CẢI THIỆN UI/UX:** Thêm body scroll lock khi modal mở, tăng transcript lines từ 10→50, tạo ErrorBoundary toàn cục. | **HOÀN THÀNH** |
-| **2026-07-28** | **BUILD & PUSH:** Chạy `npm run build` thành công 0 errors. Commit `3698af9` và push lên GitHub. Cấu hình .env với VITE_GEMINI_API_KEY (đã .gitignore bảo vệ). | **HOÀN THÀNH** |
-| **2026-07-28** | **THÊM RULES MỚI VÀO PLAN.MD:** Thêm 2 nguyên tắc quan trọng: (1) 3.0 Cập nhật tiến độ bắt buộc sau mỗi task - nhằm đảm bảo new chat/dev khác chỉ cần đọc Plan.md là hiểu toàn bộ dự án; (2) 3.1 Root Cause Analysis - tìm nguyên nhân gốc vấn đề trước khi sửa, chỉ sửa file liên quan, không đụng file không liên quan. Thêm section 8 Hướng dẫn nhanh cho dev mới với cấu trúc project. | **HOÀN THÀNH** |
+| **2026-07-27** | Kh?i t?o file `Plan.md` v1. Ho?n th?nh ph?n t?ch ki?n tr?c, t?i nguy?n, gi?i ??p th?c m?c Gemini API v? l?p l? tr?nh chi ti?t. | **?? HO?N TH?NH** |
+| **2026-07-27** | **HO?N TH?NH PHASE 1:** Kh?i t?o project React + TypeScript + Vite, x?y d?ng Design System (Dark Glassmorphism, Ranks: ??ng -> Cao Th?), Data Models (User, Word, Grammar, Chat, Shadowing), Header, Sidebar Navigation, Dashboard & Settings Modal v?i Gemini API Config. | **HO?N TH?NH** |
+| **2026-07-27** | **HO?N TH?NH PHASE 2:** X?y d?ng Ph?n h? Placement Test (A1-C2), Ph?n h? T? V?ng (Flashcards l?t 3D, Web Speech Audio, B? l?c CEFR/Topic, Mini-Game N?i t?), Ph?n h? Ng? Ph?p (L? thuy?t minh h?a, v? d? song ng? audio, b?i t?p tr?c nghi?m gi?i th?ch chi ti?t), H? th?ng Toast th?ng b?o th?ng Rank & c?ng XP. | **HO?N TH?NH** |
+| **2026-07-27** | **HO?N TH?NH PHASE 3:** X?y d?ng Ph?n h? Chatbot AI Giao ti?p 1:1 v?i 2 Persona (Adam & Eva), t?ch h?p Gemini 1.5 Flash SDK, Web Speech STT/TTS, t?nh n?ng Instant Grammar Correction, Topic Starter Pills g?i ? h?i tho?i & th??ng +15 XP sau m?i 3 l??t tr? chuy?n. | **HO?N TH?NH** |
+| **2026-07-27** | **HO?N TH?NH PHASE 4:** X?y d?ng Ph?n h? YouTube Shadowing English: T?ch h?p YouTube Iframe Player API, Interactive Transcript ??ng b? m?c th?i gian, Thu ?m gi?ng n?i nh?i gi?ng (Web Speech STT), Thu?t to?n ch?m ?i?m ?? ch?nh x?c % ph?t ?m (Levenshtein Distance), Kh? n?ng nh?p URL YouTube t?y ch?nh & Gemini AI transcript generator. | **HO?N TH?NH** |
+| **2026-07-27** | **HO?N TH?NH PHASE 5:** X?y d?ng Ph?n h? Smart Central AI Tutor (Dr. HNQ): Tracking Engine t? ??ng theo d?i t? v?ng y?u, b?i t?p ng? ph?p sai, B?o c?o ph?n t?ch h?c t?p c? nh?n h?a, ?? xu?t l? tr?nh h?ng ng?y (Daily Recommended Tasks), Ph?ng S?a ?i?m Y?u (Remediation Lab), Chat 1:1 v?i Dr. HNQ c? Voice STT/TTS, Floating AI Tutor Widget. | **HO?N TH?NH** |
+| **2026-07-27** | **HO?N TH?NH PHASE 6:** Ki?m th? to?n b? User Flow, T?i ?u Responsive CSS cho Mobile/Tablet, ho?n thi?n x? l? ngo?i l? & Smart Offline Fallback khi kh?ng c? API Key, ch?y `npm run build` ??t 100% clean build. | **HO?N TH?NH** |
+| **2026-07-28** | **??NH GI? CODE TO?N DI?N:** Ph?t hi?n 5 v?n ?? b?o m?t nghi?m tr?ng (API key hardcode base64), 6 logic bugs (XP calculation, state mutation), 6 UI/UX issues, 4 performance issues, 6 missing features. L?p k? ho?ch s?a l?i to?n di?n Phase 1-6. | **?? HO?N TH?NH ??NH GI?** |
+| **2026-07-28** | **T?O PLAN.MD V2:** C?p nh?t Plan.md v?i b?o c?o ??nh gi? chi ti?t, quy t?c ph?t tri?n m?i (b?o m?t, state management, error handling), l? tr?nh s?a l?i 6 phases. | **HO?N TH?NH** |
+| **2026-07-28** | **S?A B?O M?T KH?N C?P:** X?a base64 API key, ch? d?ng VITE_GEMINI_API_KEY env variable, th?m c?nh b?o b?o m?t trong SettingsModal. | **HO?N TH?NH** |
+| **2026-07-28** | **S?A LOGIC BUGS:** VocabularyView (x?a duplicate modal), ShadowingView & MiniGamesHub (d?ng addXpToUser), GrammarView (reset quizScore). | **HO?N TH?NH** |
+| **2026-07-28** | **C?I THI?N UI/UX:** Th?m body scroll lock khi modal m?, t?ng transcript lines t? 10?50, t?o ErrorBoundary to?n c?c. | **HO?N TH?NH** |
+| **2026-07-28** | **BUILD & PUSH:** Ch?y `npm run build` th?nh c?ng 0 errors. Commit `3698af9` v? push l?n GitHub. C?u h?nh .env v?i VITE_GEMINI_API_KEY (?? .gitignore b?o v?). | **HO?N TH?NH** |
+| **2026-07-28** | **TH?M RULES M?I V?O PLAN.MD:** Th?m 2 nguy?n t?c quan tr?ng: (1) 3.0 C?p nh?t ti?n ?? b?t bu?c sau m?i task - nh?m ??m b?o new chat/dev kh?c ch? c?n ??c Plan.md l? hi?u to?n b? d? ?n; (2) 3.1 Root Cause Analysis - t?m nguy?n nh?n g?c v?n ?? tr??c khi s?a, ch? s?a file li?n quan, kh?ng ??ng file kh?ng li?n quan. Th?m section 8 H??ng d?n nhanh cho dev m?i v?i c?u tr?c project. | **HO?N TH?NH** |
 
 ---
 
-## 7. CHI TIẾT CÁC TASK SỬA LỖI
+## 7. CHI TI?T C?C TASK S?A L?I
 
-### Task 1.1: Xóa Base64 Encoded API Key
+### Task 1.1: X?a Base64 Encoded API Key
 
 ```typescript
-// TRƯỚC (storage.ts)
+// TR??C (storage.ts)
 const getFallbackGeminiKey = (): string => {
   if (import.meta.env.VITE_GEMINI_API_KEY && ...) {
     return import.meta.env.VITE_GEMINI_API_KEY;
   }
   try {
-    return atob('QVEuQWI4Uk42Sy13NTlRMEtDaWQta0VmdU9XbFpYYUpQY2Z6QUlYcTlkU01QVmNCaDVZa0E='); // XÓA NGAY!
+    return atob('QVEuQWI4Uk42Sy13NTlRMEtDaWQta0VmdU9XbFpYYUpQY2Z6QUlYcTlkU01QVmNCaDVZa0E='); // X?A NGAY!
   } catch (e) {
     return '';
   }
 };
 
-// SAU - CHỈ dùng env variable
+// SAU - CH? d?ng env variable
 const getGeminiKey = (): string => {
   return import.meta.env.VITE_GEMINI_API_KEY || '';
 };
 ```
 
-### Task 2.1: Sửa VocabularyView Duplicate Modal
+### Task 2.1: S?a VocabularyView Duplicate Modal
 
 ```typescript
-// TRƯỚC - 2 lần gọi cùng lúc
+// TR??C - 2 l?n g?i c?ng l?c
 {lookupWord && (
-  <WordLookupModal ... />  // Lần 1
+  <WordLookupModal ... />  // L?n 1
 )}
 
 {lookupWord && (
-  <WordLookupModal ... />  // Lần 2 - DUPLICATE!
+  <WordLookupModal ... />  // L?n 2 - DUPLICATE!
 )}
 
-// SAU - Chỉ 1 lần
+// SAU - Ch? 1 l?n
 {lookupWord && (
   <WordLookupModal
     word={lookupWord}
@@ -313,7 +313,7 @@ const getGeminiKey = (): string => {
 ### Task 2.2: ShadowingView XP Calculation
 
 ```typescript
-// TRƯỚC
+// TR??C
 const handleAwardXp = (score: number) => {
   const xpBonus = 20;
   onUpdateUser({
@@ -341,24 +341,24 @@ const handleAwardXp = (score: number) => {
 ### Task 2.3: GrammarView State Reset
 
 ```typescript
-// THÊM khi chuyển lesson
+// TH?M khi chuy?n lesson
 const handleSelectLesson = (lessonId: string) => {
   setActiveLessonId(lessonId);
   setCurrentQuizIndex(0);
   setSelectedOption(null);
   setShowExplanation(false);
-  setQuizScore(0); // RESET - thêm dòng này!
+  setQuizScore(0); // RESET - th?m d?ng n?y!
 };
 ```
 
 ### Task 2.5: Fix Remediation Quiz Hardcoded Answers
 
 ```typescript
-// TRƯỚC (trackingService.ts:160-212)
+// TR??C (trackingService.ts:160-212)
 questions.push({
   id: 'rem_w1',
-  correctAnswer: 0,  // ❌ Luôn đáp án đầu tiên!
-  options: ['Môi trường sống', 'Sự kiên cường', 'Hiện tượng tự nhiên', 'Nhiệt tình'],
+  correctAnswer: 0,  // ? Lu?n ??p ?n ??u ti?n!
+  options: ['M?i tr??ng s?ng', 'S? ki?n c??ng', 'Hi?n t??ng t? nhi?n', 'Nhi?t t?nh'],
 });
 
 // SAU - Dynamic shuffle:
@@ -371,14 +371,14 @@ const shuffleArray = <T,>(arr: T[]): T[] => {
   return shuffled;
 };
 
-// Quiz với correct answer ngẫu nhiên:
-const wrongAnswers = ['Sự kiên cường', 'Hiện tượng tự nhiên', 'Nhiệt tình'];
+// Quiz v?i correct answer ng?u nhi?n:
+const wrongAnswers = ['S? ki?n c??ng', 'Hi?n t??ng t? nhi?n', 'Nhi?t t?nh'];
 const shuffledOptions = shuffleArray([correctAnswerText, ...wrongAnswers]);
 const correctIdx = shuffledOptions.indexOf(correctAnswerText);
 
 questions.push({
   id: 'rem_w1',
-  correctAnswer: correctIdx,  // ✅ Dynamic index
+  correctAnswer: correctIdx,  // ? Dynamic index
   options: shuffledOptions,
 });
 ```
@@ -386,11 +386,11 @@ questions.push({
 ### Task 4.7: Fix State Mutation in storage.ts
 
 ```typescript
-// TRƯỚC (storage.ts:102-112)
+// TR??C (storage.ts:102-112)
 export const saveUserWeakness = (item: any): void => {
   const current = getUserProfile();
   if (item.title && !current.weakTopics.includes(item.title)) {
-    current.weakTopics.push(item.title);  // ❌ TRỰC TIẾP MUTATE
+    current.weakTopics.push(item.title);  // ? TR?C TI?P MUTATE
     saveUserProfile(current);
   }
 };
@@ -401,7 +401,7 @@ export const saveUserWeakness = (item: any): void => {
   if (item.title && !current.weakTopics.includes(item.title)) {
     const updated = {
       ...current,
-      weakTopics: [...current.weakTopics, item.title]  // ✅ Spread operator
+      weakTopics: [...current.weakTopics, item.title]  // ? Spread operator
     };
     saveUserProfile(updated);
   }
@@ -411,10 +411,10 @@ export const saveUserWeakness = (item: any): void => {
 ### Task 5.2: CORS Proxy Fallback for YouTube
 
 ```typescript
-// TRƯỚC (youtubeTranscriptService.ts:101)
+// TR??C (youtubeTranscriptService.ts:101)
 const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
-// SAU - Multiple proxies với fallback:
+// SAU - Multiple proxies v?i fallback:
 const CORS_PROXIES = [
   'https://api.allorigins.win/raw?url=',
   'https://corsproxy.io/?',
@@ -505,52 +505,54 @@ export const fetchDynamicWordItem = async (word: string, ...): Promise<WordItem>
 
 ---
 
-## 8. HƯỚNG DẪN NHANH CHO DEV MỚI
+## 8. H??NG D?N NHANH CHO DEV M?I
 
 ```
-1. ĐỌC TRƯỚC: Plan.md (file này)
-2. CÀI ĐẶT:
+1. ??C TR??C: Plan.md (file n?y)
+2. C?I ??T:
    - npm install
-   - Tạo file .env với VITE_GEMINI_API_KEY (lấy key từ Google AI Studio)
-3. CHẠY: npm run dev
-4. KIỂM TRA: npm run build (phải 0 errors)
+   - T?o file .env v?i VITE_GEMINI_API_KEY (l?y key t? Google AI Studio)
+3. CH?Y: npm run dev
+4. KI?M TRA: npm run build (ph?i 0 errors)
 ```
 
-### 8.2. Khi nhận task mới
+### 8.2. Khi nh?n task m?i
 
 ```
-1. Đọc mục "## 6. NHẬT KÝ TIẾN ĐỘ" để biết tiến độ hiện tại
-2. Tìm task trong "## 4. LỘ TRÌNH SỬA LỖI VÀ NÂNG CẤP"
-3. Theo rule 3.1: Tìm root cause → chỉ sửa file liên quan
-4. Sau khi xong: Cập nhật tiến độ vào "## 6"
-5. Checklist trước commit: build + clean code + update Plan.md
+1. ??c m?c "## 6. NH?T K? TI?N ??" ?? bi?t ti?n ?? hi?n t?i
+2. T?m task trong "## 4. L? TR?NH S?A L?I V? N?NG C?P"
+3. Theo rule 3.1: T?m root cause ? ch? s?a file li?n quan
+4. Sau khi xong: C?p nh?t ti?n ?? v?o "## 6"
+5. Checklist tr??c commit: build + clean code + update Plan.md
 ```
 
-### 8.3. Cấu trúc Project
+### 8.3. C?u tr?c Project
 
 ```
 src/
-├── components/          # UI Components (Header, Sidebar, Modal, etc.)
-├── views/              # Main Views (Dashboard, Vocabulary, Grammar, etc.)
-├── services/          # API Services (storage, gemini, speech, tracking)
-├── data/              # Static Data (vocabularyData, grammarLessons)
-├── types/             # TypeScript Types
-├── styles/           # CSS Files
-└── utils/            # Utility Functions
+??? components/          # UI Components (Header, Sidebar, Modal, etc.)
+??? views/              # Main Views (Dashboard, Vocabulary, Grammar, etc.)
+??? services/          # API Services (storage, gemini, speech, tracking)
+??? data/              # Static Data (vocabularyData, grammarLessons)
+??? types/             # TypeScript Types
+??? styles/           # CSS Files
+??? utils/            # Utility Functions
 ```
 
 ---
 
-*Dự án Nền tảng Học Tiếng Anh AI English HNQ - Plan.md v2.6 - Cập nhật: 2026-07-28*
+*D? ?n N?n t?ng H?c Ti?ng Anh AI English HNQ - Plan.md v2.6 - C?p nh?t: 2026-07-28*
 
-| **2026-07-28** | **TASK 6.2: DYNAMIC DAILY TASKS:** Cải tiến `generateDailyTasks()` trong trackingService.ts để tạo tasks khác nhau mỗi ngày. Thêm date tracking với localStorage cache. Tasks được cache theo ngày (YYYY-MM-DD) và regenerate khi sang ngày mới. | **HOÀN THÀNH** |
-| **2026-07-28** | **TASK 6.3: AUTO TRACK WEAK WORDS:** Thêm `trackWeakWord()` calls trong VocabularyView.tsx khi user trả lời sai trong games: Speed Quiz (sai/timeout), Word Unscramble (sai), Matching Game (ghép sai cặp). | **HOÀN THÀNH** |
+| **2026-07-28** | **TASK 6.2: DYNAMIC DAILY TASKS:** C?i ti?n `generateDailyTasks()` trong trackingService.ts ?? t?o tasks kh?c nhau m?i ng?y. Th?m date tracking v?i localStorage cache. Tasks ???c cache theo ng?y (YYYY-MM-DD) v? regenerate khi sang ng?y m?i. | **HO?N TH?NH** |
+| **2026-07-28** | **TASK 6.3: AUTO TRACK WEAK WORDS:** Th?m `trackWeakWord()` calls trong VocabularyView.tsx khi user tr? l?i sai trong games: Speed Quiz (sai/timeout), Word Unscramble (sai), Matching Game (gh?p sai c?p). | **HO?N TH?NH** |
 
-|| **2026-07-28** | **KIỂM TRA LẠI TRẠNG THÁI:** Đọc lại Plan.md, xác nhận tất cả tasks đã hoàn thành. Build verify 0 errors. Kiểm tra linter - không có lỗi. | **ĐÃ HOÀN THÀNH** |
+|| **2026-07-28** | **KI?M TRA L?I TR?NG TH?I:** ??c l?i Plan.md, x?c nh?n t?t c? tasks ?? ho?n th?nh. Build verify 0 errors. Ki?m tra linter - kh?ng c? l?i. | **?? HO?N TH?NH** |
 
-| **2026-07-28** | **SỬA API SERVICES & PERFORMANCE:** (1) youtubeTranscriptService - thêm CORS proxy fallback chain (allorigins → corsproxy.io → codetabs); (2) trackingService - fix hardcoded quiz answers bằng Fisher-Yates shuffle; (3) storage.ts - fix state mutation trong saveUserWeakness với spread operator; (4) geminiService - xóa dead code generateTutorExplanation; (5) dictionaryService - thêm 5-minute cache cho API lookups; (6) Tạo apiHelpers.ts với retry logic & exponential backoff. | **HOÀN THÀNH** |
-| **2026-07-28** | **REAL STREAK TRACKING:** Thêm checkAndUpdateStreak() vào storage.ts kiểm tra ngày liên tiếp: cùng ngày → giữ streak, ngày liền kề → tăng streak, có khoảng trống → reset về 1. Tích hợp vào App.tsx để auto-check khi mở app. | **HOÀN THÀNH** |
-| **2026-07-28** | **SHUFFLE PLACEMENT TEST:** Thêm Fisher-Yates shuffle cho placementQuestions trong PlacementTestView. Sử dụng useMemo để shuffle khi test bắt đầu. Cập nhật Plan.md với tất cả progress. Build 0 errors. | **HOÀN THÀNH** |
-| **2026-07-28** | **TASK 6.5: PERSIST PROGRESS STATE:** T?o progressPersistence.ts service v?i functions luu tr? progress cho: Vocabulary, Grammar, Shadowing, Mini-Games, Exams, Chatbot, Daily Tasks, Learning Stats. T�ch h?p v�o VocabularyView v� App.tsx d? auto-save/restore state. | **HO�N TH�NH** |
-| **2026-07-28** | **TASK 3.6: SKELETON LOADING STATES:** T?o Skeleton.tsx component v?i variants: Skeleton, SkeletonCard, SkeletonFlashcard, SkeletonList, SkeletonGrid, SkeletonStats, SkeletonChatBubble, SkeletonChatList. Th�m CSS shimmer animation. | **HO�N TH�NH** |
-| **2026-07-28** | **TASK 3.5: FLASH CARD ANIMATION MOBILE:** C?i thi?n 3D flip animation: tang perspective, th�m GPU acceleration, cubic-bezier bounce easing, backfaceVisibility hidden, mobile touch optimization. | **HO�N TH�NH** |
+| **2026-07-28** | **S?A API SERVICES & PERFORMANCE:** (1) youtubeTranscriptService - th?m CORS proxy fallback chain (allorigins ? corsproxy.io ? codetabs); (2) trackingService - fix hardcoded quiz answers b?ng Fisher-Yates shuffle; (3) storage.ts - fix state mutation trong saveUserWeakness v?i spread operator; (4) geminiService - x?a dead code generateTutorExplanation; (5) dictionaryService - th?m 5-minute cache cho API lookups; (6) T?o apiHelpers.ts v?i retry logic & exponential backoff. | **HO?N TH?NH** |
+| **2026-07-28** | **REAL STREAK TRACKING:** Th?m checkAndUpdateStreak() v?o storage.ts ki?m tra ng?y li?n ti?p: c?ng ng?y ? gi? streak, ng?y li?n k? ? t?ng streak, c? kho?ng tr?ng ? reset v? 1. T?ch h?p v?o App.tsx ?? auto-check khi m? app. | **HO?N TH?NH** |
+| **2026-07-28** | **SHUFFLE PLACEMENT TEST:** Th?m Fisher-Yates shuffle cho placementQuestions trong PlacementTestView. S? d?ng useMemo ?? shuffle khi test b?t ??u. C?p nh?t Plan.md v?i t?t c? progress. Build 0 errors. | **HO?N TH?NH** |
+| **2026-07-28** | **TASK 6.5: PERSIST PROGRESS STATE:** T?o progressPersistence.ts service v?i functions luu tr? progress cho: Vocabulary, Grammar, Shadowing, Mini-Games, Exams, Chatbot, Daily Tasks, Learning Stats. T?ch h?p v?o VocabularyView v? App.tsx d? auto-save/restore state. | **HO?N TH?NH** |
+| **2026-07-28** | **TASK 3.6: SKELETON LOADING STATES:** T?o Skeleton.tsx component v?i variants: Skeleton, SkeletonCard, SkeletonFlashcard, SkeletonList, SkeletonGrid, SkeletonStats, SkeletonChatBubble, SkeletonChatList. Th?m CSS shimmer animation. | **HO?N TH?NH** |
+| **2026-07-28** | **TASK 3.5: FLASH CARD ANIMATION MOBILE:** C?i thi?n 3D flip animation: tang perspective, th?m GPU acceleration, cubic-bezier bounce easing, backfaceVisibility hidden, mobile touch optimization. | **HO?N TH?NH** |
+| **2026-07-28** | **UI REDESIGN - SIDEBAR & HEADER:** (1) Sidebar m?i collapsible v?i animation m??t m? (260px ? 72px icon-only), localStorage persistence, hover effects, active indicator bar; (2) Header m?i v?i thanh t?m ki?m t? v?ng t?ch h?p (Datamuse autocomplete, instant dictionary lookup), compact stats (streak/XP badge), API status indicator. | **HO?N TH?NH** |
+| **2026-07-28** | **UI POLISH - GLOW EFFECTS & RANK DESIGN:** (1) Thanh t?m ki?m v?i glow effect ph?t s?ng khi focus, gradient border animation; (2) Sidebar icons v?i m?u s?c ri?ng bi?t v? glow effect khi hover/active; (3) Streak badge v?i animation flame-flicker, Crown icon khi streak >= 7; (4) RankBadge redesign v?i shimmer animation, star indicators, glow effects theo rank level; (5) API status button v?i glow effect. | **HO?N TH?NH** |
