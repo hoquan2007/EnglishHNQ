@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProfile } from '../../types';
 import { Key, ExternalLink, CheckCircle, ShieldCheck, Sparkles, BookOpen, Mic, Cpu } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -25,6 +25,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [speechSuperSecretKey, setSpeechSuperSecretKey] = useState(user.speechSuperSecretKey || '');
 
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -105,6 +117,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <span className="text-xs text-slate-400 block">
             Miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-cyan-400 underline">Google AI Studio</a>. Nếu để trống, hệ thống dùng Smart Offline Fallback.
           </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem', background: 'rgba(255, 153, 0, 0.1)', borderRadius: '8px', border: '1px solid rgba(255, 153, 0, 0.3)' }}>
+            <ShieldCheck size={14} color="#ff9900" />
+            <span style={{ fontSize: '0.75rem', color: '#ff9900' }}>
+              <strong>Bảo mật:</strong> API key được lưu trong localStorage của trình duyệt. Chia sẻ mã nguồn có thể làm lộ key.
+            </span>
+          </div>
         </div>
 
         {/* Merriam-Webster API Key Box */}

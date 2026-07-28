@@ -15,9 +15,10 @@ import { MiniGamesHub } from './components/minigames/MiniGamesHub';
 import { ExamCenterView } from './components/exam/ExamCenterView';
 import { FloatingTutorWidget } from './components/tutor/FloatingTutorWidget';
 import { RankNotificationToast } from './components/gamification/RankNotificationToast';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
-import { Bot, Youtube, GraduationCap, Settings as SettingsIcon } from 'lucide-react';
+import { Bot, Youtube, GraduationCap, Settings as SettingsIcon, AlertTriangle, RefreshCw } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [user, setUser] = useState<UserProfile>(getUserProfile());
@@ -156,40 +157,44 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="app-container">
-      {/* Navigation Sidebar */}
-      <Sidebar activeTab={activeTab} onSelectTab={setActiveTab} />
+    <ErrorBoundary>
+      <div className="app-container">
+        {/* Navigation Sidebar */}
+        <Sidebar activeTab={activeTab} onSelectTab={setActiveTab} />
 
-      {/* Main Container */}
-      <div className="main-content">
-        <Header user={user} onOpenSettings={() => setIsSettingsOpen(true)} />
-        
-        <main className="page-container">
-          {renderModuleContent()}
-        </main>
-      </div>
+        {/* Main Container */}
+        <div className="main-content">
+          <Header user={user} onOpenSettings={() => setIsSettingsOpen(true)} />
 
-      {/* Settings Modal */}
-      <SettingsModal
-        user={user}
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        onSaveApiKey={handleSaveApiKey}
-      />
+          <main className="page-container">
+            <ErrorBoundary>
+              {renderModuleContent()}
+            </ErrorBoundary>
+          </main>
+        </div>
 
-      {/* Rank / XP Notification Toast */}
-      {toastMessage && (
-        <RankNotificationToast
-          message={toastMessage.message}
-          subText={toastMessage.subText}
-          type={toastMessage.type}
-          onClose={() => setToastMessage(null)}
+        {/* Settings Modal */}
+        <SettingsModal
+          user={user}
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          onSaveApiKey={handleSaveApiKey}
         />
-      )}
 
-      {/* Floating AI Tutor Widget */}
-      <FloatingTutorWidget user={user} />
-    </div>
+        {/* Rank / XP Notification Toast */}
+        {toastMessage && (
+          <RankNotificationToast
+            message={toastMessage.message}
+            subText={toastMessage.subText}
+            type={toastMessage.type}
+            onClose={() => setToastMessage(null)}
+          />
+        )}
+
+        {/* Floating AI Tutor Widget */}
+        <FloatingTutorWidget user={user} />
+      </div>
+    </ErrorBoundary>
   );
 };
 

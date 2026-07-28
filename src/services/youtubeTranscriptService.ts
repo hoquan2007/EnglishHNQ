@@ -140,8 +140,9 @@ export const fetchRealYouTubeSubtitles = async (youtubeId: string): Promise<Tran
 
     if (rawLines.length === 0) return null;
 
-    // Take top 10 sequential lines
-    const sliced = rawLines.slice(0, 10);
+    // Take up to 50 sequential lines for better practice experience
+    const maxLines = 50;
+    const sliced = rawLines.slice(0, maxLines);
     const resultLines: TranscriptLine[] = await Promise.all(
       sliced.map(async (line, idx) => {
         const viTranslation = await translateToVietnamese(line.text);

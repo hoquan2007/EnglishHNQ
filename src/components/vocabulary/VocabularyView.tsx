@@ -308,7 +308,7 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-      {/* Dictionary Lookup Modal */}
+      {/* Dictionary Lookup Modal - Single instance */}
       {lookupWord && (
         <WordLookupModal
           word={lookupWord}
@@ -995,14 +995,6 @@ export const VocabularyView: React.FC<VocabularyViewProps> = ({ user, onUpdateUs
             </div>
           )}
         </div>
-      )}
-
-      {/* Word Lookup Modal */}
-      {lookupWord && (
-        <WordLookupModal
-          word={lookupWord}
-          onClose={() => setLookupWord(null)}
-        />
       )}
     </div>
   );

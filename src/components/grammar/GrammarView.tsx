@@ -57,6 +57,14 @@ export const GrammarView: React.FC<GrammarViewProps> = ({ user, onUpdateUser }) 
     setShowExplanation(true);
   };
 
+  const handleSelectLesson = (lessonId: string) => {
+    setActiveLessonId(lessonId);
+    setCurrentQuizIndex(0);
+    setSelectedOption(null);
+    setShowExplanation(false);
+    setQuizScore(0); // Reset quiz score when switching lessons
+  };
+
   const handleNextQuiz = () => {
     if (!activeLesson) return;
 
@@ -308,12 +316,7 @@ export const GrammarView: React.FC<GrammarViewProps> = ({ user, onUpdateUser }) 
             {filteredLessons.map((lesson) => (
               <Card
                 key={lesson.id}
-                onClick={() => {
-                  setActiveLessonId(lesson.id);
-                  setCurrentQuizIndex(0);
-                  setSelectedOption(null);
-                  setShowExplanation(false);
-                }}
+                onClick={() => handleSelectLesson(lesson.id)}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                   <span className="badge" style={{ background: 'rgba(0, 240, 255, 0.15)', color: 'var(--accent-cyan)' }}>

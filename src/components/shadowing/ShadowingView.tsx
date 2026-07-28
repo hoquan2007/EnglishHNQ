@@ -7,6 +7,7 @@ import { ShadowingPracticeCard } from './ShadowingPracticeCard';
 import { WordLookupModal } from '../ui/WordLookupModal';
 import { extractYouTubeId, fetchOrGenerateTranscript } from '../../services/youtubeTranscriptService';
 import { trackShadowingScore } from '../../services/trackingService';
+import { addXpToUser } from '../../services/storage';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -91,16 +92,16 @@ export const ShadowingView: React.FC<ShadowingViewProps> = ({ user, onUpdateUser
   };
 
   const handleAwardXp = (score: number) => {
-    const xpBonus = 20;
+    // Track shadowing score for analytics
     if (selectedLesson) {
       trackShadowingScore(selectedLesson.title, score);
     }
-    const updatedUser = {
-      ...user,
-      xp: user.xp + xpBonus,
+    // Use addXpToUser to properly check for rank-up
+    const updatedUser = addXpToUser(20);
+    onUpdateUser({
+      ...updatedUser,
       shadowingCompleted: user.shadowingCompleted + 1,
-    };
-    onUpdateUser(updatedUser);
+    });
   };
 
   const filteredLessons = CURATED_SHADOWING_LESSONS.filter((lesson) => {

@@ -3,6 +3,7 @@ import { UserProfile, MiniGameType } from '../../types';
 import { MINI_GAMES_LIST } from '../../data/miniGamesData';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
+import { addXpToUser } from '../../services/storage';
 import {
   Gamepad2,
   Grid,
@@ -55,10 +56,9 @@ export const MiniGamesHub: React.FC<MiniGamesHubProps> = ({ user, onUpdateUser }
 
   const handleGameComplete = (earnedXp: number) => {
     if (earnedXp > 0) {
-      onUpdateUser({
-        ...user,
-        xp: user.xp + earnedXp
-      });
+      // Use addXpToUser to properly check for rank-up
+      const updatedUser = addXpToUser(earnedXp);
+      onUpdateUser(updatedUser);
     }
   };
 
